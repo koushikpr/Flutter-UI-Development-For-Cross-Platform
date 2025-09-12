@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../auction/detailed_auction_screen.dart';
 
 class BeatListView extends StatelessWidget {
   const BeatListView({
@@ -194,29 +195,44 @@ class BeatListView extends StatelessWidget {
                 Positioned(
                   bottom: 8.h,
                   right: 8.w,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailedAuctionScreen(
+                            beatTitle: beatData?.title ?? 'Unknown Beat',
+                            producerName: beatData?.producer ?? 'Unknown Producer',
+                            currentBid: 30,
+                            timeRemaining: 90,
+                          ),
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      'Bid',
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Bid',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),

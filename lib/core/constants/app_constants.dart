@@ -50,9 +50,5 @@ class AppConstants {
   static const String onboardingKey = 'onboarding_completed';
   static const String userTokenKey = 'user_token';
   
-  // Asset Paths
-  static const String imagesPath = 'assets/images/';
-  static const String iconsPath = 'assets/icons/';
-  static const String animationsPath = 'assets/animations/';
-  static const String fontsPath = 'assets/fonts/';
+  // Asset Paths (removed - using direct imports instead)
 }

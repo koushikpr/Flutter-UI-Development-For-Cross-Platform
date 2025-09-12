@@ -34,6 +34,10 @@ class AppTheme {
   static const Color textTertiary = Color(0xFF94A3B8);
   static const Color textOnDark = Color(0xFFF8FAFC);
   
+  // UI element colors
+  static const Color batteryColor = Color(0xFF597276);  // Blue-grey for avatars/icons
+  static const Color filterIconColor = Color(0xFF64748B);  // Secondary text color for icons
+  
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primaryColor, secondaryColor],
