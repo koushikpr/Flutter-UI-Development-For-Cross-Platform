@@ -480,79 +480,46 @@ class _DetailedAuctionScreenState extends State<DetailedAuctionScreen>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Music Visualizer Background
-          AnimatedBuilder(
-            animation: _waveController,
-            builder: (context, child) {
-              return CustomPaint(
-                size: Size(280.w, 280.w),
-                painter: MusicVisualizerPainter(
-                  animation: _waveController.value,
-                  isPlaying: _isTrackPlaying,
-                ),
-              );
-            },
+          // Music Visualizer Background - Full transparent background
+          Container(
+            width: 350.w,
+            height: 350.w,
+            decoration: BoxDecoration(
+              color: Colors.transparent, // Completely transparent
+            ),
+            child: AnimatedBuilder(
+              animation: _waveController,
+              builder: (context, child) {
+                return CustomPaint(
+                  size: Size(350.w, 350.w),
+                  painter: MusicVisualizerPainter(
+                    animation: _waveController.value,
+                    isPlaying: _isTrackPlaying,
+                  ),
+                );
+              },
+            ),
           ),
           
-          // Main beat circle
-          Container(
-            width: 200.w,
-            height: 200.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  AppTheme.glassColor,
-                  AppTheme.backgroundColor,
-                ],
+          // Play/Pause button in center
+          GestureDetector(
+            onTap: _toggleMusicPlayer,
+            child: Container(
+              width: 60.w,
+              height: 60.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withOpacity(0.3),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Wave pattern
-                CustomPaint(
-                  size: Size(180.w, 180.w),
-                  painter: WavePainter(
-                    animation: _waveController,
-                    isPlaying: _isPlaying,
-                  ),
-                ),
-                
-                // Play/pause controls
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: _togglePlay,
-                      child: Container(
-                        width: 48.w,
-                        height: 48.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppTheme.glassColor,
-                          border: Border.all(color: AppTheme.glassBorder),
-                        ),
-                        child: Icon(
-                          _isPlaying ? Icons.pause : Icons.play_arrow,
-                          color: AppTheme.textPrimary,
-                          size: 24.sp,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'LIVE',
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              child: Icon(
+                _isTrackPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+                size: 30.sp,
+              ),
             ),
           ),
         ],
@@ -2166,82 +2133,141 @@ class MusicVisualizerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
+    final radius = min(size.width, size.height) / 2;
     
     if (isPlaying) {
-      // Draw professional frequency bars
-      for (int i = 0; i < 64; i++) {
-        final angle = (i / 64) * 2 * pi;
-        
-        // Create different frequency patterns
-        final freq1 = sin(animation * 4 * pi + i * 0.3) * 0.5 + 0.5;
-        final freq2 = sin(animation * 6 * pi + i * 0.2) * 0.3 + 0.3;
-        final freq3 = sin(animation * 8 * pi + i * 0.1) * 0.2 + 0.2;
-        
-        final barHeight = 15 + (freq1 * 25) + (freq2 * 15) + (freq3 * 10);
-        
-        // Different colors for different frequency ranges
-        Color barColor;
-        if (i % 4 == 0) {
-          barColor = Colors.white.withOpacity(0.8); // Bass
-        } else if (i % 3 == 0) {
-          barColor = Colors.white.withOpacity(0.6); // Mid
-        } else {
-          barColor = Colors.white.withOpacity(0.4); // High
-        }
-        
-        final paint = Paint()
-          ..color = barColor
-          ..strokeWidth = 3
-          ..strokeCap = StrokeCap.round
-          ..style = PaintingStyle.stroke;
-        
-        final startRadius = radius - 50;
-        final endRadius = startRadius - barHeight;
-        
-        final start = Offset(
-          center.dx + cos(angle) * startRadius,
-          center.dy + sin(angle) * startRadius,
-        );
-        
-        final end = Offset(
-          center.dx + cos(angle) * endRadius,
-          center.dy + sin(angle) * endRadius,
-        );
-        
-        canvas.drawLine(start, end, paint);
+      _drawRippleWaves(canvas, center, radius);
+    } else {
+      _drawStaticRipples(canvas, center, radius);
+    }
+    
+    // Draw elegant border
+    _drawElegantBorder(canvas, center, radius);
+  }
+  
+  void _drawElegantBorder(Canvas canvas, Offset center, double radius) {
+    // Outer border with subtle glow
+    final outerBorderPaint = Paint()
+      ..color = Colors.white.withOpacity(0.4)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(center, radius * 0.9, outerBorderPaint);
+    
+    // Inner border
+    final innerBorderPaint = Paint()
+      ..color = Colors.white.withOpacity(0.2)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(center, radius * 0.88, innerBorderPaint);
+  }
+  
+  void _drawRippleWaves(Canvas canvas, Offset center, double radius) {
+    // Create perfect circular ripples expanding from center
+    final waveCount = 8;
+    final maxRadius = radius * 0.85;
+    
+    for (int wave = 0; wave < waveCount; wave++) {
+      // Calculate ripple radius with animation
+      final baseRadius = (wave / waveCount) * maxRadius;
+      final animationOffset = (animation * 2 + wave * 0.3) % 1.0;
+      final rippleRadius = baseRadius + (animationOffset * 30);
+      
+      // Skip if ripple is too large
+      if (rippleRadius > maxRadius) continue;
+      
+      // Calculate opacity - fade as ripples expand
+      final waveOpacity = (1.0 - (rippleRadius / maxRadius)) * 0.7;
+      
+      // Draw main circular ripple
+      final ripplePaint = Paint()
+        ..color = Colors.white.withOpacity(waveOpacity)
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+      
+      canvas.drawCircle(center, rippleRadius, ripplePaint);
+      
+      // Add glow effect for inner ripples
+      if (rippleRadius < maxRadius * 0.5) {
+        final glowPaint = Paint()
+          ..color = Colors.white.withOpacity(waveOpacity * 0.4)
+          ..strokeWidth = 4
+          ..style = PaintingStyle.stroke
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3);
+        canvas.drawCircle(center, rippleRadius, glowPaint);
       }
       
-      // Draw multiple pulsing rings
-      for (int ring = 0; ring < 3; ring++) {
-        final ringPaint = Paint()
-          ..color = Colors.white.withOpacity(0.1 + ring * 0.05)
+      // Add secondary ripple for more depth
+      final secondaryRadius = rippleRadius + 8;
+      if (secondaryRadius <= maxRadius) {
+        final secondaryPaint = Paint()
+          ..color = Colors.white.withOpacity(waveOpacity * 0.5)
           ..strokeWidth = 1
           ..style = PaintingStyle.stroke;
-        
-        final pulseRadius = radius - 30 - (ring * 15) + (sin(animation * 3 * pi + ring) * 8);
-        canvas.drawCircle(center, pulseRadius, ringPaint);
-      }
-      
-      // Draw center glow
-      final glowPaint = Paint()
-        ..color = Colors.white.withOpacity(0.1)
-        ..style = PaintingStyle.fill;
-      
-      final glowRadius = 40 + (sin(animation * 2 * pi) * 5);
-      canvas.drawCircle(center, glowRadius, glowPaint);
-      
-    } else {
-      // Draw static professional circles when paused
-      final staticPaint = Paint()
-        ..color = Colors.white.withOpacity(0.2)
-        ..strokeWidth = 1
-        ..style = PaintingStyle.stroke;
-      
-      for (int i = 0; i < 3; i++) {
-        canvas.drawCircle(center, radius - 30 - (i * 20), staticPaint);
+        canvas.drawCircle(center, secondaryRadius, secondaryPaint);
       }
     }
+    
+    // Center pulsing orb
+    final pulseRadius = 20 + sin(animation * 4 * pi) * 6;
+    
+    // Outer glow
+    final centerGlowPaint = Paint()
+      ..color = Colors.white.withOpacity(0.3)
+      ..style = PaintingStyle.fill
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawCircle(center, pulseRadius * 1.8, centerGlowPaint);
+    
+    // Main center orb
+    final centerPaint = Paint()
+      ..color = Colors.white.withOpacity(0.8)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, pulseRadius, centerPaint);
+    
+    // Inner highlight
+    final highlightPaint = Paint()
+      ..color = Colors.white.withOpacity(0.9)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, pulseRadius * 0.4, highlightPaint);
+  }
+  
+  void _drawStaticRipples(Canvas canvas, Offset center, double radius) {
+    // Static version with perfect concentric circles
+    final rippleCount = 6;
+    final maxRadius = radius * 0.85;
+    
+    for (int i = 0; i < rippleCount; i++) {
+      final rippleRadius = ((i + 1) / rippleCount) * maxRadius;
+      final opacity = (1.0 - (i / rippleCount)) * 0.5;
+      
+      // Draw perfect circular ripples
+      final ripplePaint = Paint()
+        ..color = Colors.white.withOpacity(opacity)
+        ..strokeWidth = 1.5
+        ..style = PaintingStyle.stroke;
+      
+      canvas.drawCircle(center, rippleRadius, ripplePaint);
+      
+      // Add subtle secondary circle for depth
+      if (i < 3) {
+        final secondaryPaint = Paint()
+          ..color = Colors.white.withOpacity(opacity * 0.3)
+          ..strokeWidth = 1
+          ..style = PaintingStyle.stroke;
+        canvas.drawCircle(center, rippleRadius + 4, secondaryPaint);
+      }
+    }
+    
+    // Static center orb
+    final centerPaint = Paint()
+      ..color = Colors.white.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 18, centerPaint);
+    
+    final centerHighlightPaint = Paint()
+      ..color = Colors.white.withOpacity(0.8)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 7, centerHighlightPaint);
   }
   
   @override
