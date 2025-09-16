@@ -53,6 +53,7 @@ dependencies:
   
   # Utilities
   dio: ^5.7.0
+  http: ^1.1.0
   shared_preferences: ^2.3.2
   path_provider: ^2.1.4
   

@@ -9,6 +9,7 @@ import '../../shared/models/tab_icon_data.dart';
 import 'filter_screen.dart';
 import 'widgets/beat_list_view.dart';
 import 'data/sample_data.dart';
+import '../../auth/screens/auth_test_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
   const NewDashboardScreen({super.key});
@@ -160,6 +161,11 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                       
                       // Search Bar with Filter
                       _buildSearchBar(),
+                      
+                      SizedBox(height: 16.h),
+                      
+                      // Auth Test Button
+                      _buildAuthTestButton(),
                       
                       SizedBox(height: 24.h),
                       
@@ -341,6 +347,84 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAuthTestButton() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.accentColor.withOpacity(0.1),
+            AppTheme.accentColor.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppTheme.accentColor.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12.r),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AuthTestScreen(),
+              ),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.security,
+                  color: AppTheme.accentColor,
+                  size: 20.sp,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Test Authentication',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Login, Register, and test auth features',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 12.sp,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppTheme.accentColor,
+                  size: 16.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
