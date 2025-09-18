@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as Math;
 import '../../core/theme/app_theme.dart';
-import '../../shared/widgets/custom_status_bar.dart';
 import 'add_beat_info_screen.dart';
 import 'add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
@@ -1165,81 +1164,28 @@ Visit: $profileUrl
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
+    return SingleChildScrollView(
+      child: Column(
         children: [
-          // Status Bar with Back Button
-          Container(
-            color: Colors.black,
-            child: Column(
-              children: [
-                const CustomStatusBar(),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          width: 40.w,
-                          height: 40.h,
-                          decoration: BoxDecoration(
-                            color: AppTheme.glassColor,
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: AppTheme.glassBorder,
-                              width: 1,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 18.sp,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Text(
-                        'Profile',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          SizedBox(height: 60.h),
           
-          // Main Content
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Profile Header
-                  _buildProfileHeader(),
-                  
-                  // Social Links
-                  _buildSocialLinks(),
-                  
-                  SizedBox(height: 20.h),
-                  
-                  // Action Buttons
-                  _buildActionButtons(),
-                  
-                  SizedBox(height: 20.h),
-                  
-                  // Content Tabs and Grid
-                  _buildContentSection(),
-                ],
-              ),
-            ),
-          ),
+          // Profile Header
+          _buildProfileHeader(),
+          
+          // Social Links
+          _buildSocialLinks(),
+          
+          SizedBox(height: 20.h),
+          
+          // Action Buttons
+          _buildActionButtons(),
+          
+          SizedBox(height: 20.h),
+          
+          // Content Tabs and Grid
+          _buildContentSection(),
+          
+          SizedBox(height: 120.h), // Bottom padding for navigation bar
         ],
       ),
     );
@@ -1247,88 +1193,84 @@ Visit: $profileUrl
 
   Widget _buildProfileHeader() {
     return Container(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0),
       child: Column(
         children: [
           // Profile Picture and Info
           Row(
             children: [
-              // Profile Picture (Clickable)
+              // Profile Picture (Clickable) with Level Badge
               GestureDetector(
                 onTap: _showProfilePhotoOptions,
-                child: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.accentColor,
-                        AppTheme.warningColor,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.accentColor.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Container(
-                    margin: EdgeInsets.all(2.w),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black,
-                    ),
-                    child: ClipOval(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            colors: [
-                              Colors.grey.shade800,
-                              Colors.grey.shade900,
-                            ],
-                          ),
+                child: Stack(
+                  clipBehavior: Clip.none, // Allow children to extend beyond bounds
+                  children: [
+                    Container(
+                      width: 80.w,
+                      height: 80.h,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFFFD700), // Gold
+                            const Color(0xFFFFA500), // Orange Gold
+                            const Color(0xFFFFD700), // Gold
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: Stack(
-                          children: [
-                            Center(
+                        border: Border.all(
+                          color: const Color(0xFFB8860B), // Dark gold border
+                          width: 2.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFFD700).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFFFFF8DC).withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: const Offset(0, 0),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        margin: EdgeInsets.all(2.w),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black,
+                        ),
+                        child: ClipOval(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                colors: [
+                                  Colors.grey.shade800,
+                                  Colors.grey.shade900,
+                                ],
+                              ),
+                            ),
+                            child: Center(
                               child: Icon(
                                 FontAwesomeIcons.music,
                                 color: AppTheme.accentColor,
                                 size: 32.sp,
                               ),
                             ),
-                            // Edit indicator overlay
-                            Positioned(
-                              bottom: 2.h,
-                              right: 2.w,
-                              child: Container(
-                                width: 20.w,
-                                height: 20.h,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.accentColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 10.sp,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    // Hustler Level Badge - positioned on the profile circle
+                    Positioned(
+                      top: -6.h,
+                      right: -6.w,
+                      child: _buildHustlerLevelBadge(),
+                    ),
+                  ],
                 ),
               ),
               
@@ -1339,7 +1281,7 @@ Visit: $profileUrl
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name from profile data
+                    // Name
                     Text(
                       _currentProfile.artistName,
                       style: GoogleFonts.getFont(
@@ -1348,6 +1290,8 @@ Visit: $profileUrl
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                     
                     SizedBox(height: 4.h),
@@ -1651,7 +1595,7 @@ Visit: $profileUrl
         SizedBox(height: 20.h),
         
         // Content Grid
-        Container(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: _selectedTabIndex == 0
               ? (widget.userRole == 'artist' ? _buildMyMusicGrid() : _buildShopGrid())
@@ -2018,6 +1962,136 @@ Visit: $profileUrl
       ),
     );
   }
+
+  Widget _buildHustlerLevelBadge() {
+    return Container(
+      width: 24.w,
+      height: 24.h,
+      child: CustomPaint(
+        size: Size(24.w, 24.h),
+        painter: GoldHexagonPainter(),
+      ),
+    );
+  }
+}
+
+class GoldHexagonPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+
+    // Create hexagon path
+    final path = Path();
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 * 0.9;
+
+    // Calculate hexagon points
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * Math.pi / 3) - (Math.pi / 2); // Start from top
+      final x = center.dx + radius * Math.cos(angle);
+      final y = center.dy + radius * Math.sin(angle);
+      
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+
+    // Draw gold gradient hexagon
+    final rect = Rect.fromCenter(center: center, width: size.width, height: size.height);
+    paint.shader = LinearGradient(
+      colors: [
+        const Color(0xFFFFD700), // Gold
+        const Color(0xFFFFA500), // Orange Gold
+        const Color(0xFFFFD700), // Gold
+      ],
+      stops: const [0.0, 0.5, 1.0],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ).createShader(rect);
+
+    canvas.drawPath(path, paint);
+
+    // Add subtle border
+    final borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..color = const Color(0xFFB8860B); // Dark gold border
+
+    canvas.drawPath(path, borderPaint);
+
+    // Add inner glow effect
+    final glowPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5
+      ..color = const Color(0xFFFFF8DC); // Light gold glow
+
+    final innerPath = Path();
+    final innerRadius = radius * 0.8;
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * Math.pi / 3) - (Math.pi / 2);
+      final x = center.dx + innerRadius * Math.cos(angle);
+      final y = center.dy + innerRadius * Math.sin(angle);
+      
+      if (i == 0) {
+        innerPath.moveTo(x, y);
+      } else {
+        innerPath.lineTo(x, y);
+      }
+    }
+    innerPath.close();
+
+    canvas.drawPath(innerPath, glowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class VinylWavePatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF666666)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final maxRadius = size.width / 2 * 0.9;
+
+    // Draw concentric wave circles
+    for (int i = 0; i < 6; i++) {
+      final radius = maxRadius * (0.3 + (i * 0.12));
+      final opacity = 1.0 - (i * 0.15);
+      
+      paint.color = Color(0xFF666666).withOpacity(opacity);
+      
+      // Create wavy circle path
+      final path = Path();
+      for (double angle = 0; angle < 2 * Math.pi; angle += 0.1) {
+        final waveAmplitude = 1.0 + Math.sin(angle * 8) * 0.5;
+        final adjustedRadius = radius * waveAmplitude;
+        
+        final x = center.dx + adjustedRadius * Math.cos(angle);
+        final y = center.dy + adjustedRadius * Math.sin(angle);
+        
+        if (angle == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+      path.close();
+      
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class WavePatternPainter extends CustomPainter {

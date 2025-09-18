@@ -13,6 +13,7 @@ import '../../auth/screens/auth_test_screen.dart';
 import '../profile/profile_screen.dart';
 import '../profile/add_beat_info_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
+import 'my_bids_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
@@ -31,6 +32,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   int _currentNavIndex = 0;
   List<TabIconData> tabIconsList = <TabIconData>[];
   PageController _livestreamController = PageController();
+  PageController _mainPageController = PageController();
   late AnimationController _liveAnimationController;
   
   // Music background animation controllers
@@ -133,6 +135,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   @override
   void dispose() {
     _livestreamController.dispose();
+    _mainPageController.dispose();
     _liveAnimationController.dispose();
     _waveController.dispose();
     _notesController.dispose();
@@ -158,43 +161,32 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 child: const CustomStatusBar(),
               ),
               
-              // Main scrollable content
+              // Swipeable main content
               Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                SizedBox(height: 20.h),
-                
-                // Search Bar with Filter
-                _buildSearchBar(),
-                      
-                      SizedBox(height: 16.h),
-                      
-                      // Auth Test Button
-                      _buildAuthTestButton(),
-                      
-                      SizedBox(height: 24.h),
-                      
-                      // Role-based content sections
-                      if (widget.userRole == 'artist') ...[
-                        // Artist sections
-                        _buildLivestreamsSection(),
-                        SizedBox(height: 40.h),
-                        _buildFeaturedBeatsSection(),
-                      ] else ...[
-                        // Producer sections  
-                        _buildMyAuctionsSection(),
-                        SizedBox(height: 40.h),
-                        _buildPreviousAuctionsSection(),
-                      ],
-                      
-                      
-                      // Bottom padding for navigation
-                      SizedBox(height: 120.h),
-                    ],
-                  ),
+                child: PageView(
+                  controller: _mainPageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentNavIndex = index;
+                      // Update tab selection
+                      for (int i = 0; i < tabIconsList.length; i++) {
+                        tabIconsList[i].isSelected = i == index;
+                      }
+                    });
+                  },
+                  children: [
+                    // Page 0: Home/Dashboard
+                    _buildHomePage(),
+                    
+                    // Page 1: My Bids (for artists) / Analytics (for producers)
+                    _buildSecondPage(),
+                    
+                    // Page 2: Favorites/Saved
+                    _buildFavoritesPage(),
+                    
+                    // Page 3: Profile
+                    _buildProfilePage(),
+                  ],
                 ),
               ),
             ],
@@ -210,16 +202,17 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               changeIndex: (int index) {
                 setState(() {
                   _currentNavIndex = index;
+                  // Update tab selection
+                  for (int i = 0; i < tabIconsList.length; i++) {
+                    tabIconsList[i].isSelected = i == index;
+                  }
                 });
                 
-                // Navigate to profile when profile tab (index 3) is selected
-                if (index == 3) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(userRole: widget.userRole),
-                    ),
-                  );
-                }
+                _mainPageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               },
               addClick: () {
                 print('Add button tapped!');
@@ -249,6 +242,197 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // Page builders for swipeable content
+  Widget _buildHomePage() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 20.h),
+          
+          // Search Bar with Filter
+          _buildSearchBar(),
+          
+          SizedBox(height: 16.h),
+          
+          // Auth Test Button
+          _buildAuthTestButton(),
+          
+          SizedBox(height: 24.h),
+          
+          // Role-based content sections
+          if (widget.userRole == 'artist') ...[
+            // Artist sections
+            _buildLivestreamsSection(),
+            SizedBox(height: 40.h),
+            _buildFeaturedBeatsSection(),
+          ] else ...[
+            // Producer sections  
+            _buildMyAuctionsSection(),
+            SizedBox(height: 40.h),
+            _buildPreviousAuctionsSection(),
+          ],
+          
+          // Bottom padding for navigation
+          SizedBox(height: 120.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecondPage() {
+    if (widget.userRole == 'artist') {
+      // My Bids page for artists
+      return const MyBidsScreen();
+    } else {
+      // Analytics or other content for producers
+      return _buildProducerAnalytics();
+    }
+  }
+
+  Widget _buildFavoritesPage() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          SizedBox(height: 60.h),
+          
+          // Favorites header
+          Container(
+            width: 80.w,
+            height: 80.h,
+            decoration: BoxDecoration(
+              color: AppTheme.glassColor,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: AppTheme.glassBorder,
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              Icons.favorite_rounded,
+              color: Colors.red,
+              size: 40.sp,
+            ),
+          ),
+          
+          SizedBox(height: 24.h),
+          
+          Text(
+            'Your Favorites',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          
+          SizedBox(height: 8.h),
+          
+          Text(
+            'Saved beats and producers you love',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 14.sp,
+              color: Colors.white.withOpacity(0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          
+          SizedBox(height: 40.h),
+          
+          // Placeholder content
+          Text(
+            'Coming Soon!',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.accentColor,
+            ),
+          ),
+          
+          SizedBox(height: 120.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfilePage() {
+    return ProfileScreen(userRole: widget.userRole);
+  }
+
+  Widget _buildProducerAnalytics() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          SizedBox(height: 60.h),
+          
+          // Analytics header
+          Container(
+            width: 80.w,
+            height: 80.h,
+            decoration: BoxDecoration(
+              color: AppTheme.glassColor,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: AppTheme.glassBorder,
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              Icons.analytics_rounded,
+              color: AppTheme.accentColor,
+              size: 40.sp,
+            ),
+          ),
+          
+          SizedBox(height: 24.h),
+          
+          Text(
+            'Analytics',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          
+          SizedBox(height: 8.h),
+          
+          Text(
+            'Track your beat performance',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 14.sp,
+              color: Colors.white.withOpacity(0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          
+          SizedBox(height: 40.h),
+          
+          // Placeholder content
+          Text(
+            'Coming Soon!',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.accentColor,
+            ),
+          ),
+          
+          SizedBox(height: 120.h),
         ],
       ),
     );
