@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'Wix Madefor Display',
             fontSize: 28.sp,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+            color: Colors.white,
             letterSpacing: -0.04,
           ),
         ).animate()
@@ -218,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'Wix Madefor Display',
             fontSize: 16.sp,
             fontWeight: FontWeight.w400,
-            color: AppTheme.textSecondary,
+            color: Colors.white,
           ),
         ).animate()
           .fadeIn(duration: 600.ms, delay: 800.ms)
@@ -358,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 12.sp,
-                  color: AppTheme.textSecondary,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -406,7 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: GoogleFonts.getFont(
             'Wix Madefor Display',
             fontSize: 14.sp,
-            color: AppTheme.textSecondary,
+            color: Colors.white,
           ),
         ),
         TextButton(
@@ -423,7 +423,7 @@ class _LoginScreenState extends State<LoginScreen> {
               'Wix Madefor Display',
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+              color: Colors.white,
             ),
           ),
         ),

@@ -100,7 +100,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
             'Wix Madefor Display',
             fontSize: 28.sp,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+            color: Colors.white,
             letterSpacing: -0.04,
           ),
           textAlign: TextAlign.center,
@@ -116,7 +116,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
             'Wix Madefor Display',
             fontSize: 16.sp,
             fontWeight: FontWeight.w400,
-            color: AppTheme.textSecondary,
+            color: Colors.white,
           ),
           textAlign: TextAlign.center,
         ).animate()
@@ -136,7 +136,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
             'Wix Madefor Display',
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
+            color: Colors.white,
           ),
         ).animate()
           .fadeIn(duration: 600.ms, delay: 1000.ms),
@@ -242,7 +242,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
                           'Wix Madefor Display',
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -251,7 +251,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
                         style: GoogleFonts.getFont(
                           'Wix Madefor Display',
                           fontSize: 13.sp,
-                          color: AppTheme.textSecondary,
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -302,7 +302,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 12.sp,
-                  color: AppTheme.textSecondary,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -346,7 +346,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
                 children: [
                   Icon(
                     FontAwesomeIcons.rightToBracket,
-                    color: AppTheme.textPrimary,
+                    color: Colors.white,
                     size: 18.sp,
                   ),
                   SizedBox(width: 12.w),
@@ -356,7 +356,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
                       'Wix Madefor Display',
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ],

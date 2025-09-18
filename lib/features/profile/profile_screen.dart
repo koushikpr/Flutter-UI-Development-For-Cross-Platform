@@ -8,6 +8,14 @@ import '../../shared/widgets/custom_status_bar.dart';
 import 'add_beat_info_screen.dart';
 import 'add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
+import 'edit_profile_screen.dart';
+import 'settings_screen.dart';
+import 'qr_profile_screen.dart';
+import 'help_support_screen.dart';
+import 'about_screen.dart';
+import 'services/profile_service.dart';
+import 'models/profile_data.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
@@ -24,11 +32,17 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
   int _selectedTabIndex = 0;
   late TabController _tabController;
+  late ProfileData _currentProfile;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadProfile();
+  }
+  
+  void _loadProfile() {
+    _currentProfile = ProfileService.instance.getCurrentProfile(widget.userRole);
   }
 
   @override
@@ -557,19 +571,213 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     );
   }
 
-  void _editProfile() {
-    print('✏️ Opening edit profile...');
-    _showMenuActionResult('Edit Profile opened!');
+  void _editProfile() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EditProfileScreen(userRole: widget.userRole),
+      ),
+    );
+    
+    // Reload profile data when returning from edit screen
+    if (result != null || mounted) {
+      setState(() {
+        _loadProfile();
+      });
+    }
   }
 
   void _openSettings() {
-    print('⚙️ Opening settings...');
-    _showMenuActionResult('Settings opened!');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const SettingsScreen(),
+      ),
+    );
   }
 
   void _shareProfile() {
-    print('📤 Sharing profile...');
-    _showMenuActionResult('Profile shared successfully!');
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A1A),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24.r),
+              topRight: Radius.circular(24.r),
+            ),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Container(
+                  margin: EdgeInsets.only(top: 12.h, bottom: 20.h),
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
+                ),
+                
+                // Title
+                Text(
+                  'Share Profile',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                
+                SizedBox(height: 24.h),
+                
+                // Share Options
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    children: [
+                      _buildShareOption(
+                        icon: Icons.qr_code_2_rounded,
+                        title: 'QR Code',
+                        subtitle: 'Show QR code for quick scanning',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => QRProfileScreen(userRole: widget.userRole),
+                            ),
+                          );
+                        },
+                      ),
+                      
+                      SizedBox(height: 12.h),
+                      
+                      _buildShareOption(
+                        icon: Icons.share_outlined,
+                        title: 'Share Link',
+                        subtitle: 'Share via messaging apps, social media',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _shareNatively();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                
+                SizedBox(height: 24.h),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  
+  Widget _buildShareOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.glassColor,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: AppTheme.glassBorder,
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16.r),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Row(
+              children: [
+                Container(
+                  width: 48.w,
+                  height: 48.h,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: AppTheme.accentColor,
+                    size: 24.sp,
+                  ),
+                ),
+                
+                SizedBox(width: 16.w),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 12.sp,
+                          color: Colors.white.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white.withOpacity(0.4),
+                  size: 16.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
+  void _shareNatively() {
+    // Generate profile URL
+    final profileHandle = '@${_currentProfile.artistName.toLowerCase().replaceAll(' ', '').replaceAll(RegExp(r'[^a-z0-9]'), '')}';
+    final profileUrl = 'https://bagr.app/profiles/$profileHandle';
+    
+    final shareText = '''
+🎵 Check out ${_currentProfile.artistName} on BAGR_Z!
+
+${_currentProfile.description}
+
+📍 ${_currentProfile.location}
+
+Visit: $profileUrl
+
+#BAGRZ #Music ${widget.userRole == 'artist' ? '#Artist' : '#Producer'}
+    '''.trim();
+    
+    Share.share(
+      shareText,
+      subject: '${_currentProfile.artistName} - BAGR_Z Profile',
+    );
   }
 
   void _viewSavedItems() {
@@ -578,13 +786,19 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   void _getHelp() {
-    print('❓ Opening help & support...');
-    _showMenuActionResult('Help & Support opened!');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const HelpSupportScreen(),
+      ),
+    );
   }
 
   void _showAbout() {
-    print('ℹ️ Showing about page...');
-    _showMenuActionResult('About page opened!');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AboutScreen(),
+      ),
+    );
   }
 
   void _showLogoutConfirmation() {
@@ -1125,9 +1339,9 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name based on role
+                    // Name from profile data
                     Text(
-                      widget.userRole == 'artist' ? 'Artist\'s Name' : 'Producer\'s Name',
+                      _currentProfile.artistName,
                       style: GoogleFonts.getFont(
                         'Wix Madefor Display',
                         fontSize: 20.sp,
@@ -1166,7 +1380,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
           
           SizedBox(height: 16.h),
           
-          // Location
+          // Location from profile data
           Row(
             children: [
               Icon(
@@ -1176,7 +1390,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               ),
               SizedBox(width: 4.w),
               Text(
-                'Atlanta, GA',
+                _currentProfile.location,
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 14.sp,
@@ -1188,11 +1402,9 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
           
           SizedBox(height: 12.h),
           
-          // Bio based on role
+          // Bio from profile data
           Text(
-            widget.userRole == 'artist' 
-                ? 'Passionate artist from Atlanta. Creating music that tells stories. Always looking for fresh beats and collaborations 🎤'
-                : 'Based in Atlanta. Crafting beats that resonate and inspire. Feel free to DM for exciting collaborations 🎵',
+            _currentProfile.description,
             style: GoogleFonts.getFont(
               'Wix Madefor Display',
               fontSize: 14.sp,
@@ -1206,6 +1418,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   Widget _buildSocialLinks() {
+    final socialLinks = ProfileService.instance.getSocialLinks();
+    
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Row(
@@ -1213,30 +1427,34 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         children: [
           _buildSocialButton(
             FontAwesomeIcons.youtube,
-            'youtube.com/808wizard',
+            _currentProfile.youtubeUrl.isNotEmpty ? 'youtube.com/${_currentProfile.youtubeUrl}' : 'YouTube',
             AppTheme.errorColor,
+            _currentProfile.youtubeUrl.isNotEmpty,
           ),
           _buildSocialButton(
             FontAwesomeIcons.instagram,
-            '@808wizard',
+            _currentProfile.instagramHandle.isNotEmpty ? _currentProfile.instagramHandle : 'Instagram',
             Colors.purple,
+            _currentProfile.instagramHandle.isNotEmpty,
           ),
           _buildSocialButton(
             FontAwesomeIcons.tiktok,
-            '@wizardbeats',
+            _currentProfile.tiktokHandle.isNotEmpty ? _currentProfile.tiktokHandle : 'TikTok',
             Colors.white,
+            _currentProfile.tiktokHandle.isNotEmpty,
           ),
           _buildSocialButton(
-            FontAwesomeIcons.soundcloud,
-            'soundcloud.com/jorda...',
-            AppTheme.warningColor,
+            FontAwesomeIcons.twitter,
+            _currentProfile.twitterHandle.isNotEmpty ? _currentProfile.twitterHandle : 'Twitter',
+            Colors.blue,
+            _currentProfile.twitterHandle.isNotEmpty,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSocialButton(IconData icon, String handle, Color color) {
+  Widget _buildSocialButton(IconData icon, String handle, Color color, [bool isActive = true]) {
     return Expanded(
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 4.w),
@@ -1246,16 +1464,16 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               width: 40.w,
               height: 40.h,
               decoration: BoxDecoration(
-                color: AppTheme.glassColor,
+                color: isActive ? AppTheme.glassColor : AppTheme.glassColor.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: AppTheme.glassBorder,
+                  color: isActive ? AppTheme.glassBorder : AppTheme.glassBorder.withOpacity(0.3),
                   width: 1,
                 ),
               ),
               child: Icon(
                 icon,
-                color: color,
+                color: isActive ? color : Colors.white.withOpacity(0.3),
                 size: 18.sp,
               ),
             ),
@@ -1265,7 +1483,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               style: GoogleFonts.getFont(
                 'Wix Madefor Display',
                 fontSize: 10.sp,
-                color: Colors.white.withOpacity(0.7),
+                color: isActive ? Colors.white.withOpacity(0.7) : Colors.white.withOpacity(0.3),
               ),
               textAlign: TextAlign.center,
               maxLines: 1,

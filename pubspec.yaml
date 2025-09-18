@@ -56,6 +56,10 @@ dependencies:
   http: ^1.1.0
   shared_preferences: ^2.3.2
   path_provider: ^2.1.4
+  qr_flutter: ^4.1.0
+  share_plus: ^7.2.2
+  url_launcher: ^6.2.5
+  package_info_plus: ^4.2.0
   
   # Design System
   google_fonts: ^6.2.1
