@@ -13,6 +13,7 @@ import '../../auth/screens/auth_test_screen.dart';
 import '../profile/profile_screen.dart';
 import '../profile/add_beat_info_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
+import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
@@ -300,65 +301,24 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 60.h),
+          SizedBox(height: 20.h),
           
-          // Favorites header
-          Container(
-            width: 80.w,
-            height: 80.h,
-            decoration: BoxDecoration(
-              color: AppTheme.glassColor,
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(
-                color: AppTheme.glassBorder,
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              Icons.favorite_rounded,
-              color: Colors.red,
-              size: 40.sp,
-            ),
-          ),
+          // Search Bar with Filter (same as home page)
+          _buildSearchBar(),
           
           SizedBox(height: 24.h),
           
-          Text(
-            'Your Favorites',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          Text(
-            'Saved beats and producers you love',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 14.sp,
-              color: Colors.white.withOpacity(0.6),
-            ),
-            textAlign: TextAlign.center,
-          ),
+          // My Library Section
+          _buildMyLibrarySection(),
           
           SizedBox(height: 40.h),
           
-          // Placeholder content
-          Text(
-            'Coming Soon!',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.accentColor,
-            ),
-          ),
+          // My Favorites Section
+          _buildMyFavoritesSection(),
           
+          // Bottom padding for navigation
           SizedBox(height: 120.h),
         ],
       ),
@@ -366,76 +326,49 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   }
 
   Widget _buildProfilePage() {
-    return ProfileScreen(userRole: widget.userRole);
+    return ProfileScreen(
+      userRole: widget.userRole,
+      onNavigateToAnalytics: () {
+        // Navigate to analytics tab (index 1) for producers
+        if (widget.userRole == 'producer') {
+          setState(() {
+            _currentNavIndex = 1;
+            // Update tab selection
+            for (int i = 0; i < tabIconsList.length; i++) {
+              tabIconsList[i].isSelected = i == 1;
+            }
+          });
+          
+          _mainPageController.animateToPage(
+            1,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      },
+      onNavigateToMyBids: () {
+        // Navigate to my bids tab (index 1) for artists
+        if (widget.userRole == 'artist') {
+          setState(() {
+            _currentNavIndex = 1;
+            // Update tab selection
+            for (int i = 0; i < tabIconsList.length; i++) {
+              tabIconsList[i].isSelected = i == 1;
+            }
+          });
+          
+          _mainPageController.animateToPage(
+            1,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      },
+    );
   }
 
   Widget _buildProducerAnalytics() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        children: [
-          SizedBox(height: 60.h),
-          
-          // Analytics header
-          Container(
-            width: 80.w,
-            height: 80.h,
-            decoration: BoxDecoration(
-              color: AppTheme.glassColor,
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(
-                color: AppTheme.glassBorder,
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              Icons.analytics_rounded,
-              color: AppTheme.accentColor,
-              size: 40.sp,
-            ),
-          ),
-          
-          SizedBox(height: 24.h),
-          
-          Text(
-            'Analytics',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          Text(
-            'Track your beat performance',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 14.sp,
-              color: Colors.white.withOpacity(0.6),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 40.h),
-          
-          // Placeholder content
-          Text(
-            'Coming Soon!',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.accentColor,
-            ),
-          ),
-          
-          SizedBox(height: 120.h),
-        ],
-      ),
-    );
+    return AnalyticsScreen(userRole: widget.userRole);
   }
 
   Widget _buildSearchBar() {
@@ -1459,6 +1392,521 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildMyLibrarySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.library_music_rounded,
+                  color: AppTheme.accentColor,
+                  size: 24.sp,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'My Library',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: () {
+                print('View all library items');
+              },
+              child: Text(
+                'View All',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.accentColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 16.h),
+        
+        // Library stats row
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Downloaded',
+                '12',
+                Icons.download_rounded,
+                const Color(0xFF4CAF50),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildStatCard(
+                'Purchased',
+                '8',
+                Icons.shopping_bag_rounded,
+                AppTheme.accentColor,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildStatCard(
+                'Playlists',
+                '3',
+                Icons.playlist_play_rounded,
+                const Color(0xFFFF9800),
+              ),
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 20.h),
+        
+        // Library content grid
+        _buildLibraryGrid(),
+      ],
+    );
+  }
+
+  Widget _buildMyFavoritesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.favorite_rounded,
+                  color: Colors.red,
+                  size: 24.sp,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'My Favorites',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: () {
+                print('View all favorites');
+              },
+              child: Text(
+                'View All',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.accentColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 16.h),
+        
+        // Favorites categories
+        Row(
+          children: [
+            Expanded(
+              child: _buildFavoriteCategory(
+                'Beats',
+                '24',
+                Icons.music_note_rounded,
+                AppTheme.accentColor,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildFavoriteCategory(
+                'Producers',
+                '7',
+                Icons.person_rounded,
+                const Color(0xFF9C27B0),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildFavoriteCategory(
+                'Albums',
+                '5',
+                Icons.album_rounded,
+                const Color(0xFF00BCD4),
+              ),
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 20.h),
+        
+        // Favorites content grid
+        _buildFavoritesGrid(),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppTheme.glassColor,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: AppTheme.glassBorder,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 32.w,
+            height: 32.h,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 16.sp,
+            ),
+          ),
+          
+          SizedBox(height: 8.h),
+          
+          Text(
+            value,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          
+          Text(
+            title,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 10.sp,
+              color: Colors.white.withOpacity(0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavoriteCategory(String title, String count, IconData icon, Color color) {
+    return GestureDetector(
+      onTap: () {
+        print('$title category tapped');
+      },
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppTheme.glassColor,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppTheme.glassBorder,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 40.w,
+              height: 40.h,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20.sp,
+              ),
+            ),
+            
+            SizedBox(height: 12.h),
+            
+            Text(
+              count,
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            
+            Text(
+              title,
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontSize: 12.sp,
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLibraryGrid() {
+    final libraryItems = [
+      {'title': 'Smooth Vibes', 'producer': 'BeatMaker Pro', 'type': 'Beat', 'status': 'Downloaded'},
+      {'title': 'Urban Flow', 'producer': 'SoundWave', 'type': 'Beat', 'status': 'Purchased'},
+      {'title': 'Chill Pack Vol.1', 'producer': 'LoFi Master', 'type': 'Pack', 'status': 'Downloaded'},
+      {'title': 'Hip Hop Essentials', 'producer': 'RhymeTime', 'type': 'Playlist', 'status': 'Created'},
+    ];
+
+    return Column(
+      children: libraryItems.map((item) => Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        decoration: BoxDecoration(
+          color: AppTheme.glassColor,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppTheme.glassBorder,
+            width: 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16.r),
+            onTap: () {
+              print('${item['title']} tapped');
+            },
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                children: [
+                  // Item icon
+                  Container(
+                    width: 50.w,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.accentColor.withOpacity(0.3),
+                          AppTheme.accentColor.withOpacity(0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Icon(
+                      item['type'] == 'Beat' ? Icons.music_note_rounded :
+                      item['type'] == 'Pack' ? Icons.library_music_rounded :
+                      Icons.playlist_play_rounded,
+                      color: AppTheme.accentColor,
+                      size: 24.sp,
+                    ),
+                  ),
+                  
+                  SizedBox(width: 16.w),
+                  
+                  // Item info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title']!,
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'by ${item['producer']}',
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 12.sp,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Status badge
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(item['status']!).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      item['status']!,
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _getStatusColor(item['status']!),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      )).toList(),
+    );
+  }
+
+  Widget _buildFavoritesGrid() {
+    final favoriteItems = [
+      {'title': 'Midnight Dreams', 'producer': 'NightBeats', 'type': 'Beat', 'liked': '2 days ago'},
+      {'title': 'Trap King', 'producer': 'BassLine', 'type': 'Producer', 'liked': '1 week ago'},
+      {'title': 'Lo-Fi Sunset', 'producer': 'ChillWave', 'type': 'Beat', 'liked': '3 days ago'},
+      {'title': 'Golden Hits', 'producer': 'RetroSound', 'type': 'Album', 'liked': '5 days ago'},
+    ];
+
+    return Column(
+      children: favoriteItems.map((item) => Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        decoration: BoxDecoration(
+          color: AppTheme.glassColor,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppTheme.glassBorder,
+            width: 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16.r),
+            onTap: () {
+              print('${item['title']} tapped');
+            },
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                children: [
+                  // Item icon
+                  Container(
+                    width: 50.w,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.red.withOpacity(0.3),
+                          Colors.red.withOpacity(0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Icon(
+                      item['type'] == 'Beat' ? Icons.music_note_rounded :
+                      item['type'] == 'Producer' ? Icons.person_rounded :
+                      Icons.album_rounded,
+                      color: Colors.red,
+                      size: 24.sp,
+                    ),
+                  ),
+                  
+                  SizedBox(width: 16.w),
+                  
+                  // Item info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title']!,
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          item['type'] == 'Producer' ? 'Producer' : 'by ${item['producer']}',
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 12.sp,
+                            color: Colors.white.withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Heart icon and time
+                  Column(
+                    children: [
+                      Icon(
+                        Icons.favorite_rounded,
+                        color: Colors.red,
+                        size: 20.sp,
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        item['liked']!,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 9.sp,
+                          color: Colors.white.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      )).toList(),
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Downloaded':
+        return const Color(0xFF4CAF50);
+      case 'Purchased':
+        return AppTheme.accentColor;
+      case 'Created':
+        return const Color(0xFF00BCD4);
+      default:
+        return Colors.grey;
+    }
   }
 
   void _addSingleBeat() {

@@ -61,6 +61,10 @@ dependencies:
   url_launcher: ^6.2.5
   package_info_plus: ^4.2.0
   
+  # Image & Camera
+  image_picker: ^1.0.7
+  permission_handler: ^11.3.0
+  
   # Design System
   google_fonts: ^6.2.1
   flutter_screenutil: ^5.9.3

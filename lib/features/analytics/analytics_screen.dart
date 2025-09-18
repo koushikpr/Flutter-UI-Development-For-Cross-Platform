@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 import '../../core/theme/app_theme.dart';
-import '../../shared/widgets/custom_status_bar.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   final String userRole;
@@ -605,126 +604,82 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          // Status Bar with Back Button
-          Container(
-            color: Colors.black,
-            child: Column(
-              children: [
-                const CustomStatusBar(),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          width: 40.w,
-                          height: 40.h,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 18.sp,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Text(
-                        'Analytics',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        SizedBox(height: 20.h),
+        
+        // Tab Bar
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 24.w),
+          child: TabBar(
+            controller: _tabController,
+            onTap: (index) {
+              setState(() {
+                _selectedTabIndex = index;
+              });
+            },
+            tabs: [
+              _buildTab('Heatmap', 0),
+              _buildTab('Funnel', 1),
+              _buildTab('Featured', 2),
+            ],
+            indicatorColor: AppTheme.accentColor,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white.withOpacity(0.6),
+            indicatorWeight: 2,
+            dividerColor: Colors.transparent,
           ),
-          
-          // Tab Bar
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 24.w),
-            child: TabBar(
-              controller: _tabController,
-              onTap: (index) {
-                setState(() {
-                  _selectedTabIndex = index;
-                });
-              },
-              tabs: [
-                _buildTab('Heatmap', 0),
-                _buildTab('Funnel', 1),
-                _buildTab('Featured', 2),
-              ],
-              indicatorColor: AppTheme.accentColor,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withOpacity(0.6),
-              indicatorWeight: 2,
-              dividerColor: Colors.transparent,
-            ),
-          ),
-          
-          SizedBox(height: 24.h),
-          
-          // Main Content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: _selectedTabIndex == 1 
-                  ? _buildFunnelContent()
-                  : _selectedTabIndex == 2 
-                      ? _buildPerformanceContent()
-                      : Column(
-                          children: [
-                            // Total Earned Section
-                            _buildTotalEarnedSection(),
-                            
-                            SizedBox(height: 24.h),
-                            
-                            // Stats Grid
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildStatCard(
-                                    'Auctions Hosted',
-                                    '4',
-                                    Icons.gavel,
-                                  ),
+        ),
+        
+        SizedBox(height: 24.h),
+        
+        // Main Content
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: _selectedTabIndex == 1 
+                ? _buildFunnelContent()
+                : _selectedTabIndex == 2 
+                    ? _buildPerformanceContent()
+                    : Column(
+                        children: [
+                          // Current Level Section
+                          _buildCurrentLevelSection(),
+                          
+                          SizedBox(height: 24.h),
+                          
+                          // Total Earned Section
+                          _buildTotalEarnedSection(),
+                          
+                          SizedBox(height: 24.h),
+                          
+                          // Stats Grid
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  'Auctions Hosted',
+                                  '4',
+                                  Icons.gavel,
                                 ),
-                                SizedBox(width: 16.w),
-                                Expanded(
-                                  child: _buildStatCard(
-                                    'Grab Bag Streams',
-                                    '8',
-                                    Icons.shopping_bag,
-                                  ),
+                              ),
+                              SizedBox(width: 16.w),
+                              Expanded(
+                                child: _buildStatCard(
+                                  'Grab Bag Streams',
+                                  '8',
+                                  Icons.shopping_bag,
                                 ),
-                              ],
-                            ),
-                            
-                            SizedBox(height: 24.h),
-                            
-                            // Current Level Section
-                            _buildCurrentLevelSection(),
-                            
-                            SizedBox(height: 32.h),
-                          ],
-                        ),
-            ),
+                              ),
+                            ],
+                          ),
+                          
+                          SizedBox(height: 32.h),
+                        ],
+                      ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

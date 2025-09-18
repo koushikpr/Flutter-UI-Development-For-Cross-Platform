@@ -3,7 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as Math;
+import 'dart:io';
 import '../../core/theme/app_theme.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'add_beat_info_screen.dart';
 import 'add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
@@ -18,10 +22,14 @@ import 'package:share_plus/share_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
+  final VoidCallback? onNavigateToAnalytics; // Callback to navigate to analytics tab
+  final VoidCallback? onNavigateToMyBids; // Callback to navigate to my bids tab
   
   const ProfileScreen({
     super.key,
     this.userRole = 'producer',
+    this.onNavigateToAnalytics,
+    this.onNavigateToMyBids,
   });
 
   @override
@@ -32,6 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   int _selectedTabIndex = 0;
   late TabController _tabController;
   late ProfileData _currentProfile;
+  dynamic _profileImage; // Can be File or String (for web)
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -269,28 +279,95 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     );
   }
 
-  void _takePhoto() {
-    // TODO: Implement camera functionality
-    print('📸 Taking photo with camera...');
-    _showPhotoActionResult('Photo taken successfully!');
+  Future<void> _takePhoto() async {
+    try {
+      // Check camera permission on mobile platforms
+      if (!kIsWeb) {
+        var status = await Permission.camera.status;
+        if (status.isDenied) {
+          status = await Permission.camera.request();
+          if (status.isDenied) {
+            _showPhotoActionResult('Camera permission is required to take photos.');
+            return;
+          }
+        }
+      }
+
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        setState(() {
+          _profileImage = kIsWeb ? image.path : File(image.path);
+        });
+        _showPhotoActionResult('Photo taken and updated successfully!');
+      }
+    } catch (e) {
+      print('Error taking photo: $e');
+      _showPhotoActionResult('Failed to take photo. Please try again.');
+    }
   }
 
-  void _chooseFromGallery() {
-    // TODO: Implement gallery picker
-    print('🖼️ Choosing photo from gallery...');
-    _showPhotoActionResult('Photo selected from gallery!');
+  Future<void> _chooseFromGallery() async {
+    try {
+      // Check photo library permission on mobile platforms
+      if (!kIsWeb) {
+        var status = await Permission.photos.status;
+        if (status.isDenied) {
+          status = await Permission.photos.request();
+          if (status.isDenied) {
+            _showPhotoActionResult('Photo library permission is required to select photos.');
+            return;
+          }
+        }
+      }
+
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        setState(() {
+          _profileImage = kIsWeb ? image.path : File(image.path);
+        });
+        _showPhotoActionResult('Photo selected and updated successfully!');
+      }
+    } catch (e) {
+      print('Error choosing from gallery: $e');
+      _showPhotoActionResult('Failed to select photo. Please try again.');
+    }
   }
 
-  void _editPhoto() {
-    // TODO: Implement photo editing
-    print('✏️ Opening photo editor...');
-    _showPhotoActionResult('Photo edited successfully!');
+  Future<void> _editPhoto() async {
+    try {
+      if (_profileImage == null) {
+        // If no current image, let user choose one first
+        await _chooseFromGallery();
+        return;
+      }
+
+      // For now, "editing" means choosing a new photo
+      // In a future update, we can add a proper photo editor
+      await _chooseFromGallery();
+    } catch (e) {
+      print('Error editing photo: $e');
+      _showPhotoActionResult('Failed to edit photo. Please try again.');
+    }
   }
+
 
   void _removePhoto() {
-    // TODO: Implement photo removal
-    print('🗑️ Removing profile photo...');
-    _showPhotoActionResult('Profile photo removed!');
+    setState(() {
+      _profileImage = null;
+    });
+    _showPhotoActionResult('Profile photo removed successfully!');
   }
 
   void _showPhotoActionResult(String message) {
@@ -1244,23 +1321,54 @@ Visit: $profileUrl
                           color: Colors.black,
                         ),
                         child: ClipOval(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.grey.shade800,
-                                  Colors.grey.shade900,
-                                ],
-                              ),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                FontAwesomeIcons.music,
-                                color: AppTheme.accentColor,
-                                size: 32.sp,
-                              ),
-                            ),
-                          ),
+                          child: _profileImage != null
+                              ? kIsWeb
+                                  ? Image.network(
+                                      _profileImage!,
+                                      width: 76.w,
+                                      height: 76.h,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        decoration: BoxDecoration(
+                                          gradient: RadialGradient(
+                                            colors: [
+                                              Colors.grey.shade800,
+                                              Colors.grey.shade900,
+                                            ],
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            FontAwesomeIcons.music,
+                                            color: AppTheme.accentColor,
+                                            size: 32.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Image.file(
+                                      _profileImage!,
+                                      width: 76.w,
+                                      height: 76.h,
+                                      fit: BoxFit.cover,
+                                    )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    gradient: RadialGradient(
+                                      colors: [
+                                        Colors.grey.shade800,
+                                        Colors.grey.shade900,
+                                      ],
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      FontAwesomeIcons.music,
+                                      color: AppTheme.accentColor,
+                                      size: 32.sp,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -1451,11 +1559,17 @@ Visit: $profileUrl
               AppTheme.glassColor,
               Colors.white,
               () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => AnalyticsScreen(userRole: widget.userRole),
-                  ),
-                );
+                // Use callback to navigate to analytics tab if available
+                if (widget.onNavigateToAnalytics != null) {
+                  widget.onNavigateToAnalytics!();
+                } else {
+                  // Fallback to opening new screen if callback not provided
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AnalyticsScreen(userRole: widget.userRole),
+                    ),
+                  );
+                }
               },
             ),
           ),
@@ -1470,7 +1584,13 @@ Visit: $profileUrl
                 if (widget.userRole == 'producer') {
                   _showAddToStoreModal();
                 } else {
-                  _showMyBids();
+                  // Use callback to navigate to my bids tab if available
+                  if (widget.onNavigateToMyBids != null) {
+                    widget.onNavigateToMyBids!();
+                  } else {
+                    // Fallback to existing method if callback not provided
+                    _showMyBids();
+                  }
                 }
               },
             ),
