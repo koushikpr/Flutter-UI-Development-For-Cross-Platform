@@ -10,9 +10,17 @@ import 'filter_screen.dart';
 import 'widgets/beat_list_view.dart';
 import 'data/sample_data.dart';
 import '../../auth/screens/auth_test_screen.dart';
+import '../profile/profile_screen.dart';
+import '../profile/add_beat_info_screen.dart';
+import '../profile/add_soundpack_info_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
-  const NewDashboardScreen({super.key});
+  final String userRole; // 'artist' or 'producer'
+  
+  const NewDashboardScreen({
+    super.key, 
+    this.userRole = 'artist', // default to artist
+  });
 
   @override
   State<NewDashboardScreen> createState() => _NewDashboardScreenState();
@@ -157,10 +165,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20.h),
-                      
-                      // Search Bar with Filter
-                      _buildSearchBar(),
+                SizedBox(height: 20.h),
+                
+                // Search Bar with Filter
+                _buildSearchBar(),
                       
                       SizedBox(height: 16.h),
                       
@@ -169,13 +177,18 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                       
                       SizedBox(height: 24.h),
                       
-                      // Livestreams Section
-                      _buildLivestreamsSection(),
-                      
-                      SizedBox(height: 40.h),
-                      
-                      // Featured Beats Section
-                      _buildFeaturedBeatsSection(),
+                      // Role-based content sections
+                      if (widget.userRole == 'artist') ...[
+                        // Artist sections
+                        _buildLivestreamsSection(),
+                        SizedBox(height: 40.h),
+                        _buildFeaturedBeatsSection(),
+                      ] else ...[
+                        // Producer sections  
+                        _buildMyAuctionsSection(),
+                        SizedBox(height: 40.h),
+                        _buildPreviousAuctionsSection(),
+                      ],
                       
                       
                       // Bottom padding for navigation
@@ -198,9 +211,41 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 setState(() {
                   _currentNavIndex = index;
                 });
+                
+                // Navigate to profile when profile tab (index 3) is selected
+                if (index == 3) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(userRole: widget.userRole),
+                    ),
+                  );
+                }
               },
               addClick: () {
                 print('Add button tapped!');
+                if (widget.userRole == 'producer') {
+                  _showAddToStoreModal();
+                } else {
+                  // For artists, show a different action or message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Add functionality for artists coming soon!',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 14.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: Colors.blue,
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                  );
+                }
               },
             ),
           ),
@@ -716,6 +761,313 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   }
 
 
+  // Producer sections
+  Widget _buildMyAuctionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'My Auctions',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppTheme.accentColor.withOpacity(0.6),
+              size: 16.sp,
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 16.h),
+        
+        // My Auctions Grid
+        SizedBox(
+          height: 160.h,
+          child: PageView.builder(
+            itemCount: 2,
+            itemBuilder: (context, pageIndex) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildAuctionCard(
+                      'Dark Trap Symphony',
+                      'Current Bid: \$250',
+                      '2h 15m left',
+                      AppTheme.warningColor,
+                      pageIndex * 2,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildAuctionCard(
+                      'Lo-Fi Chill Vibes',
+                      'Current Bid: \$180',
+                      '45m left',
+                      AppTheme.successColor,
+                      pageIndex * 2 + 1,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreviousAuctionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Previous Auctions',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                'See all',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16.h),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            final statuses = ['Sold - \$420', 'Sold - \$320', 'Unsold'];
+            final colors = [AppTheme.successColor, AppTheme.successColor, AppTheme.errorColor];
+            
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: AppTheme.glassColor,
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: AppTheme.glassBorder,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48.w,
+                      height: 48.h,
+                      decoration: BoxDecoration(
+                        color: colors[index].withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.music_note,
+                        color: colors[index],
+                        size: 24.sp,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Beat ${index + 1} Auction',
+                            style: GoogleFonts.getFont(
+                              'Wix Madefor Display',
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '3 days ago',
+                            style: GoogleFonts.getFont(
+                              'Wix Madefor Display',
+                              fontSize: 12.sp,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      statuses[index],
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: colors[index],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAuctionCard(
+    String title,
+    String subtitle,
+    String timeLeft,
+    Color accentColor,
+    int index,
+  ) {
+    return Container(
+      height: 160.h,
+      decoration: BoxDecoration(
+        color: AppTheme.glassColor,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: AppTheme.glassBorder,
+          width: 1,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Background gradient
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.glassLight,
+                  AppTheme.glassColor,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          
+          // Content
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Auction indicator
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: accentColor.withOpacity(0.7),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.gavel,
+                        color: accentColor,
+                        size: 12.sp,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'AUCTION',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const Spacer(),
+                
+                // Title
+                Text(
+                  title,
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                
+                SizedBox(height: 4.h),
+                
+                // Subtitle
+                Text(
+                  subtitle,
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                
+                SizedBox(height: 8.h),
+                
+                // Time left
+                Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      color: accentColor,
+                      size: 14.sp,
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      timeLeft,
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: accentColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_waveAnimation, _notesAnimation, _pulseAnimation]),
@@ -729,6 +1081,217 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           size: Size.infinite,
         );
       },
+    );
+  }
+
+  // Add to Store Modal Methods (copied from ProfileScreen)
+  void _showAddToStoreModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.8,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A1A),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20.r),
+              topRight: Radius.circular(20.r),
+            ),
+          ),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                ),
+                
+                SizedBox(height: 24.h),
+                
+                Text(
+                  'Add to Store',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                
+                SizedBox(height: 8.h),
+                
+                Text(
+                  'What would you like to add to your store?',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 16.sp,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                ),
+                
+                SizedBox(height: 32.h),
+                
+                // Store Options
+                Column(
+                  children: [
+                    _buildStoreOption(
+                      iconData: Icons.music_note,
+                      title: 'Single beat',
+                      subtitle: 'Upload and sell individual beats.\nPerfect for one-off creations or standalone tracks.',
+                      isSelected: false,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _addSingleBeat();
+                      },
+                    ),
+                    
+                    SizedBox(height: 16.h),
+                    
+                    _buildStoreOption(
+                      iconData: Icons.album,
+                      title: 'Soundpack',
+                      subtitle: 'A small collection of beats sold as one pack.\nGreat for themed drops or mini-albums.',
+                      isSelected: false,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _addSoundpack();
+                      },
+                    ),
+                  ],
+                ),
+                
+                SizedBox(height: 40.h),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoreOption({
+    required IconData iconData,
+    required String title,
+    required String subtitle,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: isSelected 
+                ? Colors.white.withOpacity(0.3)
+                : Colors.white.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            // Top row with icon and selection indicator
+            Row(
+              children: [
+                // Icon (no background container)
+                Icon(
+                  iconData,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 40.sp, // Enlarged icon
+                ),
+                
+                const Spacer(),
+                
+                // Selection indicator
+                Container(
+                  width: 20.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.5),
+                      width: 2,
+                    ),
+                  ),
+                  child: isSelected
+                      ? Icon(
+                          Icons.check,
+                          color: Colors.black,
+                          size: 12.sp,
+                        )
+                      : null,
+                ),
+              ],
+            ),
+            
+            SizedBox(height: 16.h),
+            
+            // Text content (full width)
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.getFont(
+                      'Wix Madefor Display',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.getFont(
+                      'Wix Madefor Display',
+                      fontSize: 14.sp,
+                      color: Colors.white.withOpacity(0.7),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addSingleBeat() {
+    print('🎵 Adding single beat...');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AddBeatInfoScreen(),
+      ),
+    );
+  }
+
+  void _addSoundpack() {
+    print('📦 Adding soundpack...');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AddSoundpackInfoScreen(),
+      ),
     );
   }
 }
