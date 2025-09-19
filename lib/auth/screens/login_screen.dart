@@ -15,6 +15,7 @@ import '../widgets/auth_button.dart';
 import '../widgets/error_dialog.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
+import '../../features/dashboard/new_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,8 +67,16 @@ class _LoginScreenState extends State<LoginScreen> {
           }
 
           if (state is AuthAuthenticated) {
-            // Navigate to dashboard or main app
-            Navigator.of(context).pushReplacementNamed('/dashboard');
+            // Navigate to dashboard with user role and data
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => NewDashboardScreen(
+                  userRole: state.user.role.name,
+                  userName: state.user.firstName + ' ' + state.user.lastName,
+                  userEmail: state.user.email,
+                ),
+              ),
+            );
           }
         },
         child: Stack(

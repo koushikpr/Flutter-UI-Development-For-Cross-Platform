@@ -18,10 +18,14 @@ import 'my_bids_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
+  final String? userName; // User's actual name from login
+  final String? userEmail; // User's email from login
   
   const NewDashboardScreen({
     super.key, 
     this.userRole = 'artist', // default to artist
+    this.userName,
+    this.userEmail,
   });
 
   @override
@@ -328,6 +332,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   Widget _buildProfilePage() {
     return ProfileScreen(
       userRole: widget.userRole,
+      userName: widget.userName,
+      userEmail: widget.userEmail,
       onNavigateToAnalytics: () {
         // Navigate to analytics tab (index 1) for producers
         if (widget.userRole == 'producer') {

@@ -9,10 +9,14 @@ import 'models/profile_data.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String userRole;
+  final String? userName;
+  final String? userEmail;
   
   const EditProfileScreen({
     super.key,
     this.userRole = 'producer',
+    this.userName,
+    this.userEmail,
   });
 
   @override
@@ -53,14 +57,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
   
-  void _loadCurrentProfile() {
+  void _loadCurrentProfile() async {
     // Load current profile data from service
-    final profileData = ProfileService.instance.getCurrentProfile(widget.userRole);
+    final response = await ProfileService.instance.getCurrentProfile();
+    final profileData = response.data ?? ProfileData(
+      id: 0,
+      userId: 0,
+      displayName: widget.userName ?? '',
+      bio: '',
+      location: '',
+      profileImageUrl: '',
+      websiteUrl: '',
+      youtubeHandle: '',
+      tiktokHandle: '',
+      instagramHandle: '',
+      twitterHandle: '',
+      createdAt: '',
+      updatedAt: '',
+    );
     
-    _artistNameController.text = profileData.artistName;
-    _descriptionController.text = profileData.description;
+    _artistNameController.text = profileData.displayName;
+    _descriptionController.text = profileData.bio;
     _locationController.text = profileData.location;
-    _youtubeController.text = profileData.youtubeUrl;
+    _youtubeController.text = profileData.youtubeHandle;
     _tiktokController.text = profileData.tiktokHandle;
     _instagramController.text = profileData.instagramHandle;
     _twitterController.text = profileData.twitterHandle;
@@ -572,19 +591,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       
       // Create updated profile data
       final updatedProfile = ProfileData(
-        artistName: _artistNameController.text.trim(),
-        description: _descriptionController.text.trim(),
+        id: 0, // Will be set by backend
+        userId: 0, // Will be set by backend
+        displayName: _artistNameController.text.trim(),
+        bio: _descriptionController.text.trim(),
         location: _locationController.text.trim(),
-        youtubeUrl: _youtubeController.text.trim(),
+        profileImageUrl: '', // Keep existing
+        websiteUrl: _websiteController.text.trim(),
+        youtubeHandle: _youtubeController.text.trim(),
         tiktokHandle: _tiktokController.text.trim(),
         instagramHandle: _instagramController.text.trim(),
         twitterHandle: _twitterController.text.trim(),
-        websiteUrl: _websiteController.text.trim(),
-        profileImageUrl: '', // TODO: Handle profile image
+        createdAt: '', // Will be set by backend
+        updatedAt: '', // Will be set by backend
       );
       
       // Save using service
-      final success = await ProfileService.instance.updateProfile(updatedProfile);
+      final response = await ProfileService.instance.updateProfile(updatedProfile);
+      final success = response.success;
       
       setState(() {
         _isLoading = false;

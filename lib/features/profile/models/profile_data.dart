@@ -1,76 +1,101 @@
 class ProfileData {
-  final String artistName;
-  final String description;
+  final int id;
+  final int userId;
+  final String displayName;
+  final String bio;
   final String location;
-  final String youtubeUrl;
+  final String profileImageUrl;
+  final String websiteUrl;
+  final String youtubeHandle;
   final String tiktokHandle;
   final String instagramHandle;
   final String twitterHandle;
-  final String websiteUrl;
-  final String profileImageUrl;
+  final String createdAt;
+  final String updatedAt;
 
   const ProfileData({
-    required this.artistName,
-    required this.description,
+    required this.id,
+    required this.userId,
+    required this.displayName,
+    required this.bio,
     required this.location,
-    required this.youtubeUrl,
+    required this.profileImageUrl,
+    required this.websiteUrl,
+    required this.youtubeHandle,
     required this.tiktokHandle,
     required this.instagramHandle,
     required this.twitterHandle,
-    required this.websiteUrl,
-    required this.profileImageUrl,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
+  // Legacy getters for backward compatibility
+  String get artistName => displayName;
+  String get description => bio;
+  String get youtubeUrl => youtubeHandle;
+
   ProfileData copyWith({
-    String? artistName,
-    String? description,
+    int? id,
+    int? userId,
+    String? displayName,
+    String? bio,
     String? location,
-    String? youtubeUrl,
+    String? profileImageUrl,
+    String? websiteUrl,
+    String? youtubeHandle,
     String? tiktokHandle,
     String? instagramHandle,
     String? twitterHandle,
-    String? websiteUrl,
-    String? profileImageUrl,
+    String? createdAt,
+    String? updatedAt,
   }) {
     return ProfileData(
-      artistName: artistName ?? this.artistName,
-      description: description ?? this.description,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      displayName: displayName ?? this.displayName,
+      bio: bio ?? this.bio,
       location: location ?? this.location,
-      youtubeUrl: youtubeUrl ?? this.youtubeUrl,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      websiteUrl: websiteUrl ?? this.websiteUrl,
+      youtubeHandle: youtubeHandle ?? this.youtubeHandle,
       tiktokHandle: tiktokHandle ?? this.tiktokHandle,
       instagramHandle: instagramHandle ?? this.instagramHandle,
       twitterHandle: twitterHandle ?? this.twitterHandle,
-      websiteUrl: websiteUrl ?? this.websiteUrl,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  // Default data for different user roles
-  static ProfileData getDefaultArtistData() {
-    return const ProfileData(
-      artistName: 'Travis Scott',
-      description: 'Houston rapper and songwriter known for atmospheric production and melodic rap style.',
-      location: 'Houston, TX',
-      youtubeUrl: 'travisscott',
-      tiktokHandle: '@travisscott',
-      instagramHandle: '@travisscott',
-      twitterHandle: '@trvisXX',
-      websiteUrl: 'travisscott.com',
-      profileImageUrl: '',
+  // JSON serialization
+  factory ProfileData.fromJson(Map<String, dynamic> json) {
+    return ProfileData(
+      id: json['id'] as int,
+      userId: json['user_id'] as int,
+      displayName: json['display_name'] as String? ?? '',
+      bio: json['bio'] as String? ?? '',
+      location: json['location'] as String? ?? '',
+      profileImageUrl: json['profile_image_url'] as String? ?? '',
+      websiteUrl: json['website_url'] as String? ?? '',
+      youtubeHandle: json['youtube_handle'] as String? ?? '',
+      tiktokHandle: json['tiktok_handle'] as String? ?? '',
+      instagramHandle: json['instagram_handle'] as String? ?? '',
+      twitterHandle: json['twitter_handle'] as String? ?? '',
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
     );
   }
 
-  static ProfileData getDefaultProducerData() {
-    return const ProfileData(
-      artistName: 'Metro Boomin',
-      description: 'Multi-platinum producer and songwriter. Creating the sound of the future.',
-      location: 'St. Louis, MO',
-      youtubeUrl: 'metroboomin',
-      tiktokHandle: '@metroboomin',
-      instagramHandle: '@metroboomin',
-      twitterHandle: '@MetroBoomin',
-      websiteUrl: 'metroboomin.com',
-      profileImageUrl: '',
-    );
+  Map<String, dynamic> toJson() {
+    return {
+      'display_name': displayName,
+      'bio': bio,
+      'location': location,
+      'website_url': websiteUrl,
+      'youtube_handle': youtubeHandle,
+      'tiktok_handle': tiktokHandle,
+      'instagram_handle': instagramHandle,
+      'twitter_handle': twitterHandle,
+    };
   }
+
 }

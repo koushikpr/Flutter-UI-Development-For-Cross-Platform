@@ -22,12 +22,16 @@ import 'package:share_plus/share_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
+  final String? userName; // User's actual name from login
+  final String? userEmail; // User's email from login
   final VoidCallback? onNavigateToAnalytics; // Callback to navigate to analytics tab
   final VoidCallback? onNavigateToMyBids; // Callback to navigate to my bids tab
   
   const ProfileScreen({
     super.key,
     this.userRole = 'producer',
+    this.userName,
+    this.userEmail,
     this.onNavigateToAnalytics,
     this.onNavigateToMyBids,
   });
@@ -39,7 +43,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
   int _selectedTabIndex = 0;
   late TabController _tabController;
-  late ProfileData _currentProfile;
+  ProfileData? _currentProfile;
   dynamic _profileImage; // Can be File or String (for web)
   final ImagePicker _picker = ImagePicker();
 
@@ -47,11 +51,66 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    
+    // Initialize with user data immediately to avoid "Loading..." state
+    _currentProfile = ProfileData(
+      id: 0,
+      userId: 0,
+      displayName: widget.userName ?? (widget.userRole == 'artist' ? 'Artist Name' : 'Producer Name'),
+      bio: 'Welcome to BAGR_Z!',
+      location: 'Location',
+      profileImageUrl: '',
+      websiteUrl: '',
+      youtubeHandle: '',
+      tiktokHandle: '',
+      instagramHandle: '',
+      twitterHandle: '',
+      createdAt: '',
+      updatedAt: '',
+    );
+    
+    // Then try to load from backend
     _loadProfile();
   }
   
-  void _loadProfile() {
-    _currentProfile = ProfileService.instance.getCurrentProfile(widget.userRole);
+  void _loadProfile() async {
+    try {
+      final response = await ProfileService.instance.getCurrentProfile();
+      if (response.success && response.data != null) {
+        // Update with data from backend
+        setState(() {
+          _currentProfile = response.data!;
+        });
+      } else {
+        // If no profile exists, create one with user's data and save it
+        final newProfile = ProfileData(
+          id: 0,
+          userId: 0,
+          displayName: widget.userName ?? (widget.userRole == 'artist' ? 'Artist Name' : 'Producer Name'),
+          bio: 'Welcome to BAGR_Z!',
+          location: 'Location',
+          profileImageUrl: '',
+          websiteUrl: '',
+          youtubeHandle: '',
+          tiktokHandle: '',
+          instagramHandle: '',
+          twitterHandle: '',
+          createdAt: '',
+          updatedAt: '',
+        );
+        
+        // Save the new profile to backend
+        final saveResponse = await ProfileService.instance.updateProfile(newProfile);
+        if (saveResponse.success) {
+          setState(() {
+            _currentProfile = newProfile;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading profile: $e');
+      // Keep the current profile (already initialized with user data)
+    }
   }
 
   @override
@@ -129,6 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                               title: 'Take Photo',
                               subtitle: 'Use camera to take a new photo',
                               onTap: () {
+                                print('📷 Camera button tapped!');
                                 Navigator.pop(context);
                                 _takePhoto();
                               },
@@ -141,6 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                               title: 'Choose from Gallery',
                               subtitle: 'Select an existing photo',
                               onTap: () {
+                                print('🖼️ Gallery button tapped!');
                                 Navigator.pop(context);
                                 _chooseFromGallery();
                               },
@@ -281,6 +342,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
   Future<void> _takePhoto() async {
     try {
+      print('📷 Starting camera...');
+      
       // Check camera permission on mobile platforms
       if (!kIsWeb) {
         var status = await Permission.camera.status;
@@ -293,27 +356,44 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         }
       }
 
+      print('📷 Taking photo with camera...');
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 80,
+        // Web-specific options
+        webOptions: const XFileWebOptions(
+          mimeType: 'image/*',
+        ),
       );
 
+      print('📷 Camera result: ${image?.path}');
+      
       if (image != null) {
+        print('📷 Photo taken: ${image.path}');
+        final imageFile = File(image.path);
         setState(() {
-          _profileImage = kIsWeb ? image.path : File(image.path);
+          _profileImage = imageFile;
         });
-        _showPhotoActionResult('Photo taken and updated successfully!');
+        
+        print('📷 Uploading photo to backend...');
+        // Upload image to backend
+        await _uploadProfileImage(imageFile);
+      } else {
+        print('📷 No photo taken');
+        _showPhotoActionResult('No photo taken');
       }
     } catch (e) {
-      print('Error taking photo: $e');
-      _showPhotoActionResult('Failed to take photo. Please try again.');
+      print('❌ Error taking photo: $e');
+      _showPhotoActionResult('Failed to take photo: $e');
     }
   }
 
   Future<void> _chooseFromGallery() async {
     try {
+      print('🖼️ Starting image picker...');
+      
       // Check photo library permission on mobile platforms
       if (!kIsWeb) {
         var status = await Permission.photos.status;
@@ -326,22 +406,37 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         }
       }
 
+      print('🖼️ Picking image from gallery...');
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 80,
+        // Web-specific options
+        webOptions: const XFileWebOptions(
+          mimeType: 'image/*',
+        ),
       );
 
+      print('🖼️ Image picker result: ${image?.path}');
+      
       if (image != null) {
+        print('🖼️ Image selected: ${image.path}');
+        final imageFile = File(image.path);
         setState(() {
-          _profileImage = kIsWeb ? image.path : File(image.path);
+          _profileImage = imageFile;
         });
-        _showPhotoActionResult('Photo selected and updated successfully!');
+        
+        print('🖼️ Uploading image to backend...');
+        // Upload image to backend
+        await _uploadProfileImage(imageFile);
+      } else {
+        print('🖼️ No image selected');
+        _showPhotoActionResult('No image selected');
       }
     } catch (e) {
-      print('Error choosing from gallery: $e');
-      _showPhotoActionResult('Failed to select photo. Please try again.');
+      print('❌ Error choosing from gallery: $e');
+      _showPhotoActionResult('Failed to select photo: $e');
     }
   }
 
@@ -363,11 +458,81 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
 
+  Future<void> _uploadProfileImage(File imageFile) async {
+    try {
+      _showPhotoActionResult('Uploading image...');
+      
+      final response = await ProfileService.instance.uploadProfileImage(imageFile);
+      
+      if (response.success && response.data != null) {
+        // Update profile with new image URL
+        setState(() {
+          _currentProfile = _currentProfile?.copyWith(
+            profileImageUrl: response.data!,
+          );
+        });
+        _showPhotoActionResult('Profile photo updated successfully!');
+      } else {
+        _showPhotoActionResult('Failed to upload image: ${response.message}');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      _showPhotoActionResult('Failed to upload image. Please try again.');
+    }
+  }
+
   void _removePhoto() {
     setState(() {
       _profileImage = null;
     });
     _showPhotoActionResult('Profile photo removed successfully!');
+  }
+
+  Widget _getProfileImageWidget() {
+    // If we have a local image (just selected), show that
+    if (_profileImage != null) {
+      return Image.file(
+        _profileImage!,
+        width: 76.w,
+        height: 76.h,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+      );
+    }
+    
+    // If we have a profile image URL from backend, show that
+    if (_currentProfile?.profileImageUrl.isNotEmpty == true) {
+      return Image.network(
+        _currentProfile!.profileImageUrl,
+        width: 76.w,
+        height: 76.h,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+      );
+    }
+    
+    // Default avatar
+    return _buildDefaultAvatar();
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          colors: [
+            Colors.grey.shade800,
+            Colors.grey.shade900,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          FontAwesomeIcons.music,
+          color: AppTheme.accentColor,
+          size: 32.sp,
+        ),
+      ),
+    );
   }
 
   void _showPhotoActionResult(String message) {
@@ -650,7 +815,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   void _editProfile() async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => EditProfileScreen(userRole: widget.userRole),
+        builder: (context) => EditProfileScreen(
+          userRole: widget.userRole,
+          userName: widget.userName,
+          userEmail: widget.userEmail,
+        ),
       ),
     );
     
@@ -724,7 +893,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                           Navigator.pop(context);
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => QRProfileScreen(userRole: widget.userRole),
+                              builder: (context) => QRProfileScreen(
+                                userRole: widget.userRole,
+                                userName: widget.userName,
+                                userEmail: widget.userEmail,
+                              ),
                             ),
                           );
                         },
@@ -834,16 +1007,18 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
   
   void _shareNatively() {
+    if (_currentProfile == null) return;
+    
     // Generate profile URL
-    final profileHandle = '@${_currentProfile.artistName.toLowerCase().replaceAll(' ', '').replaceAll(RegExp(r'[^a-z0-9]'), '')}';
+    final profileHandle = '@${_currentProfile!.displayName.toLowerCase().replaceAll(' ', '').replaceAll(RegExp(r'[^a-z0-9]'), '')}';
     final profileUrl = 'https://bagr.app/profiles/$profileHandle';
     
     final shareText = '''
-🎵 Check out ${_currentProfile.artistName} on BAGR_Z!
+🎵 Check out ${_currentProfile!.displayName} on BAGR_Z!
 
-${_currentProfile.description}
+${_currentProfile!.bio}
 
-📍 ${_currentProfile.location}
+📍 ${_currentProfile!.location}
 
 Visit: $profileUrl
 
@@ -852,7 +1027,7 @@ Visit: $profileUrl
     
     Share.share(
       shareText,
-      subject: '${_currentProfile.artistName} - BAGR_Z Profile',
+      subject: '${_currentProfile!.displayName} - BAGR_Z Profile',
     );
   }
 
@@ -1321,54 +1496,7 @@ Visit: $profileUrl
                           color: Colors.black,
                         ),
                         child: ClipOval(
-                          child: _profileImage != null
-                              ? kIsWeb
-                                  ? Image.network(
-                                      _profileImage!,
-                                      width: 76.w,
-                                      height: 76.h,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        decoration: BoxDecoration(
-                                          gradient: RadialGradient(
-                                            colors: [
-                                              Colors.grey.shade800,
-                                              Colors.grey.shade900,
-                                            ],
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Icon(
-                                            FontAwesomeIcons.music,
-                                            color: AppTheme.accentColor,
-                                            size: 32.sp,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Image.file(
-                                      _profileImage!,
-                                      width: 76.w,
-                                      height: 76.h,
-                                      fit: BoxFit.cover,
-                                    )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                    gradient: RadialGradient(
-                                      colors: [
-                                        Colors.grey.shade800,
-                                        Colors.grey.shade900,
-                                      ],
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      FontAwesomeIcons.music,
-                                      color: AppTheme.accentColor,
-                                      size: 32.sp,
-                                    ),
-                                  ),
-                                ),
+                          child: _getProfileImageWidget(),
                         ),
                       ),
                     ),
@@ -1391,7 +1519,7 @@ Visit: $profileUrl
                   children: [
                     // Name
                     Text(
-                      _currentProfile.artistName,
+                      _currentProfile?.displayName ?? 'Loading...',
                       style: GoogleFonts.getFont(
                         'Wix Madefor Display',
                         fontSize: 20.sp,
@@ -1442,7 +1570,7 @@ Visit: $profileUrl
               ),
               SizedBox(width: 4.w),
               Text(
-                _currentProfile.location,
+                _currentProfile?.location ?? '',
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 14.sp,
@@ -1456,7 +1584,7 @@ Visit: $profileUrl
           
           // Bio from profile data
           Text(
-            _currentProfile.description,
+            _currentProfile?.bio ?? '',
             style: GoogleFonts.getFont(
               'Wix Madefor Display',
               fontSize: 14.sp,
@@ -1470,8 +1598,6 @@ Visit: $profileUrl
   }
 
   Widget _buildSocialLinks() {
-    final socialLinks = ProfileService.instance.getSocialLinks();
-    
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Row(
@@ -1479,27 +1605,27 @@ Visit: $profileUrl
         children: [
           _buildSocialButton(
             FontAwesomeIcons.youtube,
-            _currentProfile.youtubeUrl.isNotEmpty ? 'youtube.com/${_currentProfile.youtubeUrl}' : 'YouTube',
+            _currentProfile?.youtubeHandle.isNotEmpty == true ? _currentProfile!.youtubeHandle : 'YouTube',
             AppTheme.errorColor,
-            _currentProfile.youtubeUrl.isNotEmpty,
+            _currentProfile?.youtubeHandle.isNotEmpty == true,
           ),
           _buildSocialButton(
             FontAwesomeIcons.instagram,
-            _currentProfile.instagramHandle.isNotEmpty ? _currentProfile.instagramHandle : 'Instagram',
+            _currentProfile?.instagramHandle.isNotEmpty == true ? _currentProfile!.instagramHandle : 'Instagram',
             Colors.purple,
-            _currentProfile.instagramHandle.isNotEmpty,
+            _currentProfile?.instagramHandle.isNotEmpty == true,
           ),
           _buildSocialButton(
             FontAwesomeIcons.tiktok,
-            _currentProfile.tiktokHandle.isNotEmpty ? _currentProfile.tiktokHandle : 'TikTok',
+            _currentProfile?.tiktokHandle.isNotEmpty == true ? _currentProfile!.tiktokHandle : 'TikTok',
             Colors.white,
-            _currentProfile.tiktokHandle.isNotEmpty,
+            _currentProfile?.tiktokHandle.isNotEmpty == true,
           ),
           _buildSocialButton(
             FontAwesomeIcons.twitter,
-            _currentProfile.twitterHandle.isNotEmpty ? _currentProfile.twitterHandle : 'Twitter',
+            _currentProfile?.twitterHandle.isNotEmpty == true ? _currentProfile!.twitterHandle : 'Twitter',
             Colors.blue,
-            _currentProfile.twitterHandle.isNotEmpty,
+            _currentProfile?.twitterHandle.isNotEmpty == true,
           ),
         ],
       ),

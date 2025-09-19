@@ -8,13 +8,19 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/custom_status_bar.dart';
 import 'services/profile_service.dart';
+import 'models/profile_data.dart';
+import '../../../auth/models/api_response.dart';
 
 class QRProfileScreen extends StatefulWidget {
   final String userRole;
+  final String? userName;
+  final String? userEmail;
   
   const QRProfileScreen({
     super.key,
     this.userRole = 'producer',
+    this.userName,
+    this.userEmail,
   });
 
   @override
@@ -31,11 +37,26 @@ class _QRProfileScreenState extends State<QRProfileScreen> {
     _generateProfileUrl();
   }
   
-  void _generateProfileUrl() {
-    final profile = ProfileService.instance.getCurrentProfile(widget.userRole);
+  void _generateProfileUrl() async {
+    final response = await ProfileService.instance.getCurrentProfile();
+    final profile = response.data ?? ProfileData(
+      id: 0,
+      userId: 0,
+      displayName: widget.userRole == 'artist' ? 'Artist Name' : 'Producer Name',
+      bio: 'Welcome to BAGR_Z!',
+      location: 'Location',
+      profileImageUrl: '',
+      websiteUrl: '',
+      youtubeHandle: '',
+      tiktokHandle: '',
+      instagramHandle: '',
+      twitterHandle: '',
+      createdAt: '',
+      updatedAt: '',
+    );
     
-    // Generate handle from artist name (remove spaces, convert to lowercase, add @)
-    _profileHandle = '@${profile.artistName.toLowerCase().replaceAll(' ', '').replaceAll(RegExp(r'[^a-z0-9]'), '')}';
+    // Generate handle from display name (remove spaces, convert to lowercase, add @)
+    _profileHandle = '@${profile.displayName.toLowerCase().replaceAll(' ', '').replaceAll(RegExp(r'[^a-z0-9]'), '')}';
     
     // Generate profile URL
     _profileUrl = 'https://bagr.app/profiles/$_profileHandle';
@@ -264,7 +285,29 @@ class _QRProfileScreenState extends State<QRProfileScreen> {
   }
 
   Widget _buildProfileInfo() {
-    final profile = ProfileService.instance.getCurrentProfile(widget.userRole);
+    return FutureBuilder<ApiResponse<ProfileData>>(
+      future: ProfileService.instance.getCurrentProfile(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        
+        final response = snapshot.data;
+        final profile = response?.data ?? ProfileData(
+          id: 0,
+          userId: 0,
+          displayName: widget.userName ?? (widget.userRole == 'artist' ? 'Artist Name' : 'Producer Name'),
+          bio: 'Welcome to BAGR_Z!',
+          location: 'Location',
+          profileImageUrl: '',
+          websiteUrl: '',
+          youtubeHandle: '',
+          tiktokHandle: '',
+          instagramHandle: '',
+          twitterHandle: '',
+          createdAt: '',
+          updatedAt: '',
+        );
     
     return Container(
       padding: EdgeInsets.all(20.w),
@@ -301,7 +344,7 @@ class _QRProfileScreenState extends State<QRProfileScreen> {
           
           // Name
           Text(
-            profile.artistName,
+            profile.displayName,
             style: GoogleFonts.getFont(
               'Wix Madefor Display',
               fontSize: 20.sp,
@@ -382,6 +425,8 @@ class _QRProfileScreenState extends State<QRProfileScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 
@@ -482,8 +527,23 @@ class _QRProfileScreenState extends State<QRProfileScreen> {
     );
   }
 
-  void _shareProfile() {
-    final profile = ProfileService.instance.getCurrentProfile(widget.userRole);
+  void _shareProfile() async {
+    final response = await ProfileService.instance.getCurrentProfile();
+    final profile = response.data ?? ProfileData(
+      id: 0,
+      userId: 0,
+      displayName: widget.userRole == 'artist' ? 'Artist Name' : 'Producer Name',
+      bio: 'Welcome to BAGR_Z!',
+      location: 'Location',
+      profileImageUrl: '',
+      websiteUrl: '',
+      youtubeHandle: '',
+      tiktokHandle: '',
+      instagramHandle: '',
+      twitterHandle: '',
+      createdAt: '',
+      updatedAt: '',
+    );
     
     final shareText = '''
 🎵 Check out ${profile.artistName} on BAGR_Z!
@@ -499,7 +559,7 @@ Visit: $_profileUrl
     
     Share.share(
       shareText,
-      subject: '${profile.artistName} - BAGR_Z Profile',
+      subject: '${profile.displayName} - BAGR_Z Profile',
     );
   }
 
