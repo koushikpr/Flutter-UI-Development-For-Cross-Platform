@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
 import '../../core/theme/app_theme.dart';
 
 class AuctionDetailsScreen extends StatelessWidget {
@@ -170,23 +171,29 @@ class AuctionDetailsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     // Top row: Single box with 4 stats
-                    Container(
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1.5,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16.r),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(16.r),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(child: _buildStatItem('Started at', '\$20')),
+                              Expanded(child: _buildStatItem('Total Earned', '\$120')),
+                              Expanded(child: _buildStatItem('Tips', '\$40')),
+                              Expanded(child: _buildStatItem('Flipped', '5x')),
+                            ],
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(child: _buildStatItem('Started at', '\$20')),
-                          Expanded(child: _buildStatItem('Total Earned', '\$120')),
-                          Expanded(child: _buildStatItem('Tips', '\$40')),
-                          Expanded(child: _buildStatItem('Flipped', '5x')),
-                        ],
                       ),
                     ),
                     
@@ -197,17 +204,23 @@ class AuctionDetailsScreen extends StatelessWidget {
                       children: [
                         // Total Sell Time box
                         Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1.5,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.r),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              child: Container(
+                                padding: EdgeInsets.all(16.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: _buildStatItem('Total Sell Time', timeAgo),
                               ),
                             ),
-                            child: _buildStatItem('Total Sell Time', timeAgo),
                           ),
                         ),
                         
@@ -215,17 +228,23 @@ class AuctionDetailsScreen extends StatelessWidget {
                         
                         // Live Viewers box
                         Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1.5,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.r),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              child: Container(
+                                padding: EdgeInsets.all(16.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: _buildStatItem('Live Viewers', '389'),
                               ),
                             ),
-                            child: _buildStatItem('Live Viewers', '389'),
                           ),
                         ),
                       ],
@@ -239,67 +258,73 @@ class AuctionDetailsScreen extends StatelessWidget {
               // Winner section
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Winner',
-                        style: GoogleFonts.fjallaOne(
-                          fontSize: 16.sp,
-                          color: Colors.white.withOpacity(0.7),
-                          fontWeight: FontWeight.w400,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1.5,
                         ),
                       ),
-                      SizedBox(height: 12.h),
-                      Row(
+                      child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 20.r,
-                            backgroundColor: Colors.grey[600],
-                            child: Icon(Icons.person, color: Colors.white, size: 20.sp),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '@Tyga1',
-                                  style: GoogleFonts.fjallaOne(
-                                    fontSize: 16.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                Text(
-                                  'bought this beat for \$120',
-                                  style: GoogleFonts.fjallaOne(
-                                    fontSize: 12.sp,
-                                    color: Colors.white.withOpacity(0.7),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            'Winner',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 16.sp,
+                              color: Colors.white.withOpacity(0.7),
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
-                          Image.asset(
-                            'trophy.png',
-                            width: 80.w,
-                            height: 80.h,
-                            fit: BoxFit.contain,
+                          SizedBox(height: 12.h),
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20.r,
+                                backgroundColor: Colors.grey[600],
+                                child: Icon(Icons.person, color: Colors.white, size: 20.sp),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '@Tyga1',
+                                      style: GoogleFonts.fjallaOne(
+                                        fontSize: 16.sp,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                    Text(
+                                      'bought this beat for \$120',
+                                      style: GoogleFonts.fjallaOne(
+                                        fontSize: 12.sp,
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Image.asset(
+                                'trophy.png',
+                                width: 80.w,
+                                height: 80.h,
+                                fit: BoxFit.contain,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -309,43 +334,49 @@ class AuctionDetailsScreen extends StatelessWidget {
               // Flex Your Win section
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1.5,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Flex Your Win',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildFlexOption('1', 'Post it now', Colors.purple),
+                          SizedBox(height: 12.h),
+                          _buildFlexOption('2', 'Tag 3 producers', Colors.purple),
+                          SizedBox(height: 12.h),
+                          _buildFlexOption('3', 'Dare \'em to beat your bag stats', Colors.purple),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'Just turned \$20 into \$120 in 90 seconds 🔥 Who\'s next? 🔥 #BAGRbeats',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 12.sp,
+                              color: Colors.white.withOpacity(0.8),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Flex Your Win',
-                        style: GoogleFonts.fjallaOne(
-                          fontSize: 16.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      _buildFlexOption('1', 'Post it now', Colors.purple),
-                      SizedBox(height: 12.h),
-                      _buildFlexOption('2', 'Tag 3 producers', Colors.purple),
-                      SizedBox(height: 12.h),
-                      _buildFlexOption('3', 'Dare \'em to beat your bag stats', Colors.purple),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'Just turned \$20 into \$120 in 90 seconds 🔥 Who\'s next? 🔥 #BAGRbeats',
-                        style: GoogleFonts.fjallaOne(
-                          fontSize: 12.sp,
-                          color: Colors.white.withOpacity(0.8),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),

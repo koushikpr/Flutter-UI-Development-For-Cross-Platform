@@ -14,6 +14,7 @@ import '../../auth/screens/auth_test_screen.dart';
 import '../profile/profile_screen.dart';
 import '../profile/add_beat_info_screen.dart';
 import '../auction/auction_details_screen.dart';
+import '../auction/live_auction_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
@@ -1215,8 +1216,17 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to active auction screen
-          print('Tapped on Active Auction: $title');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LiveAuctionScreen(
+                title: title,
+                currentBid: '\$120',
+                timeLeft: '1:30',
+                bidCount: '48',
+              ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(12.r),
         child: Column(
