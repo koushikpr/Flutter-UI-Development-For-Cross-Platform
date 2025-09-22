@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math' as Math;
 import 'dart:io';
+import 'dart:ui';
 import '../../core/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -977,24 +978,49 @@ Visit: $profileUrl
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      barrierColor: Colors.black.withOpacity(0.3), // Darker barrier for stronger background blur effect
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 0.85,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.85,
+            builder: (context, scrollController) {
+              return ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(24.r),
                   topRight: Radius.circular(24.r),
                 ),
-              ),
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: SafeArea(
-                  child: Column(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24.r),
+                    topRight: Radius.circular(24.r),
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xFFFFF59D), // Light yellow (top)
+                            Color(0xFFE1BEE7), // Light purple
+                            Color(0xFF6A1B9A), // Darker purple (quick transition)
+                            Colors.black,      // Black (bottom)
+                          ],
+                          stops: [0.0, 0.15, 0.25, 0.4],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24.r),
+                          topRight: Radius.circular(24.r),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: SafeArea(
+                          child: Column(
                     children: [
                       // Header with close button
                       Padding(
@@ -1003,13 +1029,25 @@ Visit: $profileUrl
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const SizedBox(width: 24), // Spacer
-                            Text(
-                              'Add to Store',
-                              style: GoogleFonts.getFont(
-                                'Wix Madefor Display',
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                            ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  Colors.white,
+                                  Colors.grey[300]!,
+                                  Colors.grey[400]!,
+                                  Colors.white,
+                                ],
+                                stops: [0.0, 0.3, 0.7, 1.0],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(bounds),
+                              child: Text(
+                                'Add to Store',
+                                style: GoogleFonts.fjallaOne(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                             GestureDetector(
@@ -1090,7 +1128,7 @@ Visit: $profileUrl
                               _addSingleBeat(); // Default to single beat
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor: Colors.white.withOpacity(0.9),
                               foregroundColor: Colors.black,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -1112,11 +1150,15 @@ Visit: $profileUrl
                       
                       SizedBox(height: 32.h),
                     ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            }
+          ),
         );
       },
     );
@@ -1134,12 +1176,12 @@ Visit: $profileUrl
       child: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: const Color(0xFF1A1A1A).withOpacity(0.7),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isSelected 
-                ? Colors.white.withOpacity(0.3)
-                : Colors.white.withOpacity(0.1),
+                ? Colors.white.withOpacity(0.4)
+                : Colors.white.withOpacity(0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1188,13 +1230,25 @@ Visit: $profileUrl
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.grey[300]!,
+                        Colors.grey[400]!,
+                        Colors.white,
+                      ],
+                      stops: [0.0, 0.3, 0.7, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      title,
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -2292,6 +2346,33 @@ class MusicWavePatternPainter extends CustomPainter {
     }
     
     canvas.drawPath(curvePath, curvePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class NoisePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..style = PaintingStyle.fill;
+
+    final random = Math.Random(42); // Fixed seed for consistent noise
+    
+    // Create noise pattern with small rectangles
+    for (int i = 0; i < (size.width * size.height / 16).round(); i++) {
+      final x = random.nextDouble() * size.width;
+      final y = random.nextDouble() * size.height;
+      final width = random.nextDouble() * 2 + 0.5;
+      final height = random.nextDouble() * 2 + 0.5;
+      
+      canvas.drawRect(
+        Rect.fromLTWH(x, y, width, height),
+        paint,
+      );
+    }
   }
 
   @override

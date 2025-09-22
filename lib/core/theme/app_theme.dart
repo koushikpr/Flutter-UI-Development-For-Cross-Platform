@@ -184,78 +184,78 @@ class AppTheme {
   }
 
   static TextTheme _buildTextTheme(Color textColor) {
-    return GoogleFonts.interTextTheme().copyWith(
-      displayLarge: GoogleFonts.inter(
+    return GoogleFonts.fjallaOneTextTheme().copyWith(
+      displayLarge: GoogleFonts.fjallaOne(
         fontSize: 32,
         fontWeight: FontWeight.bold,
         color: textColor,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: GoogleFonts.fjallaOne(
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: textColor,
       ),
-      displaySmall: GoogleFonts.inter(
+      displaySmall: GoogleFonts.fjallaOne(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      headlineLarge: GoogleFonts.inter(
+      headlineLarge: GoogleFonts.fjallaOne(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: GoogleFonts.fjallaOne(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: GoogleFonts.fjallaOne(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      titleLarge: GoogleFonts.inter(
+      titleLarge: GoogleFonts.fjallaOne(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: textColor,
       ),
-      titleMedium: GoogleFonts.inter(
+      titleMedium: GoogleFonts.fjallaOne(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
-      titleSmall: GoogleFonts.inter(
+      titleSmall: GoogleFonts.fjallaOne(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: GoogleFonts.fjallaOne(
         fontSize: 16,
         fontWeight: FontWeight.normal,
         color: textColor,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: GoogleFonts.fjallaOne(
         fontSize: 14,
         fontWeight: FontWeight.normal,
         color: textColor,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: GoogleFonts.fjallaOne(
         fontSize: 12,
         fontWeight: FontWeight.normal,
         color: textColor,
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: GoogleFonts.fjallaOne(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: GoogleFonts.fjallaOne(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textColor,
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: GoogleFonts.fjallaOne(
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: textColor,

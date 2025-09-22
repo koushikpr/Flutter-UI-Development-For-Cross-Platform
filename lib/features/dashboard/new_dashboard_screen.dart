@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
+import 'dart:ui';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/custom_status_bar.dart';
 import '../../shared/widgets/animated_bottom_nav_bar.dart';
@@ -12,6 +13,7 @@ import 'data/sample_data.dart';
 import '../../auth/screens/auth_test_screen.dart';
 import '../profile/profile_screen.dart';
 import '../profile/add_beat_info_screen.dart';
+import '../auction/auction_details_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
@@ -599,13 +601,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Livestreams',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey[300]!,
+                  Colors.grey[400]!,
+                  Colors.white,
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Livestreams',
+                style: GoogleFonts.fjallaOne(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
               ),
             ),
             Icon(
@@ -620,7 +634,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         
         // Livestream Grid with Slider
         SizedBox(
-          height: 160.h,
+          height: 250.h,
           child: PageView.builder(
             controller: _livestreamController,
             itemCount: 3, // Number of pages
@@ -684,73 +698,55 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     Color accentColor,
     int index,
   ) {
-    return Container(
-      height: 160.h,
-      decoration: BoxDecoration(
-        color: AppTheme.glassColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppTheme.glassBorder,
-          width: 1,
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.glassLight,
-                  AppTheme.glassColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to livestream screen
+          print('Tapped on Livestream: $title');
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+        
+        // THE RECTANGLE - waves background with live indicator
+        Container(
+          height: 160.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1.5,
+            ),
+            image: DecorationImage(
+              image: AssetImage('waves.jpg'),
+              fit: BoxFit.cover,
             ),
           ),
-          
-          // Content
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Live indicator with animation
-                AnimatedBuilder(
+          child: Stack(
+            children: [
+              // Live indicator (same style as people count)
+              Positioned(
+                top: 12.h,
+                left: 12.w,
+                child: AnimatedBuilder(
                   animation: _liveAnimationController,
                   builder: (context, child) {
                     final animationValue = _liveAnimationController.value;
                     return Container(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.3),
+                        color: accentColor.withOpacity(0.8 + (0.2 * animationValue)),
                         borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(
-                            0.3 + (0.7 * animationValue),
-                          ),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withOpacity(
-                              0.2 * animationValue,
-                            ),
-                            blurRadius: 8,
-                            spreadRadius: 2,
-                          ),
-                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.radio_button_checked,
-                            color: Colors.white.withOpacity(
-                              0.7 + (0.3 * animationValue),
-                            ),
+                            color: Colors.white.withOpacity(0.8),
                             size: 12.sp,
                           ),
                           SizedBox(width: 4.w),
@@ -768,63 +764,46 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     );
                   },
                 ),
-                
-                const Spacer(),
-                
-                // Title
-                Text(
-                  title,
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                
-                SizedBox(height: 4.h),
-                
-                // Subtitle
-                Text(
-                  subtitle,
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                
-                SizedBox(height: 8.h),
-                
-                // Viewers count
-                Row(
-                  children: [
-                    Icon(
-                      Icons.visibility,
-                      color: accentColor,
-                      size: 14.sp,
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      viewers,
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
-                        color: accentColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 10.h),
+        
+        // Title below rectangle
+        Text(
+          title,
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        
+        SizedBox(height: 6.h),
+        
+        // Subtitle below title (like throwback tag)
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            subtitle,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 10.sp,
+              color: Colors.white.withOpacity(0.8),
             ),
           ),
+        ),
         ],
+        ),
       ),
     );
   }
@@ -835,13 +814,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       children: [
         Row(
           children: [
-            Text(
-              'Featured Auctions',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey[300]!,
+                  Colors.grey[400]!,
+                  Colors.white,
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Grab Bags',
+                style: GoogleFonts.fjallaOne(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
               ),
             ),
             const Spacer(),
@@ -860,23 +851,180 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           ],
         ),
         SizedBox(height: 16.h),
-        ListView.builder(
+        // 2x2 Grid Layout
+        GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: beatsData.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 11.h,
+            childAspectRatio: 0.7, // Reasonable ratio - let Expanded control rectangle height
+          ),
+          itemCount: 4, // Show 4 items in 2x2 grid
           itemBuilder: (context, index) {
-            return BeatListView(
-              beatData: beatsData[index],
-              callback: () {
-                print('Beat tapped: ${beatsData[index].title}');
-              },
-            );
+            return _buildGrabBagCard(index);
           },
         ),
       ],
     );
   }
 
+  Widget _buildGrabBagCard(int index) {
+    final grabBagTitles = [
+      'Breaking Positive Auction',
+      'Breaking Positive Auction', 
+      'Breaking Positive Auction',
+      'Breaking Positive Auction'
+    ];
+    
+    final usernames = [
+      'Lumpiaxpapi',
+      'Lumpiaxpapi',
+      'Lumpiaxpapi', 
+      'Lumpiaxpapi'
+    ];
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to grab bag details screen
+          print('Tapped on Grab Bag: ${grabBagTitles[index]}');
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+        // Username at top
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 6.r,
+              backgroundColor: Colors.grey[600],
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              usernames[index],
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontSize: 12.sp,
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 12.h),
+        
+        // THE RECTANGLE - just one! (simple fixed height)
+        Container(
+          height: 160.h, // Reasonable height that fits in grid
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1.5,
+            ),
+            image: DecorationImage(
+              image: AssetImage('waves.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // People count button (same style as throwback)
+              Positioned(
+                top: 12.h,
+                left: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.people,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 12.sp,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '248',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 10.sp,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Play button bottom right (or add button for last card)
+              Positioned(
+                bottom: 12.h,
+                right: 12.w,
+                child: Container(
+                  width: 32.w,
+                  height: 32.h,
+                  decoration: BoxDecoration(
+                    color: index == 3 ? Colors.white : Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    index == 3 ? Icons.add : Icons.play_arrow,
+                    color: Colors.black,
+                    size: 20.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 3.h),
+        
+        // Title below rectangle
+        Text(
+          grabBagTitles[index],
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        
+        SizedBox(height: 6.h),
+        
+        // Tag below title
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            'Throwback',
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 10.sp,
+              color: Colors.white.withOpacity(0.8),
+            ),
+          ),
+        ),
+        ],
+        ),
+      ),
+    );
+  }
 
   // Producer sections
   Widget _buildMyAuctionsSection() {
@@ -887,13 +1035,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'My Auctions',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey[300]!,
+                  Colors.grey[400]!,
+                  Colors.white,
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'My Auctions',
+                style: GoogleFonts.fjallaOne(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
               ),
             ),
             Icon(
@@ -908,7 +1068,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         
         // My Auctions Grid
         SizedBox(
-          height: 160.h,
+          height: 250.h,
           child: PageView.builder(
             itemCount: 2,
             itemBuilder: (context, pageIndex) {
@@ -948,13 +1108,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       children: [
         Row(
           children: [
-            Text(
-              'Previous Auctions',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey[300]!,
+                  Colors.grey[400]!,
+                  Colors.white,
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Previous Auctions',
+                style: GoogleFonts.fjallaOne(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
               ),
             ),
             const Spacer(),
@@ -973,80 +1145,60 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           ],
         ),
         SizedBox(height: 16.h),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 3,
-          itemBuilder: (context, index) {
-            final statuses = ['Sold - \$420', 'Sold - \$320', 'Unsold'];
-            final colors = [AppTheme.successColor, AppTheme.successColor, AppTheme.errorColor];
-            
-            return Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: AppTheme.glassColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppTheme.glassBorder,
-                    width: 1,
+        
+        // Previous Auctions Grid with Slider (same as other sections)
+        SizedBox(
+          height: 250.h,
+          child: PageView.builder(
+            itemCount: 2, // Number of pages
+            itemBuilder: (context, pageIndex) {
+              return Row(
+                children: [
+                  // First previous auction card
+                  Expanded(
+                    child: _buildPreviousAuctionCard(
+                      'Midnight Rage',
+                      'Sold - \$120',
+                      '1m 30sec',
+                      AppTheme.successColor,
+                      pageIndex * 2,
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48.w,
-                      height: 48.h,
-                      decoration: BoxDecoration(
-                        color: colors[index].withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Icon(
-                        Icons.music_note,
-                        color: colors[index],
-                        size: 24.sp,
-                      ),
+                  
+                  SizedBox(width: 12.w),
+                  
+                  // Second previous auction card
+                  Expanded(
+                    child: _buildPreviousAuctionCard(
+                      'Dark Trap Symphony',
+                      'Sold - \$420',
+                      '2h 45sec',
+                      AppTheme.successColor,
+                      pageIndex * 2 + 1,
                     ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Beat ${index + 1} Auction',
-                            style: GoogleFonts.getFont(
-                              'Wix Madefor Display',
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '3 days ago',
-                            style: GoogleFonts.getFont(
-                              'Wix Madefor Display',
-                              fontSize: 12.sp,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      statuses[index],
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: colors[index],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        
+        SizedBox(height: 12.h),
+        
+        // Page Indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(2, (index) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 4.w),
+              width: 8.w,
+              height: 8.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.accentColor.withOpacity(0.3),
               ),
             );
-          },
+          }),
         ),
       ],
     );
@@ -1059,56 +1211,50 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     Color accentColor,
     int index,
   ) {
-    return Container(
-      height: 160.h,
-      decoration: BoxDecoration(
-        color: AppTheme.glassColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppTheme.glassBorder,
-          width: 1,
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.glassLight,
-                  AppTheme.glassColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to active auction screen
+          print('Tapped on Active Auction: $title');
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+        // THE RECTANGLE - waves background with auction indicator
+        Container(
+          height: 160.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1.5,
+            ),
+            image: DecorationImage(
+              image: AssetImage('waves.jpg'),
+              fit: BoxFit.cover,
             ),
           ),
-          
-          // Content
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Auction indicator
-                Container(
+          child: Stack(
+            children: [
+              // Auction indicator (same style as live indicator)
+              Positioned(
+                top: 12.h,
+                left: 12.w,
+                child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: accentColor.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: accentColor.withOpacity(0.7),
-                      width: 1,
-                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.gavel,
-                        color: accentColor,
+                        color: Colors.white.withOpacity(0.8),
                         size: 12.sp,
                       ),
                       SizedBox(width: 4.w),
@@ -1124,63 +1270,228 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     ],
                   ),
                 ),
-                
-                const Spacer(),
-                
-                // Title
-                Text(
-                  title,
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+              ),
+              // Time left indicator (bottom right like play button)
+              Positioned(
+                bottom: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                
-                SizedBox(height: 4.h),
-                
-                // Subtitle
-                Text(
-                  subtitle,
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                
-                SizedBox(height: 8.h),
-                
-                // Time left
-                Row(
-                  children: [
-                    Icon(
-                      Icons.schedule,
-                      color: accentColor,
-                      size: 14.sp,
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      timeLeft,
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.schedule,
                         color: accentColor,
+                        size: 12.sp,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 4.w),
+                      Text(
+                        timeLeft,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 10.h),
+        
+        // Title below rectangle
+        Text(
+          title,
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        
+        SizedBox(height: 6.h),
+        
+        // Subtitle below title (like throwback tag)
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            subtitle,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 10.sp,
+              color: Colors.white.withOpacity(0.8),
             ),
           ),
+        ),
         ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreviousAuctionCard(
+    String title,
+    String status,
+    String timeAgo,
+    Color accentColor,
+    int index,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AuctionDetailsScreen(
+                title: title,
+                status: status,
+                timeAgo: timeAgo,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+        // THE RECTANGLE - waves background with sold indicator
+        Container(
+          height: 160.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.3),
+              width: 1.5,
+            ),
+            image: DecorationImage(
+              image: AssetImage('waves.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Status indicator (top-left)
+              Positioned(
+                top: 12.h,
+                left: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 12.sp,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'SOLD',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Total sell time indicator (bottom right)
+              Positioned(
+                bottom: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.timer,
+                        color: Colors.white.withOpacity(0.8),
+                        size: 10.sp,
+                      ),
+                      SizedBox(width: 3.w),
+                      Text(
+                        timeAgo,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 10.h),
+        
+        // Title below rectangle
+        Text(
+          title,
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        
+        SizedBox(height: 6.h),
+        
+        // Status below title (like throwback tag)
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: accentColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Text(
+            status,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontSize: 10.sp,
+              color: accentColor,
+            ),
+          ),
+        ),
+        ],
+        ),
       ),
     );
   }
@@ -1207,19 +1518,52 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.8,
-        builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A1A),
+      barrierColor: Colors.black.withOpacity(0.3), // Darker barrier for stronger background blur effect
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.8,
+          builder: (context, scrollController) => ClipRRect(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20.r),
               topRight: Radius.circular(20.r),
             ),
-          ),
-          child: SingleChildScrollView(
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.r),
+                topRight: Radius.circular(20.r),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFFFFF59D), // Light yellow (top)
+                        Color(0xFFE1BEE7), // Light purple
+                        Color(0xFF6A1B9A), // Darker purple (quick transition)
+                        Colors.black,      // Black (bottom)
+                      ],
+                      stops: [0.0, 0.07, 0.30, 0.5],
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r),
+                    ),
+                  ),
+          child:
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.r),
+                    topRight: Radius.circular(20.r),
+                  ),
+                ),
+                child: SingleChildScrollView(
             controller: scrollController,
             padding: EdgeInsets.all(24.w),
             child: Column(
@@ -1239,13 +1583,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 
                 SizedBox(height: 24.h),
                 
-                Text(
-                  'Add to Store',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.grey[300]!,
+                      Colors.grey[400]!,
+                      Colors.white,
+                    ],
+                    stops: [0.0, 0.3, 0.7, 1.0],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds),
+                  child: Text(
+                    'Add to Store',
+                    style: GoogleFonts.fjallaOne(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 
@@ -1294,6 +1650,11 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 SizedBox(height: 40.h),
               ],
             ),
+                ),
+              ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -1312,12 +1673,12 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       child: Container(
         padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: const Color(0xFF1A1A1A).withOpacity(0.7),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isSelected 
-                ? Colors.white.withOpacity(0.3)
-                : Colors.white.withOpacity(0.1),
+                ? Colors.white.withOpacity(0.4)
+                : Colors.white.withOpacity(0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1366,13 +1727,25 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.grey[300]!,
+                        Colors.grey[400]!,
+                        Colors.white,
+                      ],
+                      stops: [0.0, 0.3, 0.7, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      title,
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: 8.h),
@@ -2103,3 +2476,32 @@ class MusicBackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+
+class NoisePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..style = PaintingStyle.fill;
+
+    final random = math.Random(42); // Fixed seed for consistent noise
+    
+    // Create noise pattern with small rectangles
+    for (int i = 0; i < (size.width * size.height / 16).round(); i++) {
+      final x = random.nextDouble() * size.width;
+      final y = random.nextDouble() * size.height;
+      final width = random.nextDouble() * 2 + 0.5;
+      final height = random.nextDouble() * 2 + 0.5;
+      
+      canvas.drawRect(
+        Rect.fromLTWH(x, y, width, height),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+
