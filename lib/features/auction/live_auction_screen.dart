@@ -40,6 +40,9 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
   bool _showEmojiMenu = false;
   late AnimationController _emojiMenuController;
   late Animation<Offset> _emojiMenuAnimation;
+  
+  // Tip modal state
+  double _tipAmount = 0.0;
 
   @override
   void initState() {
@@ -510,9 +513,245 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
     );
   }
 
+  void _showTipModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.r),
+            topRight: Radius.circular(20.r),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Header with close button
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 24),
+                  Text(
+                    'Show Some Love ❤️',
+                    style: GoogleFonts.getFont(
+                      'Wix Madefor Display',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 24.w,
+                      height: 24.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 16.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Subtitle
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Text(
+                'Not bidding? You can still support\nthe producer with a tip.',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 14.sp,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            
+            SizedBox(height: 32.h),
+            
+            // Tip amount display
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 24.h),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  '\$${_tipAmount.toInt()}',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            
+            SizedBox(height: 24.h),
+            
+            // Tip amount buttons
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildTipAmountButton(5),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildTipAmountButton(10),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _buildTipAmountButton(15),
+                  ),
+                ],
+              ),
+            ),
+            
+            SizedBox(height: 32.h),
+            
+            // Send Tip button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Container(
+                width: double.infinity,
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: _tipAmount > 0 ? () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Tip of \$${_tipAmount.toInt()} sent! 💖',
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 14.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                    );
+                    setState(() {
+                      _tipAmount = 0.0; // Reset tip amount
+                    });
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    'Send Tip',
+                    style: GoogleFonts.getFont(
+                      'Wix Madefor Display',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            
+            SizedBox(height: 24.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTipAmountButton(int amount) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _tipAmount = amount.toDouble();
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: _tipAmount == amount.toDouble() 
+              ? Colors.white.withOpacity(0.2)
+              : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: _tipAmount == amount.toDouble()
+                ? Colors.white.withOpacity(0.3)
+                : Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          '+\$${amount}',
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionButton(IconData icon, String label) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        if (label == 'Tip') {
+          _showTipModal();
+        } else if (label == 'Share') {
+          // Handle share functionality
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Share functionality coming soon!',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 14.sp,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: Colors.blue,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+          );
+        }
+      },
       child: Container(
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(

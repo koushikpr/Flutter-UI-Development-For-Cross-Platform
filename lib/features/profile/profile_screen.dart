@@ -6,6 +6,7 @@ import 'dart:math' as Math;
 import 'dart:io';
 import 'dart:ui';
 import '../../core/theme/app_theme.dart';
+import '../../shared/widgets/dashboard_tiles.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
@@ -973,320 +974,7 @@ Visit: $profileUrl
     );
   }
 
-  void _showAddToStoreModal() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      barrierColor: Colors.black.withOpacity(0.3), // Darker barrier for stronger background blur effect
-      builder: (BuildContext context) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            minChildSize: 0.5,
-            maxChildSize: 0.85,
-            builder: (context, scrollController) {
-              return ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24.r),
-                  topRight: Radius.circular(24.r),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24.r),
-                    topRight: Radius.circular(24.r),
-                  ),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFFFFF59D), // Light yellow (top)
-                            Color(0xFFE1BEE7), // Light purple
-                            Color(0xFF6A1B9A), // Darker purple (quick transition)
-                            Colors.black,      // Black (bottom)
-                          ],
-                          stops: [0.0, 0.15, 0.25, 0.4],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(24.r),
-                          topRight: Radius.circular(24.r),
-                        ),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        child: SafeArea(
-                          child: Column(
-                    children: [
-                      // Header with close button
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox(width: 24), // Spacer
-                            ShaderMask(
-                              shaderCallback: (bounds) => LinearGradient(
-                                colors: [
-                                  Colors.white,
-                                  Colors.grey[300]!,
-                                  Colors.grey[400]!,
-                                  Colors.white,
-                                ],
-                                stops: [0.0, 0.3, 0.7, 1.0],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ).createShader(bounds),
-                              child: Text(
-                                'Add to Store',
-                                style: GoogleFonts.fjallaOne(
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                width: 24.w,
-                                height: 24.h,
-                                child: Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 20.sp,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Subtitle
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: Text(
-                          'Select the type of item you want to add.',
-                          style: GoogleFonts.getFont(
-                            'Wix Madefor Display',
-                            fontSize: 14.sp,
-                            color: Colors.white.withOpacity(0.7),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      
-                      SizedBox(height: 32.h),
-                      
-                      // Options
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: Column(
-                          children: [
-                            _buildStoreOption(
-                              iconData: Icons.music_note,
-                              title: 'Single beat',
-                              subtitle: 'One beat sold on its own.\nPerfect to highlight a standout track.',
-                              isSelected: true,
-                              onTap: () {
-                                Navigator.pop(context);
-                                _addSingleBeat();
-                              },
-                            ),
-                            
-                            SizedBox(height: 16.h),
-                            
-                            _buildStoreOption(
-                              iconData: Icons.album,
-                              title: 'Soundpack',
-                              subtitle: 'A small collection of beats sold as one pack.\nGreat for themed drops or mini-albums.',
-                              isSelected: false,
-                              onTap: () {
-                                Navigator.pop(context);
-                                _addSoundpack();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      SizedBox(height: 40.h),
-                      
-                      // Continue Button
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: Container(
-                          width: double.infinity,
-                          height: 56.h,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _addSingleBeat(); // Default to single beat
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white.withOpacity(0.9),
-                              foregroundColor: Colors.black,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.r),
-                              ),
-                            ),
-                            child: Text(
-                              'Continue',
-                              style: GoogleFonts.getFont(
-                                'Wix Madefor Display',
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      SizedBox(height: 32.h),
-                    ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildStoreOption({
-    required IconData iconData,
-    required String title,
-    required String subtitle,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(20.w),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A).withOpacity(0.7),
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: isSelected 
-                ? Colors.white.withOpacity(0.4)
-                : Colors.white.withOpacity(0.2),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            // Top row with icon and selection indicator
-            Row(
-              children: [
-                // Icon (no background container)
-                Icon(
-                  iconData,
-                  color: Colors.white.withOpacity(0.8),
-                  size: 40.sp,
-                ),
-                
-                const Spacer(),
-                
-                // Selection indicator
-                Container(
-                  width: 20.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? Colors.white : Colors.transparent,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.5),
-                      width: 2,
-                    ),
-                  ),
-                  child: isSelected
-                      ? Icon(
-                          Icons.check,
-                          color: Colors.black,
-                          size: 12.sp,
-                        )
-                      : null,
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 16.h),
-            
-            // Text content (full width)
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.grey[300]!,
-                        Colors.grey[400]!,
-                        Colors.white,
-                      ],
-                      stops: [0.0, 0.3, 0.7, 1.0],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds),
-                    child: Text(
-                      title,
-                      style: GoogleFonts.fjallaOne(
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 14.sp,
-                      color: Colors.white.withOpacity(0.7),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _addSingleBeat() {
-    print('🎵 Adding single beat...');
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AddBeatInfoScreen(),
-      ),
-    );
-  }
-
-  void _addSoundpack() {
-    print('📦 Adding soundpack...');
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AddSoundpackInfoScreen(),
-      ),
-    );
-  }
 
   void _showMyBids() {
     print('🔨 Showing my bids...');
@@ -1337,100 +1025,77 @@ Visit: $profileUrl
                   clipBehavior: Clip.none, // Allow children to extend beyond bounds
                   children: [
                     Container(
-                      width: 80.w,
-                      height: 80.h,
+                      width: 88.w,
+                      height: 88.h,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFFFFD700), // Gold
-                            const Color(0xFFFFA500), // Orange Gold
-                            const Color(0xFFFFD700), // Gold
+                            Color(0xFFFFD700), // Gold
+                            Color(0xFFFFA500), // Orange Gold
+                            Color(0xFFFF8C00), // Dark Orange
+                            Color(0xFFFFD700), // Gold
                           ],
-                          stops: const [0.0, 0.5, 1.0],
+                          stops: [0.0, 0.33, 0.66, 1.0],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        border: Border.all(
-                          color: const Color(0xFFB8860B), // Dark gold border
-                          width: 2.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFFD700).withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                          BoxShadow(
-                            color: const Color(0xFFFFF8DC).withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 0),
-                          ),
-                        ],
                       ),
                       child: Container(
-                        margin: EdgeInsets.all(2.w),
-                        decoration: const BoxDecoration(
+                        margin: EdgeInsets.all(4.w), // Space for gradient ring
+                        width: 80.w,
+                        height: 80.h,
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.black,
+                          color: Colors.black, // Background for inner circle
                         ),
-                        child: ClipOval(
-                          child: _profileImage != null
-                              ? kIsWeb
-                                  ? Image.network(
-                                      _profileImage!,
-                                      width: 76.w,
-                                      height: 76.h,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        decoration: BoxDecoration(
-                                          gradient: RadialGradient(
-                                            colors: [
-                                              Colors.grey.shade800,
-                                              Colors.grey.shade900,
-                                            ],
+                        child: Container(
+                          margin: EdgeInsets.all(2.w), // Small margin for clean separation
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: ClipOval(
+                            child: _profileImage != null
+                                ? kIsWeb
+                                    ? Image.network(
+                                        _profileImage!,
+                                        width: 76.w,
+                                        height: 76.h,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => Container(
+                                          color: AppTheme.glassColor,
+                                          child: Center(
+                                            child: Icon(
+                                              FontAwesomeIcons.music,
+                                              color: AppTheme.accentColor,
+                                              size: 30.sp,
+                                            ),
                                           ),
                                         ),
-                                        child: Center(
-                                          child: Icon(
-                                            FontAwesomeIcons.music,
-                                            color: AppTheme.accentColor,
-                                            size: 32.sp,
-                                          ),
-                                        ),
+                                      )
+                                    : Image.file(
+                                        _profileImage!,
+                                        width: 76.w,
+                                        height: 76.h,
+                                        fit: BoxFit.cover,
+                                      )
+                                : Container(
+                                    color: AppTheme.glassColor,
+                                    child: Center(
+                                      child: Icon(
+                                        FontAwesomeIcons.music,
+                                        color: AppTheme.accentColor,
+                                        size: 30.sp,
                                       ),
-                                    )
-                                  : Image.file(
-                                      _profileImage!,
-                                      width: 76.w,
-                                      height: 76.h,
-                                      fit: BoxFit.cover,
-                                    )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                    gradient: RadialGradient(
-                                      colors: [
-                                        Colors.grey.shade800,
-                                        Colors.grey.shade900,
-                                      ],
                                     ),
                                   ),
-                                  child: Center(
-                                    child: Icon(
-                                      FontAwesomeIcons.music,
-                                      color: AppTheme.accentColor,
-                                      size: 32.sp,
-                                    ),
-                                  ),
-                                ),
+                          ),
                         ),
                       ),
-                    ),
-                    // Hustler Level Badge - positioned on the profile circle
-                    Positioned(
-                      top: -6.h,
-                      right: -6.w,
-                      child: _buildHustlerLevelBadge(),
                     ),
                   ],
                 ),
@@ -1446,12 +1111,7 @@ Visit: $profileUrl
                     // Name
                     Text(
                       _currentProfile.artistName,
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                      style: _getSilverGradientTextStyle(20.sp),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
@@ -1604,9 +1264,52 @@ Visit: $profileUrl
   Widget _buildActionButtons() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Row(
-        children: [
-          Expanded(
+      child: widget.userRole == 'artist' 
+        ? Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  'Analytics',
+                  Icons.bar_chart_rounded,
+                  AppTheme.glassColor,
+                  Colors.white,
+                  () {
+                    // Use callback to navigate to analytics tab if available
+                    if (widget.onNavigateToAnalytics != null) {
+                      widget.onNavigateToAnalytics!();
+                    } else {
+                      // Fallback to opening new screen if callback not provided
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AnalyticsScreen(userRole: widget.userRole),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _buildActionButton(
+                  'My Bids',
+                  Icons.gavel,
+                  AppTheme.accentColor,
+                  Colors.white,
+                  () {
+                    // Use callback to navigate to my bids tab if available
+                    if (widget.onNavigateToMyBids != null) {
+                      widget.onNavigateToMyBids!();
+                    } else {
+                      // Fallback to existing method if callback not provided
+                      _showMyBids();
+                    }
+                  },
+                ),
+              ),
+            ],
+          )
+        : Container(
+            width: double.infinity,
             child: _buildActionButton(
               'Analytics',
               Icons.bar_chart_rounded,
@@ -1627,30 +1330,26 @@ Visit: $profileUrl
               },
             ),
           ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: _buildActionButton(
-              widget.userRole == 'artist' ? 'My Bids' : 'Add Item',
-              widget.userRole == 'artist' ? Icons.gavel : Icons.add,
-              AppTheme.accentColor,
-              Colors.white,
-              () {
-                if (widget.userRole == 'producer') {
-                  _showAddToStoreModal();
-                } else {
-                  // Use callback to navigate to my bids tab if available
-                  if (widget.onNavigateToMyBids != null) {
-                    widget.onNavigateToMyBids!();
-                  } else {
-                    // Fallback to existing method if callback not provided
-                    _showMyBids();
-                  }
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+    );
+  }
+
+  // Helper method to create silver gradient text style
+  TextStyle _getSilverGradientTextStyle(double fontSize, {FontWeight? fontWeight}) {
+    return GoogleFonts.fjallaOne(
+      fontSize: fontSize,
+      fontWeight: fontWeight ?? FontWeight.w400,
+      foreground: Paint()
+        ..shader = LinearGradient(
+          colors: [
+            Color(0xFFC0C0C0), // Light Silver
+            Color(0xFFE5E5E5), // Bright Silver
+            Color(0xFF808080), // Medium Silver
+            Color(0xFFC0C0C0), // Light Silver
+          ],
+          stops: [0.0, 0.33, 0.66, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(Rect.fromLTWH(0, 0, 200, 70)),
     );
   }
 
@@ -1682,12 +1381,7 @@ Visit: $profileUrl
               SizedBox(width: 8.w),
               Text(
                 text,
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                ),
+                style: _getSilverGradientTextStyle(14.sp, fontWeight: FontWeight.w400),
               ),
             ],
           ),
@@ -1715,11 +1409,7 @@ Visit: $profileUrl
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
                     widget.userRole == 'artist' ? 'My Music' : 'Shop',
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: _getSilverGradientTextStyle(16.sp),
                   ),
                 ),
               ),
@@ -1731,11 +1421,7 @@ Visit: $profileUrl
                     children: [
                       Text(
                         widget.userRole == 'artist' ? 'Favorite' : 'Co-Signs',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: _getSilverGradientTextStyle(16.sp),
                       ),
                       SizedBox(width: 8.w),
                       Container(
@@ -1780,77 +1466,51 @@ Visit: $profileUrl
   }
 
   Widget _buildMyMusicGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 16.h,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: 6,
-      itemBuilder: (context, index) {
-        final musicTitles = [
-          'Dreams in Motion',
-          'City Nights',
-          'Midnight Flow',
-          'Summer Vibes',
-          'Lost in Sound',
-          'Urban Poetry'
-        ];
-        return _buildMusicCard(
-          musicTitles[index % musicTitles.length],
-          'Single',
-          index,
-        );
-      },
+    final musicTitles = [
+      'Dreams in Motion',
+      'City Nights',
+      'Midnight Flow',
+      'Summer Vibes',
+      'Lost in Sound',
+      'Urban Poetry'
+    ];
+    
+    return DashboardTiles.buildCardGrid(
+      children: List.generate(6, (index) => _buildMusicCard(
+        musicTitles[index % musicTitles.length],
+        'Single',
+        index,
+      )),
+      childAspectRatio: 0.75,
+      mainAxisSpacing: 2,
     );
   }
 
   Widget _buildFavoriteGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 16.h,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: 8,
-      itemBuilder: (context, index) {
-        return _buildBeatCard(
-          'Liked Beat ${index + 1}',
-          6,
-          20,
-          '2d 12h',
-          index,
-        );
-      },
+    return DashboardTiles.buildCardGrid(
+      children: List.generate(8, (index) => _buildBeatCard(
+        'Liked Beat ${index + 1}',
+        6,
+        20,
+        '2d 12h',
+        index,
+      )),
+      childAspectRatio: 0.75,
+      mainAxisSpacing: 2,
     );
   }
 
   Widget _buildShopGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 16.h,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: 4,
-      itemBuilder: (context, index) {
-        return _buildBeatCard(
-          'Lo-Fi Chill Vol. 1',
-          6,
-          20,
-          '1d 4h',
-          index,
-        );
-      },
+    return DashboardTiles.buildCardGrid(
+      children: List.generate(4, (index) => _buildBeatCard(
+        'Lo-Fi Chill Vol. 1',
+        6,
+        20,
+        '1d 4h',
+        index,
+      )),
+      childAspectRatio: 0.75,
+      mainAxisSpacing: 2,
     );
   }
 
@@ -1893,256 +1553,200 @@ Visit: $profileUrl
   }
 
   Widget _buildMusicCard(String title, String type, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.glassColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppTheme.glassBorder,
-          width: 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Image tile with overlay content
+        DashboardTiles.buildContentCard(
+          title: '',
+          subtitle: '',
+          imageAsset: 'waves.jpg',
+          height: 140,
+          onTap: () {
+            print('Tapped on music: $title');
+          },
+          overlayContent: Stack(
+            children: [
+              // Play button
+              Center(
+                child: Container(
+                  width: 50.w,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.play_arrow,
+                    color: Colors.black,
+                    size: 28.sp,
+                  ),
+                ),
+              ),
+              
+              // Favorite button
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
+                  width: 36.w,
+                  height: 36.h,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.favorite_outline,
+                    color: Colors.white,
+                    size: 18.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Music Cover
-          Expanded(
-            flex: 3,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.r),
-                  topRight: Radius.circular(16.r),
+        
+        // Text below the tile
+        SizedBox(height: 8.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: _getSilverGradientTextStyle(14.sp),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                type,
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.7),
                 ),
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.accentColor.withOpacity(0.3),
-                    AppTheme.warningColor.withOpacity(0.3),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              child: Stack(
-                children: [
-                  // Music wave pattern
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: MusicWavePatternPainter(),
-                    ),
-                  ),
-                  
-                  // Play button
-                  Center(
-                    child: Container(
-                      width: 40.w,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.play_arrow,
-                        color: Colors.black,
-                        size: 24.sp,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-          
-          // Music Info
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: EdgeInsets.all(12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  
-                  const Spacer(),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        type,
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 12.sp,
-                          color: Colors.white.withOpacity(0.7),
-                        ),
-                      ),
-                      Icon(
-                        Icons.favorite,
-                        color: AppTheme.errorColor,
-                        size: 16.sp,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildBeatCard(String title, int beats, int price, String expires, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.glassColor,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppTheme.glassBorder,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Beat Cover with Expiry
-          Expanded(
-            flex: 3,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.r),
-                  topRight: Radius.circular(16.r),
-                ),
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.grey.shade700,
-                    Colors.grey.shade900,
-                  ],
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // Wave pattern overlay
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: WavePatternPainter(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Image tile with overlay content
+        DashboardTiles.buildContentCard(
+          title: '',
+          subtitle: '',
+          imageAsset: 'waves.jpg',
+          height: 140,
+          onTap: () {
+            print('Tapped on beat: $title');
+          },
+          overlayContent: Stack(
+            children: [
+              // Expiry badge
+              Positioned(
+                top: 12.h,
+                left: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
                     ),
                   ),
-                  
-                  // Expiry badge
-                  Positioned(
-                    top: 8.h,
-                    left: 8.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                        'Expires in $expires',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 10.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Play button
-                  Center(
-                    child: Container(
-                      width: 40.w,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.play_arrow,
-                        color: Colors.black,
-                        size: 24.sp,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Beat Info
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: EdgeInsets.all(12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
+                  child: Text(
+                    'Expires $expires',
                     style: GoogleFonts.getFont(
                       'Wix Madefor Display',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 10.sp,
                       color: Colors.white,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  
-                  const Spacer(),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '$beats beats',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 12.sp,
-                          color: Colors.white.withOpacity(0.7),
-                        ),
-                      ),
-                      Text(
-                        '\$$price',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.successColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
+              
+              // Play button
+              Center(
+                child: Container(
+                  width: 50.w,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.play_arrow,
+                    color: Colors.black,
+                    size: 28.sp,
+                  ),
+                ),
+              ),
+              
+            ],
           ),
-        ],
-      ),
+        ),
+        
+        // Text below the tile
+        SizedBox(height: 8.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: _getSilverGradientTextStyle(14.sp),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                '$beats beats • \$$price',
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildHustlerLevelBadge() {
     return Container(
-      width: 24.w,
-      height: 24.h,
+      width: 32.w,
+      height: 32.h,
       child: CustomPaint(
-        size: Size(24.w, 24.h),
+        size: Size(32.w, 32.h),
         painter: GoldHexagonPainter(),
       ),
     );
@@ -2174,15 +1778,16 @@ class GoldHexagonPainter extends CustomPainter {
     }
     path.close();
 
-    // Draw gold gradient hexagon
+    // Draw gold gradient hexagon (matching profile circle gradient)
     final rect = Rect.fromCenter(center: center, width: size.width, height: size.height);
     paint.shader = LinearGradient(
       colors: [
-        const Color(0xFFFFD700), // Gold
-        const Color(0xFFFFA500), // Orange Gold
-        const Color(0xFFFFD700), // Gold
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFFA500), // Orange Gold
+        Color(0xFFFF8C00), // Dark Orange
+        Color(0xFFFFD700), // Gold
       ],
-      stops: const [0.0, 0.5, 1.0],
+      stops: [0.0, 0.33, 0.66, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ).createShader(rect);

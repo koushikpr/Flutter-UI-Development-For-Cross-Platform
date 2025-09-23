@@ -4,12 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import '../../core/theme/app_theme.dart';
 
-class AuctionDetailsScreen extends StatelessWidget {
+class AuctionResultsScreen extends StatelessWidget {
   final String title;
   final String status;
   final String timeAgo;
 
-  const AuctionDetailsScreen({
+  const AuctionResultsScreen({
     Key? key,
     required this.title,
     required this.status,

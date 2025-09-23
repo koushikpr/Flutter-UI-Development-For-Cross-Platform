@@ -13,7 +13,7 @@ import 'data/sample_data.dart';
 import '../../auth/screens/auth_test_screen.dart';
 import '../profile/profile_screen.dart';
 import '../profile/add_beat_info_screen.dart';
-import '../auction/auction_details_screen.dart';
+import '../auction/auction_results_screen.dart';
 import '../auction/live_auction_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
@@ -1370,7 +1370,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AuctionDetailsScreen(
+              builder: (context) => AuctionResultsScreen(
                 title: title,
                 status: status,
                 timeAgo: timeAgo,
@@ -1532,9 +1532,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
         child: DraggableScrollableSheet(
-          initialChildSize: 0.6,
+          initialChildSize: 0.75,
           minChildSize: 0.4,
-          maxChildSize: 0.8,
+          maxChildSize: 0.85,
           builder: (context, scrollController) => ClipRRect(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20.r),
@@ -1658,6 +1658,40 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 ),
                 
                 SizedBox(height: 40.h),
+                
+                // Continue Button
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Container(
+                    width: double.infinity,
+                    height: 56.h,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _addSingleBeat(); // Default to single beat
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.9),
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Continue',
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                SizedBox(height: 32.h),
               ],
             ),
                 ),
