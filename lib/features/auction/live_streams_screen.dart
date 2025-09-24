@@ -5,48 +5,47 @@ import 'dart:async';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../core/theme/app_theme.dart';
-import 'auction_win_screen.dart';
 
-class LiveAuctionScreen extends StatefulWidget {
+class LiveStreamsScreen extends StatefulWidget {
   final String title;
-  final String currentBid;
-  final String timeLeft;
-  final String bidCount;
+  final String artistName;
+  final String viewerCount;
+  final String streamDuration;
 
-  const LiveAuctionScreen({
+  const LiveStreamsScreen({
     Key? key,
     required this.title,
-    required this.currentBid,
-    required this.timeLeft,
-    required this.bidCount,
+    required this.artistName,
+    required this.viewerCount,
+    required this.streamDuration,
   }) : super(key: key);
 
   @override
-  State<LiveAuctionScreen> createState() => _LiveAuctionScreenState();
+  State<LiveStreamsScreen> createState() => _LiveStreamsScreenState();
 }
 
-class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProviderStateMixin {
+class _LiveStreamsScreenState extends State<LiveStreamsScreen> with TickerProviderStateMixin {
   final TextEditingController _commentController = TextEditingController();
   late AnimationController _commentAnimationController;
   late Animation<Offset> _commentSlideAnimation;
   
   final List<Map<String, String>> _comments = [
-    {'username': 'DreBeatz', 'message': 'This is an awesome beat that really gets you moving and makes you want to dance!'},
-    {'username': 'MusicFan123', 'message': 'Fire beat! This is incredible!'},
-    {'username': 'ProducerLife', 'message': 'The drop is insane!'},
-    {'username': 'BeatLover', 'message': 'This goes hard! Love it!'},
-    {'username': 'HipHopHead', 'message': 'Need this in my playlist ASAP!'},
+    {'username': 'MusicFan123', 'message': 'This live performance is absolutely incredible! Love the energy!'},
+    {'username': 'StreamViewer', 'message': 'Amazing vocals! Keep it going!'},
+    {'username': 'BeatLover', 'message': 'The production quality is insane!'},
+    {'username': 'LiveMusicFan', 'message': 'This is why I love live streams!'},
+    {'username': 'ArtistSupporter', 'message': 'You\'re killing it! 🔥'},
   ];
   
   // List of sample usernames for tip notifications
   final List<String> _tipUsernames = [
-    'BeatBidder',
-    'ProducerFan',
-    'MusicCollector',
-    'BeatHunter',
-    'AuctionWatcher',
-    'SoundSeeker',
-    'BeatSupporter',
+    'MusicLover2024',
+    'BeatFan',
+    'StreamSupporter',
+    'ArtistFan',
+    'LiveViewer',
+    'MusicAddict',
+    'SoundLover',
   ];
   
   int _currentCommentIndex = 0;
@@ -57,25 +56,14 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
   // Tip modal state
   double _tipAmount = 0.0;
   
-  // Countdown timer state
-  late Timer _countdownTimer;
-  int _totalSecondsLeft = 0 * 60 + 30; // Start from 0:30 (30 seconds)
-  String _currentTimeLeft = '0:30';
-  
-  // Bid modal state
-  bool _showBidModal = false;
-  bool _autoBidEnabled = false;
-  int _currentBid = 30;
-  int _userBid = 0;
-  int _maxAutoBid = 35; // Will be updated dynamically
-  String _bidAmount = '';
-  final TextEditingController _bidController = TextEditingController();
+  // Timer state for duration
+  late Timer _durationTimer;
+  int _totalSeconds = 15 * 60 + 42; // Start from 15:42 (942 seconds)
+  String _currentDuration = '15:42';
 
   @override
   void initState() {
     super.initState();
-    // Initialize auto bid to current bid + 5
-    _maxAutoBid = _currentBid + 5;
     _commentAnimationController = AnimationController(
       duration: Duration(milliseconds: 500),
       vsync: this,
@@ -103,61 +91,18 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
     ));
     
     _startCommentRotation();
-    _startCountdownTimer();
+    _startDurationTimer();
   }
   
-  void _startCountdownTimer() {
-    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+  void _startDurationTimer() {
+    _durationTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
-          if (_totalSecondsLeft > 0) {
-            _totalSecondsLeft--;
-            int minutes = _totalSecondsLeft ~/ 60;
-            int seconds = _totalSecondsLeft % 60;
-            _currentTimeLeft = '${minutes}:${seconds.toString().padLeft(2, '0')}';
-          } else {
-            // Timer reached 0:00
-            _currentTimeLeft = '0:00';
-            timer.cancel(); // Stop the timer
-            
-            // Redirect to auction win screen when timer hits 0:00
-            Future.delayed(Duration(milliseconds: 500), () {
-              if (mounted) {
-                _showAuctionWinScreen();
-              }
-            });
-          }
+          _totalSeconds++;
+          int minutes = _totalSeconds ~/ 60;
+          int seconds = _totalSeconds % 60;
+          _currentDuration = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
         });
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  void _showAuctionWinScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AuctionWinScreen(
-          beatTitle: 'Midnight Rage',
-          producerName: 'DreBeatz',
-          finalPrice: _currentBid,
-          liveViewers: 389,
-          beatDetails: '143 BPM • 1 of 1 • C minor',
-          isWinner: true,
-        ),
-      ),
-    );
-  }
-  
-  void _startCommentRotation() {
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      if (mounted) {
-        setState(() {
-          _currentCommentIndex = (_currentCommentIndex + 1) % _comments.length;
-        });
-        _commentAnimationController.reset();
-        _commentAnimationController.forward();
       } else {
         timer.cancel();
       }
@@ -171,7 +116,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
     // Create tip comment
     final tipComment = {
       'username': randomUsername,
-      'message': 'just tipped the producer \$${tipAmount}! 💰🎵'
+      'message': 'just tipped \$${tipAmount}! 💰✨'
     };
     
     // Add to comments list
@@ -181,6 +126,20 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
       _currentCommentIndex = 0;
       _commentAnimationController.reset();
       _commentAnimationController.forward();
+    });
+  }
+  
+  void _startCommentRotation() {
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      if (mounted) {
+        setState(() {
+          _currentCommentIndex = (_currentCommentIndex + 1) % _comments.length;
+        });
+        _commentAnimationController.reset();
+        _commentAnimationController.forward();
+      } else {
+        timer.cancel();
+      }
     });
   }
 
@@ -220,7 +179,83 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
               ),
             ),
             
-            // Bottom section with comment box, beat info, and bid buttons
+            // Live indicator and viewers (top left)
+            Positioned(
+              top: 40.h,
+              left: 16.w,
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    // LIVE indicator
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8.w,
+                            height: 8.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'LIVE',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 12.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(width: 8.w),
+                    
+                    // Viewers count
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.visibility,
+                            color: Colors.white,
+                            size: 12.sp,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            widget.viewerCount,
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 12.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Bottom section with comment box, stream info, and action buttons
             Positioned(
               bottom: 0,
               left: 0,
@@ -241,7 +276,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Stats box (moved to bottom)
+                    // Stream stats box
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16.r),
                       child: BackdropFilter(
@@ -258,9 +293,14 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                           ),
                           child: Row(
                             children: [
-                              Expanded(child: _buildStatItem('Current Bid', '\$${_currentBid}')),
-                              Expanded(child: _buildStatItem('Time Left', _currentTimeLeft)),
-                              Expanded(child: _buildStatItem('# of Bids', widget.bidCount)),
+                              Expanded(
+                                flex: 2,
+                                child: _buildStatItem('Artist', widget.artistName)
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: _buildStatItem('Duration', _currentDuration)
+                              ),
                             ],
                           ),
                         ),
@@ -269,7 +309,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                     
                     SizedBox(height: 12.h),
                     
-                    // Comments and action buttons section (moved to bottom)
+                    // Comments and action buttons section
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -455,7 +495,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                     
                     SizedBox(height: 12.h),
                     
-                    // Beat Info
+                    // Stream Info
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(12.w),
@@ -476,7 +516,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Icon(
-                              Icons.music_note,
+                              Icons.videocam,
                               color: Colors.white,
                               size: 16.sp,
                             ),
@@ -487,7 +527,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Favella - ManuGTB',
+                                  widget.title,
                                   style: GoogleFonts.fjallaOne(
                                     fontSize: 14.sp,
                                     color: Colors.white,
@@ -495,7 +535,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                                   ),
                                 ),
                                 Text(
-                                  '2:36 • Hip-hop • 143 BPM • C minor',
+                                  'Live Performance • HD Quality • Interactive Chat',
                                   style: GoogleFonts.getFont(
                                     'Wix Madefor Display',
                                     fontSize: 10.sp,
@@ -511,53 +551,47 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                     
                     SizedBox(height: 12.h),
                     
-                    // Auto Bid and Bid buttons
+                    // Follow and Subscribe buttons
                     Row(
                       children: [
                         Expanded(
-                          child: GestureDetector(
-                            onTap: () => _showAutoBidModal(),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 14.h),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[700],
-                                borderRadius: BorderRadius.circular(12.r),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.3),
-                                  width: 1,
-                                ),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[700],
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
                               ),
-                              child: Text(
-                                'Auto Bid \$${_maxAutoBid}',
-                                style: GoogleFonts.fjallaOne(
-                                  fontSize: 16.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.center,
+                            ),
+                            child: Text(
+                              'Follow',
+                              style: GoogleFonts.fjallaOne(
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
-                          child: GestureDetector(
-                            onTap: _showCustomBidModal,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 14.h),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12.r),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Text(
+                              'Subscribe',
+                              style: GoogleFonts.fjallaOne(
+                                fontSize: 16.sp,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400,
                               ),
-                              child: Text(
-                                'Bid',
-                                style: GoogleFonts.fjallaOne(
-                                  fontSize: 16.sp,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
@@ -638,7 +672,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                 children: [
                   const SizedBox(width: 24),
                   Text(
-                    'Show Some Love ❤️',
+                    'Support the Artist ❤️',
                     style: GoogleFonts.getFont(
                       'Wix Madefor Display',
                       fontSize: 18.sp,
@@ -670,7 +704,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Text(
-                'Not bidding? You can still support\nthe producer with a tip.',
+                'Show your appreciation for this\namazing live performance!',
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 14.sp,
@@ -733,7 +767,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
             
             SizedBox(height: 32.h),
             
-            // Send Tip button
+            // Send Tip button with gradient
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: GestureDetector(
@@ -741,13 +775,13 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                   final tipAmountInt = _tipAmount.toInt();
                   Navigator.pop(context);
                   
-                  // Add tip comment to live auction
+                  // Add tip comment to live stream
                   _addTipComment(tipAmountInt);
                   
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Tip of \$${tipAmountInt} sent! 💖',
+                        'Tip of \$${tipAmountInt} sent to the artist! 💖',
                         style: GoogleFonts.getFont(
                           'Wix Madefor Display',
                           fontSize: 14.sp,
@@ -940,378 +974,12 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
     );
   }
 
-
-  void _placeBid(int amount) {
-    // Only allow bids higher than current bid
-    if (amount <= _currentBid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Bid must be higher than current bid of \$${_currentBid}',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 14.sp,
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-      );
-      return;
-    }
-    
-    setState(() {
-      _currentBid = amount;
-      _userBid = amount;
-      // Update auto bid to be current bid + 5
-      _maxAutoBid = _currentBid + 5;
-    });
-    
-    // Show success message for higher bid
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Bid placed successfully! New bid: \$${amount}',
-          style: GoogleFonts.getFont(
-            'Wix Madefor Display',
-            fontSize: 14.sp,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-      ),
-    );
-    
-    // Stay on auction screen - no navigation
-  }
-
-  // Auction result logic removed to prevent unwanted navigation
-
-
-  void _showAutoBidModal() {
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-          padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: Colors.white.withOpacity(0.3)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Auto-Bid',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 24.sp,
-                    ),
-                  ),
-                ],
-              ),
-              
-              SizedBox(height: 16.h),
-              
-              Text(
-                'Set your max bid and let the\nsystem handle the rest',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              SizedBox(height: 8.h),
-              
-              Text(
-                'Minimum: \$${_currentBid + 5}',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 12.sp,
-                  color: Colors.yellow.withOpacity(0.8),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              SizedBox(height: 24.h),
-              
-              Text(
-                'Max Bid',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-              ),
-              
-              SizedBox(height: 8.h),
-              
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setModalState(() {
-                          // Don't allow auto bid to go below current bid + 5
-                          if (_maxAutoBid > _currentBid + 5) _maxAutoBid -= 5;
-                        });
-                        setState(() {}); // Update parent widget too
-                      },
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Icon(
-                          Icons.remove,
-                          color: Colors.white,
-                          size: 20.sp,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '\$${_maxAutoBid}',
-                      style: GoogleFonts.fjallaOne(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setModalState(() {
-                          _maxAutoBid += 5;
-                        });
-                        setState(() {}); // Update parent widget too
-                      },
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              SizedBox(height: 24.h),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close modal first
-                    _placeBid(_maxAutoBid);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                  child: Text(
-                    'Confirm Max-Bid',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-        ),
-    );
-  }
-
-  void _showCustomBidModal() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.all(24.w),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: Colors.white.withOpacity(0.3)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Custom Bid',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 24.sp,
-                    ),
-                  ),
-                ],
-              ),
-              
-              SizedBox(height: 16.h),
-              
-              Text(
-                'Place your own bid and see\nthe result instantly',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              SizedBox(height: 24.h),
-              
-              Text(
-                'Your Bid',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-              ),
-              
-              SizedBox(height: 8.h),
-              
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: TextField(
-                  controller: _bidController,
-                  keyboardType: TextInputType.number,
-                  style: GoogleFonts.fjallaOne(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    hintStyle: GoogleFonts.fjallaOne(
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                    border: InputBorder.none,
-                    prefixText: '\$',
-                    prefixStyle: GoogleFonts.fjallaOne(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _bidAmount = value;
-                    });
-                  },
-                ),
-              ),
-              
-              SizedBox(height: 24.h),
-              
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    int bidAmount = int.tryParse(_bidController.text) ?? 55;
-                    Navigator.of(context).pop(); // Close modal first
-                    _placeBid(bidAmount);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                  child: Text(
-                    'Place Bid',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Win/Lose modal widgets removed to prevent unwanted navigation
-
   @override
   void dispose() {
     _commentController.dispose();
     _commentAnimationController.dispose();
     _emojiMenuController.dispose();
-    _countdownTimer.cancel();
-    _bidController.dispose();
+    _durationTimer.cancel();
     super.dispose();
   }
 }
