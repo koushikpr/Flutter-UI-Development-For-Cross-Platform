@@ -97,9 +97,12 @@ flutter:
 
   # Assets
   assets:
-    - assets/waves.jpg
-    - assets/trophy.png
-    - assets/live.jpg
+    - assets/
+    - assets/images/
+    - assets/animations/
+    - assets/icons/
+    - assets/rive/
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

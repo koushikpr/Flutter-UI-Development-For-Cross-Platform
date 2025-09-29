@@ -19,6 +19,7 @@ import '../auction/live_streams_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
+import '../music/music_player_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
@@ -39,6 +40,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   PageController _livestreamController = PageController();
   PageController _mainPageController = PageController();
   late AnimationController _liveAnimationController;
+  
+  // Music player state
+  bool _musicPlayerIsPlaying = false;
   
   // Music background animation controllers
   late AnimationController _waveController;
@@ -186,10 +190,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     // Page 1: My Bids (for artists) / Analytics (for producers)
                     _buildSecondPage(),
                     
-                    // Page 2: Favorites/Saved
+                    // Page 2: Favorites (for artists) / Favorites (for producers)
                     _buildFavoritesPage(),
                     
-                    // Page 3: Profile
+                    // Page 3: Profile (for both artists and producers)
                     _buildProfilePage(),
                   ],
                 ),
@@ -203,7 +207,14 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
             left: 0,
             right: 0,
             child: AnimatedBottomNavBar(
+              userRole: widget.userRole,
               tabIconsList: tabIconsList,
+              musicPlayerIsPlaying: _musicPlayerIsPlaying,
+              onRewind: () {
+                // For now, just print the rewind action
+                print('🔄 Rewind triggered from navigation bar!');
+                // TODO: Implement proper rewind connection
+              },
               changeIndex: (int index) {
                 setState(() {
                   _currentNavIndex = index;
@@ -224,25 +235,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 if (widget.userRole == 'producer') {
                   _showAddToStoreModal();
                 } else {
-                  // For artists, show a different action or message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Add functionality for artists coming soon!',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 14.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                      backgroundColor: Colors.blue,
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                  );
+                  // For artists, toggle music player state
+                  setState(() {
+                    _musicPlayerIsPlaying = !_musicPlayerIsPlaying;
+                  });
                 }
               },
             ),
@@ -326,6 +322,17 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           SizedBox(height: 120.h),
         ],
       ),
+    );
+  }
+
+  Widget _buildMusicPlayerPage() {
+    return MusicPlayerScreen(
+      initialPlayState: _musicPlayerIsPlaying,
+      onPlayStateChanged: () {
+        setState(() {
+          _musicPlayerIsPlaying = !_musicPlayerIsPlaying;
+        });
+      },
     );
   }
 

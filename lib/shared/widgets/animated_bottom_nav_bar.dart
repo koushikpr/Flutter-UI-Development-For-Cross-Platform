@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,11 +11,17 @@ class AnimatedBottomNavBar extends StatefulWidget {
     this.tabIconsList,
     this.changeIndex,
     this.addClick,
+    this.userRole = 'artist',
+    this.musicPlayerIsPlaying = false,
+    this.onRewind,
   }) : super(key: key);
 
   final Function(int index)? changeIndex;
   final Function()? addClick;
   final List<TabIconData>? tabIconsList;
+  final String userRole;
+  final bool musicPlayerIsPlaying;
+  final VoidCallback? onRewind;
 
   @override
   _AnimatedBottomNavBarState createState() => _AnimatedBottomNavBarState();
@@ -23,6 +30,17 @@ class AnimatedBottomNavBar extends StatefulWidget {
 class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
     with TickerProviderStateMixin {
   AnimationController? animationController;
+  
+  // Artist play button state
+  int _controlMode = 0; // 0: play/pause, 1: volume, 2: rewind/forward
+  AnimationController? _playPauseController;
+  AnimationController? _modeController;
+  AnimationController? _rewindController;
+  
+  // Rewind drag state
+  bool _isDragging = false;
+  double _dragOffset = 0.0; // Horizontal drag offset
+  String _dragDirection = ''; // 'left' for rewind, 'right' for fast forward
 
   @override
   void initState() {
@@ -31,14 +49,149 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
       duration: const Duration(milliseconds: 1000),
     );
     animationController?.forward();
+    
+    // Initialize artist-specific animations
+    if (widget.userRole == 'artist') {
+      _playPauseController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 300),
+      );
+      _modeController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 400),
+      );
+      
+      _rewindController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+    
     super.initState();
   }
 
   @override
   void dispose() {
     animationController?.dispose();
+    _playPauseController?.dispose();
+    _modeController?.dispose();
+    _rewindController?.dispose();
     super.dispose();
   }
+  
+  void _togglePlayPause() {
+    if (widget.userRole != 'artist') return;
+    
+    // Update animation based on current state
+    if (widget.musicPlayerIsPlaying) {
+      _playPauseController?.forward();
+    } else {
+      _playPauseController?.reverse();
+    }
+    
+    // Call the add click to toggle state and open music player
+    widget.addClick?.call();
+    _openMusicPlayer();
+  }
+  
+  void _openMusicPlayer() {
+    // For now, just print - music player will be handled differently
+    // since it's no longer a separate page in the main navigation
+    print('🎵 Opening music player...');
+    // TODO: Show music player modal or navigate to dedicated screen
+  }
+  
+  void _switchControlMode() {
+    if (widget.userRole != 'artist') return;
+    
+    setState(() {
+      _controlMode = (_controlMode + 1) % 3;
+    });
+    
+    _modeController?.forward().then((_) {
+      _modeController?.reverse();
+    });
+  }
+  
+  void _startDrag() {
+    setState(() {
+      _isDragging = true;
+      _dragOffset = 0.0;
+      _dragDirection = '';
+    });
+    _rewindController?.forward();
+  }
+  
+  void _updateDrag(double deltaX) {
+    setState(() {
+      _dragOffset += deltaX;
+      
+      // Limit drag distance
+      _dragOffset = _dragOffset.clamp(-100.0, 100.0);
+      
+      // Determine direction
+      if (_dragOffset < -20) {
+        _dragDirection = 'left'; // Rewind
+      } else if (_dragOffset > 20) {
+        _dragDirection = 'right'; // Fast forward
+      } else {
+        _dragDirection = '';
+      }
+    });
+  }
+  
+  void _endDrag() {
+    if (_isDragging) {
+      // Trigger action based on drag direction
+      if (_dragDirection == 'left') {
+        _performRewind();
+      } else if (_dragDirection == 'right') {
+        _performFastForward();
+      }
+      
+      // Reset drag state
+      setState(() {
+        _isDragging = false;
+        _dragOffset = 0.0;
+        _dragDirection = '';
+      });
+      _rewindController?.reverse();
+    }
+  }
+  
+  void _performRewind() {
+    // Trigger rewind callback
+    print('🔄 Rewind triggered!');
+    widget.onRewind?.call();
+  }
+  
+  void _performFastForward() {
+    // Trigger fast forward action
+    print('⏩ Fast Forward triggered!');
+    // TODO: Add fast forward callback to widget
+  }
+  
+
+  IconData _getCurrentIcon() {
+    if (widget.userRole != 'artist') return Icons.add;
+    
+    switch (_controlMode) {
+      case 0: // Play/Pause mode
+        return widget.musicPlayerIsPlaying ? Icons.pause : Icons.play_arrow;
+      case 1: // Volume mode
+        return Icons.volume_up;
+      case 2: // Rewind/Forward mode
+        // Change icon based on drag direction
+        if (_isDragging && _dragDirection == 'right') {
+          return Icons.fast_forward; // Forward icon when dragging right
+        } else {
+          return Icons.fast_rewind; // Rewind icon when dragging left or not dragging
+        }
+      default:
+        return Icons.play_arrow;
+    }
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -150,36 +303,70 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
                         CurvedAnimation(
                             parent: animationController!,
                             curve: Curves.fastOutSlowIn)),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.accentColor,
-                            AppTheme.warningColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: AppTheme.accentColor.withOpacity(0.4),
-                            offset: Offset(8.0.w, 16.0.h),
-                            blurRadius: 16.0.r,
+                    child: Transform.translate(
+                      offset: Offset(_dragOffset * 0.5, _isDragging ? -20.h : 0), // Move entire button
+                      child: Transform.scale(
+                        scale: _isDragging ? 1.3 : 1.0, // Enlarge entire button when dragging
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                offset: Offset(8.0.w, 16.0.h),
+                                blurRadius: 16.0.r,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                       child: Material(
                         color: Colors.transparent,
-                        child: InkWell(
-                          splashColor: AppTheme.accentColor.withOpacity(0.1),
-                          highlightColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onTap: widget.addClick,
-                          child: Icon(
-                            Icons.add,
-                            color: AppTheme.primaryColor,
-                            size: 32.sp,
+                        child: widget.userRole == 'artist' 
+                          ? GestureDetector(
+                              onTap: _controlMode == 2 ? null : _togglePlayPause,
+                              onPanStart: _controlMode == 2 ? (details) => _startDrag() : null,
+                              onPanUpdate: _controlMode == 2 ? (details) {
+                                // Update drag position
+                                _updateDrag(details.delta.dx);
+                              } : null,
+                              onPanEnd: _controlMode == 2 ? (details) => _endDrag() : (details) {
+                                // Mode switching for non-rewind modes  
+                                if (details.velocity.pixelsPerSecond.dx.abs() > 100) {
+                                  _switchControlMode();
+                                }
+                              },
+                              child: AnimatedBuilder(
+                                animation: Listenable.merge([_playPauseController, _modeController, _rewindController]),
+                                builder: (context, child) {
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    transitionBuilder: (Widget child, Animation<double> animation) {
+                                      return RotationTransition(
+                                        turns: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    child: Icon(
+                                      _getCurrentIcon(),
+                                      key: ValueKey<IconData>(_getCurrentIcon()),
+                                      color: const Color(0xFF0E1920),
+                                      size: 32.sp,
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : InkWell(
+                              splashColor: AppTheme.accentColor.withOpacity(0.1),
+                              highlightColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              onTap: widget.addClick,
+                              child: Icon(
+                                Icons.add,
+                                color: const Color(0xFF0E1920),
+                                size: 32.sp,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -270,14 +457,25 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                           parent: widget.tabIconData!.animationController!,
                           curve: const Interval(0.1, 1.0,
                               curve: Curves.fastOutSlowIn))),
-                  child: Icon(
-                    widget.tabIconData!.isSelected 
-                        ? (widget.tabIconData!.selectedIconData ?? widget.tabIconData!.iconData)
-                        : widget.tabIconData!.iconData,
-                    color: widget.tabIconData!.isSelected
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.5),
-                    size: 24.sp,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        const Color(0xFFC0C0C0), // Light silver
+                        const Color(0xFF808080), // Medium silver
+                        const Color(0xFFA8A8A8), // Bright silver
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Icon(
+                      widget.tabIconData!.isSelected 
+                          ? (widget.tabIconData!.selectedIconData ?? widget.tabIconData!.iconData)
+                          : widget.tabIconData!.iconData,
+                      color: widget.tabIconData!.isSelected
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.7),
+                      size: 24.sp,
+                    ),
                   ),
                 ),
                 Positioned(

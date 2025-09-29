@@ -191,7 +191,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('live.jpg'),
+            image: AssetImage('assets/live.jpg'),
             fit: BoxFit.cover,
           ),
         ),

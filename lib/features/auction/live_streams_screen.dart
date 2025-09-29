@@ -150,7 +150,7 @@ class _LiveStreamsScreenState extends State<LiveStreamsScreen> with TickerProvid
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('live.jpg'),
+            image: AssetImage('assets/live.jpg'),
             fit: BoxFit.cover,
           ),
         ),

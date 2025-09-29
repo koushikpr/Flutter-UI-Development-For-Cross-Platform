@@ -97,13 +97,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'My Bids',
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: [
+                          const Color(0xFFC0C0C0), // Light silver
+                          const Color(0xFF808080), // Medium silver
+                          const Color(0xFFA8A8A8), // Bright silver
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: Text(
+                        'My Bids',
+                        style: GoogleFonts.fjallaOne(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     Text(
@@ -242,13 +252,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
           
           SizedBox(height: 8.h),
           
-          Text(
-            value,
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+          ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [
+                const Color(0xFFC0C0C0), // Light silver
+                const Color(0xFF808080), // Medium silver
+                const Color(0xFFA8A8A8), // Bright silver
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: Text(
+              value,
+              style: GoogleFonts.fjallaOne(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
             ),
           ),
           
@@ -349,13 +369,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
           
           SizedBox(height: 24.h),
           
-          Text(
-            'No bids found',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+          ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [
+                const Color(0xFFC0C0C0), // Light silver
+                const Color(0xFF808080), // Medium silver
+                const Color(0xFFA8A8A8), // Bright silver
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: Text(
+              'No bids found',
+              style: GoogleFonts.fjallaOne(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+              ),
             ),
           ),
           
@@ -444,16 +474,26 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                           Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  bid.beatTitle,
-                                  style: GoogleFonts.getFont(
-                                    'Wix Madefor Display',
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) => LinearGradient(
+                                    colors: [
+                                      const Color(0xFFC0C0C0), // Light silver
+                                      const Color(0xFF808080), // Medium silver
+                                      const Color(0xFFA8A8A8), // Bright silver
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ).createShader(bounds),
+                                  child: Text(
+                                    bid.beatTitle,
+                                    style: GoogleFonts.fjallaOne(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               
@@ -800,13 +840,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Beat Title and Producer
-                  Text(
-                    bid.beatTitle,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        const Color(0xFFC0C0C0), // Light silver
+                        const Color(0xFF808080), // Medium silver
+                        const Color(0xFFA8A8A8), // Bright silver
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      bid.beatTitle,
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   
@@ -831,13 +881,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                   SizedBox(height: 24.h),
                   
                   // Bid History
-                  Text(
-                    'Bid Information',
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        const Color(0xFFC0C0C0), // Light silver
+                        const Color(0xFF808080), // Medium silver
+                        const Color(0xFFA8A8A8), // Bright silver
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      'Bid Information',
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   
@@ -855,13 +915,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                   SizedBox(height: 24.h),
                   
                   // Tags
-                  Text(
-                    'Tags',
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        const Color(0xFFC0C0C0), // Light silver
+                        const Color(0xFF808080), // Medium silver
+                        const Color(0xFFA8A8A8), // Bright silver
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      'Tags',
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   
@@ -938,13 +1008,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.r),
       ),
-      title: Text(
-        'Re-bid on ${bid.beatTitle}',
-        style: GoogleFonts.getFont(
-          'Wix Madefor Display',
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
+      title: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [
+            const Color(0xFFC0C0C0), // Light silver
+            const Color(0xFF808080), // Medium silver
+            const Color(0xFFA8A8A8), // Bright silver
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(bounds),
+        child: Text(
+          'Re-bid on ${bid.beatTitle}',
+          style: GoogleFonts.fjallaOne(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
         ),
       ),
       content: Column(
@@ -1051,13 +1131,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.r),
       ),
-      title: Text(
-        'Sell ${bid.beatTitle}',
-        style: GoogleFonts.getFont(
-          'Wix Madefor Display',
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
+      title: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [
+            const Color(0xFFC0C0C0), // Light silver
+            const Color(0xFF808080), // Medium silver
+            const Color(0xFFA8A8A8), // Bright silver
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(bounds),
+        child: Text(
+          'Sell ${bid.beatTitle}',
+          style: GoogleFonts.fjallaOne(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
         ),
       ),
       content: Column(
