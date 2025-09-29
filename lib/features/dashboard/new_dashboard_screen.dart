@@ -16,6 +16,7 @@ import '../profile/add_beat_info_screen.dart';
 import '../auction/auction_results_screen.dart';
 import '../auction/live_auction_screen.dart';
 import '../auction/live_streams_screen.dart';
+import '../auction/setup_live_auction_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
@@ -1623,7 +1624,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     end: Alignment.bottomRight,
                   ).createShader(bounds),
                   child: Text(
-                    'Add to Store',
+                    'Go Live Now',
                     style: GoogleFonts.fjallaOne(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.w400,
@@ -1635,7 +1636,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 SizedBox(height: 8.h),
                 
                 Text(
-                  'What would you like to add to your store?',
+                  'What type of stream do you want to run?',
                   style: GoogleFonts.getFont(
                     'Wix Madefor Display',
                     fontSize: 16.sp,
@@ -1649,9 +1650,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 Column(
                   children: [
                     _buildStoreOption(
-                      iconData: Icons.music_note,
-                      title: 'Single beat',
-                      subtitle: 'Upload and sell individual beats.\nPerfect for one-off creations or standalone tracks.',
+                      iconData: Icons.gavel,
+                      title: 'Live Auction',
+                      subtitle: 'Go live with a banger and let the market decide its value. Artists bid for exclusive rights in real time and can co-sign your sound.',
                       isSelected: false,
                       onTap: () {
                         Navigator.pop(context);
@@ -1662,9 +1663,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     SizedBox(height: 16.h),
                     
                     _buildStoreOption(
-                      iconData: Icons.album,
-                      title: 'Soundpack',
-                      subtitle: 'A small collection of beats sold as one pack.\nGreat for themed drops or mini-albums.',
+                      iconData: Icons.shopping_bag,
+                      title: 'Grab Bag',
+                      subtitle: 'Go live with a non-exclusive beat, sound pack, or loop you want to promote. Fans can buy it instantly in real time — no bidding.',
                       isSelected: false,
                       onTap: () {
                         Navigator.pop(context);
@@ -2344,10 +2345,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   }
 
   void _addSingleBeat() {
-    print('🎵 Adding single beat...');
+    print('🎵 Starting Live Auction setup...');
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const AddBeatInfoScreen(),
+        builder: (context) => const SetupLiveAuctionScreen(),
       ),
     );
   }
