@@ -517,3 +517,7 @@ class _AuctionSettingsScreenState extends State<AuctionSettingsScreen> {
     _showUploadResult('Moving to review...');
   }
 }
+
+
+
+
