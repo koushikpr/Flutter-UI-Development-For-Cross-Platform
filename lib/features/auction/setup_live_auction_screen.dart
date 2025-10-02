@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/custom_status_bar.dart';
+import 'models/auction_data.dart';
 import 'auction_details_screen.dart';
 
 class SetupLiveAuctionScreen extends StatefulWidget {
@@ -1102,16 +1103,20 @@ class _SetupLiveAuctionScreenState extends State<SetupLiveAuctionScreen> {
   }
 
   void _onNext() {
-    print('🚀 Proceeding to next step...');
-    print('Auction Banner: ${_auctionBannerController.text}');
-    print('Has Stream Cover: $_hasStreamCover');
-    print('Has Audio File: $_hasAudioFile');
+    // Create auction data with initial setup
+    final auctionData = AuctionData(
+      streamCoverImagePath: _hasStreamCover ? 'assets/images/stream_cover.png' : null,
+      auctionBanner: _auctionBannerController.text,
+      audioFilePath: _hasAudioFile ? 'assets/audio/uploaded_beat.mp3' : null,
+    );
     
     // Navigate to Auction Details screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AuctionDetailsScreen(),
+        builder: (context) => AuctionDetailsScreen(
+          auctionData: auctionData,
+        ),
       ),
     );
   }

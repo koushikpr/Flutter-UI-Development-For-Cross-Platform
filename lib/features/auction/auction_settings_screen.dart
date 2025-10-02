@@ -3,9 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
+import 'models/auction_data.dart';
+import 'review_and_confirm_screen.dart';
 
 class AuctionSettingsScreen extends StatefulWidget {
-  const AuctionSettingsScreen({super.key});
+  final AuctionData auctionData;
+  
+  const AuctionSettingsScreen({
+    super.key,
+    required this.auctionData,
+  });
 
   @override
   State<AuctionSettingsScreen> createState() => _AuctionSettingsScreenState();
@@ -505,18 +512,30 @@ class _AuctionSettingsScreenState extends State<AuctionSettingsScreen> {
   }
 
   void _onContinue() {
-    print('🚀 Proceeding to review...');
-    print('Starting Bid: ${_isCustomBid ? _customBidController.text : _selectedBid}');
-    print('Auction Duration: ${_auctionDuration.round()} minutes');
-    print('Activate Buy Now: $_activateBuyNow');
-    if (_activateBuyNow) {
-      print('Buy Now Price: ${_buyNowPriceController.text}');
-    }
+    // Create updated auction data with settings
+    final updatedAuctionData = widget.auctionData.copyWith(
+      startingBid: _isCustomBid 
+          ? double.tryParse(_customBidController.text) ?? 25.0
+          : double.parse(_selectedBid),
+      durationMinutes: _auctionDuration.round(),
+      buyNowEnabled: _activateBuyNow,
+      buyNowPrice: _activateBuyNow 
+          ? double.tryParse(_buyNowPriceController.text)
+          : null,
+    );
     
-    // TODO: Navigate to review screen
-    _showUploadResult('Moving to review...');
+    // Navigate to review screen
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ReviewAndConfirmScreen(
+          auctionData: updatedAuctionData,
+        ),
+      ),
+    );
   }
 }
+
+
 
 
 

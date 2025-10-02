@@ -3,10 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
+import 'models/auction_data.dart';
 import 'auction_settings_screen.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
-  const AuctionDetailsScreen({super.key});
+  final AuctionData auctionData;
+  
+  const AuctionDetailsScreen({
+    super.key,
+    required this.auctionData,
+  });
 
   @override
   State<AuctionDetailsScreen> createState() => _AuctionDetailsScreenState();
@@ -781,18 +787,22 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   }
 
   void _onNext() {
-    print('🚀 Proceeding to next step...');
-    print('Beat Title: ${_beatTitleController.text}');
-    print('Vibe Tag: $_selectedVibeTag');
-    print('BPM: ${_bpmController.text}');
-    print('Key: $_selectedKey (${_isMajor ? 'Major' : 'Minor'})');
-    print('Has Beat Sleeve: $_hasBeatSleeve');
+    // Create updated auction data with details
+    final updatedAuctionData = widget.auctionData.copyWith(
+      beatTitle: _beatTitleController.text,
+      vibeTag: _selectedVibeTag,
+      bpm: _bpmController.text,
+      key: '$_selectedKey ${_isMajor ? 'Major' : 'Minor'}',
+      beatSleeveImagePath: _hasBeatSleeve ? 'assets/images/beat_sleeve.png' : null,
+    );
     
     // Navigate to Auction Settings screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AuctionSettingsScreen(),
+        builder: (context) => AuctionSettingsScreen(
+          auctionData: updatedAuctionData,
+        ),
       ),
     );
   }
