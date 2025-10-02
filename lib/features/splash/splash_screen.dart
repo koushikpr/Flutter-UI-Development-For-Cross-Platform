@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Text(
-                'BAGR_Z',
+                'BAGR',
                 style: GoogleFonts.getFont(
                   'Montserrat',
                   fontSize: 48.sp,

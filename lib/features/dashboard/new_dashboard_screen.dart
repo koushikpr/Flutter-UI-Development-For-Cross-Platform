@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 import 'dart:ui';
 import '../../core/theme/app_theme.dart';
-import '../../shared/widgets/custom_status_bar.dart';
 import '../../shared/widgets/animated_bottom_nav_bar.dart';
 import '../../shared/models/tab_icon_data.dart';
 import 'filter_screen.dart';
@@ -131,13 +130,13 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     tabIconsList.add(TabIconData(
       iconData: Icons.favorite_outline,
       selectedIconData: Icons.favorite,
-      index: 2,
+      index: 3,
       isSelected: false,
     ));
     tabIconsList.add(TabIconData(
       iconData: Icons.person_outline,
       selectedIconData: Icons.person,
-      index: 3,
+      index: 4,
       isSelected: false,
     ));
   }
@@ -157,7 +156,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SafeArea(
+        child: Stack(
         children: [
           // Animated Music Background
           _buildAnimatedBackground(),
@@ -165,12 +165,6 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           // Main content
           Column(
             children: [
-              // Status Bar
-              Container(
-                color: Colors.black,
-                child: const CustomStatusBar(),
-              ),
-              
               // Swipeable main content
               Expanded(
                 child: PageView(
@@ -178,9 +172,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                   onPageChanged: (index) {
                     setState(() {
                       _currentNavIndex = index;
-                      // Update tab selection
+                      // Update tab selection based on actual tab indices
                       for (int i = 0; i < tabIconsList.length; i++) {
-                        tabIconsList[i].isSelected = i == index;
+                        tabIconsList[i].isSelected = tabIconsList[i].index == index;
                       }
                     });
                   },
@@ -191,10 +185,13 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     // Page 1: My Bids (for artists) / Analytics (for producers)
                     _buildSecondPage(),
                     
-                    // Page 2: Favorites (for artists) / Favorites (for producers)
+                    // Page 2: Music Player
+                    _buildMusicPlayerPage(),
+                    
+                    // Page 3: Favorites (for artists) / Favorites (for producers)
                     _buildFavoritesPage(),
                     
-                    // Page 3: Profile (for both artists and producers)
+                    // Page 4: Profile (for both artists and producers)
                     _buildProfilePage(),
                   ],
                 ),
@@ -219,9 +216,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               changeIndex: (int index) {
                 setState(() {
                   _currentNavIndex = index;
-                  // Update tab selection
+                  // Update tab selection based on actual tab indices
                   for (int i = 0; i < tabIconsList.length; i++) {
-                    tabIconsList[i].isSelected = i == index;
+                    tabIconsList[i].isSelected = tabIconsList[i].index == index;
                   }
                 });
                 
@@ -236,15 +233,19 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 if (widget.userRole == 'producer') {
                   _showAddToStoreModal();
                 } else {
-                  // For artists, toggle music player state
-                  setState(() {
-                    _musicPlayerIsPlaying = !_musicPlayerIsPlaying;
-                  });
+                  // For artists, show add beats modal when in add beats mode
+                  _showAddToStoreModal();
                 }
+              },
+              onPlayPauseChanged: () {
+                setState(() {
+                  _musicPlayerIsPlaying = !_musicPlayerIsPlaying;
+                });
               },
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -740,7 +741,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               width: 1.5,
             ),
             image: DecorationImage(
-              image: AssetImage('waves.jpg'),
+              image: AssetImage('assets/waves.jpg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -914,6 +915,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         borderRadius: BorderRadius.circular(12.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
         // Username at top
         Row(
@@ -934,11 +936,11 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           ],
         ),
         
-        SizedBox(height: 12.h),
+        SizedBox(height: 8.h),
         
         // THE RECTANGLE - just one! (simple fixed height)
         Container(
-          height: 160.h, // Reasonable height that fits in grid
+          height: 150.h, // Reduced height to prevent overflow
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.r),
@@ -947,7 +949,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               width: 1.5,
             ),
             image: DecorationImage(
-              image: AssetImage('waves.jpg'),
+              image: AssetImage('assets/waves.jpg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -1006,7 +1008,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           ),
         ),
         
-        SizedBox(height: 3.h),
+        SizedBox(height: 2.h),
         
         // Title below rectangle
         Text(
@@ -1021,7 +1023,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
           overflow: TextOverflow.ellipsis,
         ),
         
-        SizedBox(height: 6.h),
+        SizedBox(height: 4.h),
         
         // Tag below title
         Container(
@@ -1261,7 +1263,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               width: 1.5,
             ),
             image: DecorationImage(
-              image: AssetImage('waves.jpg'),
+              image: AssetImage('assets/waves.jpg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -1411,7 +1413,7 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
               width: 1.5,
             ),
             image: DecorationImage(
-              image: AssetImage('waves.jpg'),
+              image: AssetImage('assets/waves.jpg'),
               fit: BoxFit.cover,
             ),
           ),

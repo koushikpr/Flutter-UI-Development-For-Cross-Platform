@@ -14,6 +14,7 @@ class AnimatedBottomNavBar extends StatefulWidget {
     this.userRole = 'artist',
     this.musicPlayerIsPlaying = false,
     this.onRewind,
+    this.onPlayPauseChanged,
   }) : super(key: key);
 
   final Function(int index)? changeIndex;
@@ -22,6 +23,7 @@ class AnimatedBottomNavBar extends StatefulWidget {
   final String userRole;
   final bool musicPlayerIsPlaying;
   final VoidCallback? onRewind;
+  final VoidCallback? onPlayPauseChanged;
 
   @override
   _AnimatedBottomNavBarState createState() => _AnimatedBottomNavBarState();
@@ -32,15 +34,9 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
   AnimationController? animationController;
   
   // Artist play button state
-  int _controlMode = 0; // 0: play/pause, 1: volume, 2: rewind/forward
+  int _controlMode = 0; // 0: play/pause, 1: add beats
   AnimationController? _playPauseController;
   AnimationController? _modeController;
-  AnimationController? _rewindController;
-  
-  // Rewind drag state
-  bool _isDragging = false;
-  double _dragOffset = 0.0; // Horizontal drag offset
-  String _dragDirection = ''; // 'left' for rewind, 'right' for fast forward
 
   @override
   void initState() {
@@ -60,11 +56,6 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
         vsync: this,
         duration: const Duration(milliseconds: 400),
       );
-      
-      _rewindController = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 300),
-      );
     }
     
     super.initState();
@@ -75,7 +66,6 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
     animationController?.dispose();
     _playPauseController?.dispose();
     _modeController?.dispose();
-    _rewindController?.dispose();
     super.dispose();
   }
   
@@ -89,23 +79,24 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
       _playPauseController?.reverse();
     }
     
-    // Call the add click to toggle state and open music player
-    widget.addClick?.call();
+    // Notify parent about play/pause state change
+    widget.onPlayPauseChanged?.call();
+    
+    // Open music player
     _openMusicPlayer();
   }
   
   void _openMusicPlayer() {
-    // For now, just print - music player will be handled differently
-    // since it's no longer a separate page in the main navigation
-    print('🎵 Opening music player...');
-    // TODO: Show music player modal or navigate to dedicated screen
+    print('🎵 Play button tapped - Opening music player...');
+    // Navigate to music player page (index 2)
+    widget.changeIndex?.call(2);
   }
   
   void _switchControlMode() {
     if (widget.userRole != 'artist') return;
     
     setState(() {
-      _controlMode = (_controlMode + 1) % 3;
+      _controlMode = (_controlMode + 1) % 2; // Only 2 modes now
     });
     
     _modeController?.forward().then((_) {
@@ -113,62 +104,18 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
     });
   }
   
-  void _startDrag() {
-    setState(() {
-      _isDragging = true;
-      _dragOffset = 0.0;
-      _dragDirection = '';
-    });
-    _rewindController?.forward();
-  }
-  
-  void _updateDrag(double deltaX) {
-    setState(() {
-      _dragOffset += deltaX;
-      
-      // Limit drag distance
-      _dragOffset = _dragOffset.clamp(-100.0, 100.0);
-      
-      // Determine direction
-      if (_dragOffset < -20) {
-        _dragDirection = 'left'; // Rewind
-      } else if (_dragOffset > 20) {
-        _dragDirection = 'right'; // Fast forward
-      } else {
-        _dragDirection = '';
-      }
-    });
-  }
-  
-  void _endDrag() {
-    if (_isDragging) {
-      // Trigger action based on drag direction
-      if (_dragDirection == 'left') {
-        _performRewind();
-      } else if (_dragDirection == 'right') {
-        _performFastForward();
-      }
-      
-      // Reset drag state
-      setState(() {
-        _isDragging = false;
-        _dragOffset = 0.0;
-        _dragDirection = '';
-      });
-      _rewindController?.reverse();
+  void _handleTap() {
+    if (widget.userRole != 'artist') return;
+    
+    if (_controlMode == 0) {
+      // In play/pause mode, toggle play/pause and open music player
+      print('🎵 Play button tapped - Opening music player...');
+      _togglePlayPause();
+    } else {
+      // In add beats mode, call add click to open add to store modal
+      print('➕ Add button tapped - Opening add to store modal...');
+      widget.addClick?.call();
     }
-  }
-  
-  void _performRewind() {
-    // Trigger rewind callback
-    print('🔄 Rewind triggered!');
-    widget.onRewind?.call();
-  }
-  
-  void _performFastForward() {
-    // Trigger fast forward action
-    print('⏩ Fast Forward triggered!');
-    // TODO: Add fast forward callback to widget
   }
   
 
@@ -178,15 +125,8 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
     switch (_controlMode) {
       case 0: // Play/Pause mode
         return widget.musicPlayerIsPlaying ? Icons.pause : Icons.play_arrow;
-      case 1: // Volume mode
-        return Icons.volume_up;
-      case 2: // Rewind/Forward mode
-        // Change icon based on drag direction
-        if (_isDragging && _dragDirection == 'right') {
-          return Icons.fast_forward; // Forward icon when dragging right
-        } else {
-          return Icons.fast_rewind; // Rewind icon when dragging left or not dragging
-        }
+      case 1: // Add beats mode
+        return Icons.add;
       default:
         return Icons.play_arrow;
     }
@@ -303,10 +243,8 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
                         CurvedAnimation(
                             parent: animationController!,
                             curve: Curves.fastOutSlowIn)),
-                    child: Transform.translate(
-                      offset: Offset(_dragOffset * 0.5, _isDragging ? -20.h : 0), // Move entire button
-                      child: Transform.scale(
-                        scale: _isDragging ? 1.3 : 1.0, // Enlarge entire button when dragging
+                    child: Transform.scale(
+                      scale: 1.0, // Fixed scale
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -323,20 +261,15 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
                         color: Colors.transparent,
                         child: widget.userRole == 'artist' 
                           ? GestureDetector(
-                              onTap: _controlMode == 2 ? null : _togglePlayPause,
-                              onPanStart: _controlMode == 2 ? (details) => _startDrag() : null,
-                              onPanUpdate: _controlMode == 2 ? (details) {
-                                // Update drag position
-                                _updateDrag(details.delta.dx);
-                              } : null,
-                              onPanEnd: _controlMode == 2 ? (details) => _endDrag() : (details) {
-                                // Mode switching for non-rewind modes  
+                              onTap: _handleTap,
+                              onPanEnd: (details) {
+                                // Swipe to switch modes
                                 if (details.velocity.pixelsPerSecond.dx.abs() > 100) {
                                   _switchControlMode();
                                 }
                               },
                               child: AnimatedBuilder(
-                                animation: Listenable.merge([_playPauseController, _modeController, _rewindController]),
+                                animation: Listenable.merge([_playPauseController, _modeController]),
                                 builder: (context, child) {
                                   return AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 300),
@@ -370,7 +303,6 @@ class _AnimatedBottomNavBarState extends State<AnimatedBottomNavBar>
                           ),
                         ),
                       ),
-                    ),
                   ),
                 ),
               ),

@@ -1560,7 +1560,7 @@ Visit: $profileUrl
         DashboardTiles.buildContentCard(
           title: '',
           subtitle: '',
-          imageAsset: 'waves.jpg',
+          imageAsset: 'assets/waves.jpg',
           height: 140,
           onTap: () {
             print('Tapped on music: $title');
@@ -1653,7 +1653,7 @@ Visit: $profileUrl
         DashboardTiles.buildContentCard(
           title: '',
           subtitle: '',
-          imageAsset: 'waves.jpg',
+          imageAsset: 'assets/waves.jpg',
           height: 140,
           onTap: () {
             print('Tapped on beat: $title');

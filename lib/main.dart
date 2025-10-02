@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/theme/app_theme.dart';
-import 'features/splash/splash_screen.dart';
+import 'features/auth/dummy_auth_screen.dart';
 import 'features/dashboard/new_dashboard_screen.dart';
 import 'auth/auth_module.dart';
 
 void main() {
-  runApp(const BagrzApp());
+  runApp(const BAGRApp());
 }
 
-class BagrzApp extends StatelessWidget {
-  const BagrzApp({super.key});
+class BAGRApp extends StatelessWidget {
+  const BAGRApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +21,12 @@ class BagrzApp extends StatelessWidget {
       builder: (context, child) {
         return AuthWrapper(
           child: MaterialApp(
-            title: 'Bagrz',
+            title: 'BAGR',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.dark, // Set to dark theme by default
-            home: const SplashScreen(),
+            home: const DummyAuthScreen(),
             routes: {
               // Add auth routes
               ...AuthModule.getRoutes(),

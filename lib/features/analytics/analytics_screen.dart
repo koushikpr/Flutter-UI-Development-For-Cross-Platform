@@ -140,7 +140,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               borderRadius: BorderRadius.circular(8.r),
               color: Colors.grey.shade800, // Fallback color
               image: DecorationImage(
-                image: AssetImage('waves.jpg'), // Using .jpg extension
+                image: AssetImage('assets/waves.jpg'), // Using .jpg extension
                 fit: BoxFit.cover,
                 onError: (exception, stackTrace) {
                   print('Image loading error: $exception');
@@ -560,7 +560,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               borderRadius: BorderRadius.circular(8.r),
               color: Colors.grey.shade800, // Fallback color
               image: DecorationImage(
-                image: AssetImage('waves.jpg'), // Using .jpg extension
+                image: AssetImage('assets/waves.jpg'), // Using .jpg extension
                 fit: BoxFit.cover,
                 onError: (exception, stackTrace) {
                   print('Image loading error: $exception');
@@ -811,7 +811,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
                 color: Colors.grey.shade800, // Fallback color
                 image: DecorationImage(
-                  image: AssetImage('waves.jpg'), // Try with .jpg extension
+                  image: AssetImage('assets/waves.jpg'), // Try with .jpg extension
                   fit: BoxFit.cover,
                   onError: (exception, stackTrace) {
                     print('Image loading error: $exception');

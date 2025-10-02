@@ -22,32 +22,34 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
     return Scaffold(
       backgroundColor: AppTheme.primaryColor,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            children: [
-              SizedBox(height: 60.h),
-              
-              // Logo
-              _buildLogo(),
-              
-              SizedBox(height: 80.h),
-              
-              // Welcome text
-              _buildWelcomeText(),
-              
-              SizedBox(height: 60.h),
-              
-              // Demo login buttons
-              _buildDemoLoginButtons(),
-              
-              const Spacer(),
-              
-              // Real auth button
-              _buildRealAuthButton(),
-              
-              SizedBox(height: 40.h),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              children: [
+                SizedBox(height: 60.h),
+                
+                // Logo
+                _buildLogo(),
+                
+                SizedBox(height: 80.h),
+                
+                // Welcome text
+                _buildWelcomeText(),
+                
+                SizedBox(height: 60.h),
+                
+                // Demo login buttons
+                _buildDemoLoginButtons(),
+                
+                SizedBox(height: 40.h),
+                
+                // Real auth button
+                _buildRealAuthButton(),
+                
+                SizedBox(height: 40.h),
+              ],
+            ),
           ),
         ),
       ),
@@ -58,7 +60,7 @@ class _DummyAuthScreenState extends State<DummyAuthScreen> {
     return Column(
       children: [
         Text(
-          'BAGR_Z',
+          'BAGR',
           style: GoogleFonts.getFont(
             'Montserrat',
             fontSize: 42.sp,
