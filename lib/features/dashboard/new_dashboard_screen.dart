@@ -17,6 +17,7 @@ import '../auction/auction_results_screen.dart';
 import '../auction/live_auction_screen.dart';
 import '../auction/live_streams_screen.dart';
 import '../auction/setup_live_auction_screen.dart';
+import '../grab_bag/setup_grab_bag_screen.dart';
 import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
@@ -2354,10 +2355,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
   }
 
   void _addSoundpack() {
-    print('📦 Adding soundpack...');
+    print('📦 Starting Grab Bag setup...');
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const AddSoundpackInfoScreen(),
+        builder: (context) => const SetupGrabBagScreen(),
       ),
     );
   }
