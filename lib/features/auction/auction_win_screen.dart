@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
+import 'cosign_producer_screen.dart';
 
 class AuctionWinScreen extends StatelessWidget {
   final String beatTitle;
@@ -449,21 +450,31 @@ class AuctionWinScreen extends StatelessWidget {
                       // Bottom buttons
                       Row(
                         children: [
-                          // Return Home
+                          // Co-Sign Producer
                           Expanded(
                             child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CoSignProducerScreen(
+                                      producerName: producerName,
+                                      beatTitle: beatTitle,
+                                    ),
+                                  ),
+                                );
+                              },
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 16.h),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.4),
+                                  color: Colors.purple.withOpacity(0.8),
                                   borderRadius: BorderRadius.circular(12.r),
                                   border: Border.all(
                                     color: Colors.white.withOpacity(0.3),
                                     width: 1,
                                   ),
                                 ),
-                                child:                                 _buildSilverGradientText('Return Home', 16.sp),
+                                child: _buildSilverGradientText('Co-Sign Producer', 16.sp),
                               ),
                             ),
                           ),

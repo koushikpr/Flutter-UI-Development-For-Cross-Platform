@@ -1097,9 +1097,9 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                 children: [
                   Expanded(
                     child: _buildAuctionCard(
-                      'Dark Trap Symphony',
-                      'Current Bid: \$250',
-                      '2h 15m left',
+                      'Trap City',
+                      'Current Bid: \$30',
+                      '0:30 left',
                       AppTheme.warningColor,
                       pageIndex * 2,
                     ),

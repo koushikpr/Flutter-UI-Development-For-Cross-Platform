@@ -70,7 +70,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         // Top Performer at Auction
         _buildTopSellingBeatStyleCard(
           title: 'Top Performer at Auction',
-          musicName: 'Favella - ManuGTB',
+          musicName: 'Trap City - ManuGTB',
           subtitle: '2:36 • Hip-hop • 143 BPM • C minor',
           price: '\$280',
         ),
@@ -573,7 +573,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           
           // Music Name - Centered
           Text(
-            'Favella - ManuGTB',
+            'Trap City - ManuGTB',
             style: GoogleFonts.fjallaOne(
               fontSize: 16.sp,
               fontWeight: FontWeight.w400,
@@ -608,7 +608,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           // Beat list with progress bars
           Column(
             children: [
-              _buildBeatProgressItem('Favella - ManuGTB', 280, 280),
+              _buildBeatProgressItem('Trap City - ManuGTB', 280, 280),
               SizedBox(height: 12.h),
               _buildBeatProgressItem('Rhythm City - BeatMaster', 180, 280),
               SizedBox(height: 12.h),

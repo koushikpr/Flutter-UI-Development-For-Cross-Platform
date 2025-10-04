@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:ui';
 import '../../core/theme/app_theme.dart';
+import 'cosign_producer_screen.dart';
 
-class AuctionResultsScreen extends StatelessWidget {
+class AuctionResultsScreen extends StatefulWidget {
   final String title;
   final String status;
   final String timeAgo;
@@ -17,6 +19,41 @@ class AuctionResultsScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<AuctionResultsScreen> createState() => _AuctionResultsScreenState();
+}
+
+class _AuctionResultsScreenState extends State<AuctionResultsScreen> {
+  void _shareAuctionResult() {
+    final shareText = '''
+🎵 Just won "${widget.title}" on BAGR! 
+
+💰 Turned \$20 into \$120 in 90 seconds 🔥
+🎤 Producer: @GreBeatz
+⏱️ Total time: ${widget.timeAgo}
+👥 Live viewers: 389
+
+Who's next? #BAGRbeats #BeatAuction
+''';
+    
+    Share.share(
+      shareText,
+      subject: 'Won auction on BAGR - ${widget.title}',
+    );
+  }
+
+  void _coSignProducer() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CoSignProducerScreen(
+          producerName: '@GreBeatz',
+          beatTitle: widget.title,
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -26,18 +63,52 @@ class AuctionResultsScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFFFF59D), // Light yellow (top)
-              Color(0xFFE1BEE7), // Light purple 
-              Color(0xFF6A1B9A), // Darker purple (quick transition)
-              Colors.black,      // Black (bottom)
+              Colors.transparent,
+              Colors.transparent,
+              Colors.transparent,
+              Colors.black.withOpacity(0.8), // Dark overlay at bottom
             ],
-            stops: [0.0, 0.05, 0.25, 0.4],
+            stops: [0.0, 0.3, 0.6, 1.0],
           ),
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
+        child: Stack(
+          children: [
+            // Background image with fallback
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/trap city.avif',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/images/live.jpg',
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
+            ),
+            // Gradient overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.8), // Dark overlay at bottom
+                    ],
+                    stops: [0.0, 0.3, 0.6, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            // Main content
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
               // Header with close button
               Padding(
                 padding: EdgeInsets.all(16.w),
@@ -95,27 +166,43 @@ class AuctionResultsScreen extends StatelessWidget {
               // Title
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.grey[300]!,
-                      Colors.grey[400]!,
-                      Colors.white,
-                    ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ).createShader(bounds),
-                  child: Text(
-                    title,
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 32.sp,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
+                child: Column(
+                  children: [
+                    // Line 1: "You just won"
+                    Text(
+                      'You just won',
+                      style: GoogleFonts.fjallaOne(
+                        fontSize: 32.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+                    SizedBox(height: 4.h),
+                    // Line 2: "exclusive rights" with golden gradient
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: [
+                          Color(0xFFFFD700), // Gold
+                          Color(0xFFFFA500), // Orange
+                          Color(0xFFFFD700), // Gold
+                          Color(0xFFFFA500), // Orange
+                        ],
+                        stops: [0.0, 0.3, 0.7, 1.0],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: Text(
+                        'exclusive rights',
+                        style: GoogleFonts.fjallaOne(
+                          fontSize: 32.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -218,7 +305,7 @@ class AuctionResultsScreen extends StatelessWidget {
                                     width: 1.5,
                                   ),
                                 ),
-                                child: _buildStatItem('Total Sell Time', timeAgo),
+                                child: _buildStatItem('Total Sell Time', widget.timeAgo),
                               ),
                             ),
                           ),
@@ -315,7 +402,7 @@ class AuctionResultsScreen extends StatelessWidget {
                                 ),
                               ),
                               Image.asset(
-                                'trophy.png',
+                                'assets/images/trophy.png',
                                 width: 80.w,
                                 height: 80.h,
                                 fit: BoxFit.contain,
@@ -383,38 +470,80 @@ class AuctionResultsScreen extends StatelessWidget {
 
               SizedBox(height: 32.h),
 
-              // Share button
+              // Action buttons
               Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.yellow, Colors.green],
-                    ),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.share, color: Colors.black, size: 20.sp),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Share',
-                        style: GoogleFonts.fjallaOne(
-                          fontSize: 16.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
+                child: Row(
+                  children: [
+                    // Co-Sign Producer button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _coSignProducer,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          decoration: BoxDecoration(
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.handshake, color: Colors.white, size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Co-Sign Producer',
+                                style: GoogleFonts.fjallaOne(
+                                  fontSize: 16.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    
+                    SizedBox(width: 12.w),
+                    
+                    // Share button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _shareAuctionResult,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.yellow, Colors.green],
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.share, color: Colors.black, size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Share',
+                                style: GoogleFonts.fjallaOne(
+                                  fontSize: 16.sp,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              ],
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -139,11 +139,11 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
       context,
       MaterialPageRoute(
         builder: (context) => AuctionWinScreen(
-          beatTitle: 'Midnight Rage',
-          producerName: 'DreBeatz',
+          beatTitle: 'Trap City',
+          producerName: 'dreBeats',
           finalPrice: _currentBid,
           liveViewers: 389,
-          beatDetails: '143 BPM • 1 of 1 • C minor',
+          beatDetails: '2:36 • Hip-hop • 143 BPM • C minor',
           isWinner: true,
         ),
       ),
@@ -178,6 +178,26 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
     setState(() {
       _comments.insert(0, tipComment);
       // Reset to show the new tip comment immediately
+      _currentCommentIndex = 0;
+      _commentAnimationController.reset();
+      _commentAnimationController.forward();
+    });
+  }
+
+  void _addEmojiComment(String emoji) {
+    // Get random username for the emoji reaction
+    final randomUsername = _tipUsernames[math.Random().nextInt(_tipUsernames.length)];
+    
+    // Create emoji reaction comment
+    final emojiComment = {
+      'username': randomUsername,
+      'message': 'reacted with $emoji'
+    };
+    
+    // Add to comments list
+    setState(() {
+      _comments.insert(0, emojiComment);
+      // Reset to show the new emoji comment immediately
       _currentCommentIndex = 0;
       _commentAnimationController.reset();
       _commentAnimationController.forward();
@@ -487,7 +507,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Favella - ManuGTB',
+                                  'Trap City - ManuGTB',
                                   style: GoogleFonts.fjallaOne(
                                     fontSize: 14.sp,
                                     color: Colors.white,
@@ -619,7 +639,8 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       barrierColor: Colors.black.withOpacity(0.5),
-      builder: (context) => Container(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
         height: MediaQuery.of(context).size.height * 0.6,
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
@@ -717,15 +738,15 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
               child: Row(
                 children: [
                   Expanded(
-                    child: _buildTipAmountButton(5),
+                    child: _buildTipAmountButton(5, setModalState),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
-                    child: _buildTipAmountButton(10),
+                    child: _buildTipAmountButton(10, setModalState),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
-                    child: _buildTipAmountButton(15),
+                    child: _buildTipAmountButton(15, setModalState),
                   ),
                 ],
               ),
@@ -804,14 +825,15 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
             SizedBox(height: 24.h),
           ],
         ),
+        ),
       ),
     );
   }
 
-  Widget _buildTipAmountButton(int amount) {
+  Widget _buildTipAmountButton(int amount, StateSetter setModalState) {
     return GestureDetector(
       onTap: () {
-        setState(() {
+        setModalState(() {
           _tipAmount = amount.toDouble();
         });
       },
@@ -887,7 +909,8 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
   Widget _buildEmojiButton(String emoji) {
     return GestureDetector(
       onTap: () {
-        // Add reaction or send as comment
+        // Add emoji reaction as comment
+        _addEmojiComment(emoji);
         setState(() {
           _showEmojiMenu = false;
         });

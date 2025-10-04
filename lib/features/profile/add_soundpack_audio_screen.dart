@@ -24,7 +24,7 @@ class AddSoundpackAudioScreen extends StatefulWidget {
 class _AddSoundpackAudioScreenState extends State<AddSoundpackAudioScreen> {
   List<SoundpackTrack> _tracks = [
     SoundpackTrack(
-      title: 'Favella - ManuGTB',
+      title: 'Trap City - ManuGTB',
       duration: '2:30',
       genre: 'Hip-hop',
       bpm: '143 BPM',
