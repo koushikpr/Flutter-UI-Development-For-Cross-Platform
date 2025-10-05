@@ -107,60 +107,77 @@ class AuctionWinScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 10.h),
                       
-                      // Win announcement with exclusive badge (single line)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      // Win announcement with exclusive badge (two lines)
+                      Column(
                         children: [
-                          Flexible(
-                            child: Text(
-                              'You just won ✌️ ',
-                              style: GoogleFonts.getFont(
-                                'Wix Madefor Display',
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
+                          // Line 1: "You just won"
+                          Text(
+                            'You just won',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 32.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.purple, Colors.blue],
-                              ),
-                              borderRadius: BorderRadius.circular(20.r),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.diamond,
-                                  color: Colors.white,
-                                  size: 14.sp,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  'EXCLUSIVE',
-                                  style: GoogleFonts.getFont(
-                                    'Wix Madefor Display',
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                          SizedBox(height: 4.h),
+                          // Line 2: "Exclusive" with glass effect box + "rights!" in Fjalla One
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Glass effect box around "Exclusive" with tilt
+                              Transform.rotate(
+                                angle: -0.05, // Slight tilt (about -5.7 degrees)
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12.r),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.2),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: ShaderMask(
+                                        shaderCallback: (bounds) => LinearGradient(
+                                          colors: [
+                                            Color(0xFFFFD700), // Gold
+                                            Color(0xFFFFA500), // Orange
+                                            Color(0xFFFFD700), // Gold
+                                            Color(0xFFFFA500), // Orange
+                                          ],
+                                          stops: [0.0, 0.3, 0.7, 1.0],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ).createShader(bounds),
+                                        child: Text(
+                                          'Exclusive',
+                                          style: GoogleFonts.fjallaOne(
+                                            fontSize: 32.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          Flexible(
-                            child: Text(
-                              ' rights!',
-                              style: GoogleFonts.getFont(
-                                'Wix Madefor Display',
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
                               ),
-                            ),
+                              SizedBox(width: 8.w),
+                              // "rights!" in Fjalla One
+                              Text(
+                                'rights!',
+                                style: GoogleFonts.fjallaOne(
+                                  fontSize: 32.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -208,7 +225,7 @@ class AuctionWinScreen extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16.r),
                                 child:                                 Image.asset(
-                                  'assets/waves.jpg',
+                                  'assets/trap.jpg',
                                   width: 120.w,
                                   height: 120.w,
                                   fit: BoxFit.cover,

@@ -59,8 +59,8 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
   
   // Countdown timer state
   late Timer _countdownTimer;
-  int _totalSecondsLeft = 0 * 60 + 30; // Start from 0:30 (30 seconds)
-  String _currentTimeLeft = '0:30';
+  int _totalSecondsLeft = 0 * 60 + 10; // Start from 0:10 (10 seconds)
+  String _currentTimeLeft = '0:10';
   
   // Bid modal state
   bool _showBidModal = false;
@@ -507,7 +507,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with TickerProvid
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Trap City - ManuGTB',
+                                  'Trap City - BAGR-BEATS',
                                   style: GoogleFonts.fjallaOne(
                                     fontSize: 14.sp,
                                     color: Colors.white,

@@ -73,17 +73,22 @@ Who's next? #BAGRbeats #BeatAuction
         ),
         child: Stack(
           children: [
-            // Background image with fallback
+            // Background image with blur effect
             Positioned.fill(
-              child: Image.asset(
-                'assets/images/trap city.avif',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    'assets/images/live.jpg',
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                  child: Image.asset(
+                    'assets/images/trap city.avif',
                     fit: BoxFit.cover,
-                  );
-                },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/live.jpg',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
             // Gradient overlay
@@ -166,43 +171,14 @@ Who's next? #BAGRbeats #BeatAuction
               // Title
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    // Line 1: "You just won"
-                    Text(
-                      'You just won',
-                      style: GoogleFonts.fjallaOne(
-                        fontSize: 32.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 4.h),
-                    // Line 2: "exclusive rights" with golden gradient
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          Color(0xFFFFD700), // Gold
-                          Color(0xFFFFA500), // Orange
-                          Color(0xFFFFD700), // Gold
-                          Color(0xFFFFA500), // Orange
-                        ],
-                        stops: [0.0, 0.3, 0.7, 1.0],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      child: Text(
-                        'exclusive rights',
-                        style: GoogleFonts.fjallaOne(
-                          fontSize: 32.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Trap City',
+                  style: GoogleFonts.fjallaOne(
+                    fontSize: 32.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
 
@@ -473,70 +449,35 @@ Who's next? #BAGRbeats #BeatAuction
               // Action buttons
               Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Row(
-                  children: [
-                    // Co-Sign Producer button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _coSignProducer,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          decoration: BoxDecoration(
-                            color: Colors.purple,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.handshake, color: Colors.white, size: 20.sp),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'Co-Sign Producer',
-                                style: GoogleFonts.fjallaOne(
-                                  fontSize: 16.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: GestureDetector(
+                    onTap: _shareAuctionResult,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.yellow, Colors.green],
                         ),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-                    ),
-                    
-                    SizedBox(width: 12.w),
-                    
-                    // Share button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _shareAuctionResult,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.yellow, Colors.green],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.share, color: Colors.black, size: 20.sp),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Share',
+                            style: GoogleFonts.fjallaOne(
+                              fontSize: 16.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w400,
                             ),
-                            borderRadius: BorderRadius.circular(12.r),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.share, color: Colors.black, size: 20.sp),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'Share',
-                                style: GoogleFonts.fjallaOne(
-                                  fontSize: 16.sp,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
                   ],

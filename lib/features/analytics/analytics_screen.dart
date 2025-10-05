@@ -1287,7 +1287,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         // Main Content
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h), // Added bottom padding
             child: _selectedTabIndex == 1 
                 ? _buildHeatmapContent()
                 : _selectedTabIndex == 2 
@@ -1629,11 +1629,33 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Next Level: Mogul',
+                'Next Level: ',
                 style: GoogleFonts.getFont(
                   'Wix Madefor Display',
                   fontSize: 12.sp,
                   color: Colors.white.withOpacity(0.7),
+                ),
+              ),
+              ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: [
+                    Color(0xFFFFD700), // Gold
+                    Color(0xFFFFA500), // Orange
+                    Color(0xFFFFD700), // Gold
+                    Color(0xFFFFA500), // Orange
+                  ],
+                  stops: [0.0, 0.3, 0.7, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: Text(
+                  'Mogul',
+                  style: GoogleFonts.getFont(
+                    'Wix Madefor Display',
+                    fontSize: 12.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               SizedBox(width: 4.w),
@@ -1659,12 +1681,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   }
 
   Widget _buildLevelIcon(String text, bool isCurrent, bool isLocked) {
-    // All icons are now hexagons with silver gradient
     return Container(
       width: 60.w,
       height: 60.h,
       child: CustomPaint(
-        painter: SilverGradientHexagonPainter(),
+        painter: isLocked ? GoldenGradientHexagonPainter() : SilverGradientHexagonPainter(),
         child: Center(
           child: isCurrent
               ? Icon(
@@ -1675,7 +1696,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               : isLocked
                   ? Icon(
                       Icons.lock,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white,
                       size: 20.sp,
                     )
                   : Text(
@@ -1769,6 +1790,59 @@ class SilverGradientHexagonPainter extends CustomPainter {
         Color(0xFFC0C0C0), // Light Silver
       ],
       stops: [0.0, 0.33, 0.66, 1.0],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ).createShader(rect);
+
+    canvas.drawPath(path, paint);
+
+    // Add subtle border
+    final borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..color = Colors.white.withOpacity(0.3);
+
+    canvas.drawPath(path, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class GoldenGradientHexagonPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 2;
+
+    // Create hexagon path
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 - 90) * (3.14159 / 180); // Start from top
+      final x = center.dx + radius * cos(angle);
+      final y = center.dy + radius * sin(angle);
+      
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+
+    // Apply golden gradient
+    final rect = Rect.fromCenter(center: center, width: size.width, height: size.height);
+    paint.shader = LinearGradient(
+      colors: [
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFFA500), // Orange
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFFA500), // Orange
+      ],
+      stops: [0.0, 0.3, 0.7, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ).createShader(rect);
