@@ -100,10 +100,12 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                     ShaderMask(
                       shaderCallback: (bounds) => LinearGradient(
                         colors: [
-                          const Color(0xFFC0C0C0), // Light silver
-                          const Color(0xFF808080), // Medium silver
-                          const Color(0xFFA8A8A8), // Bright silver
+                          Colors.white,
+                          Colors.grey[300]!,
+                          Colors.grey[400]!,
+                          Colors.white,
                         ],
+                        stops: [0.0, 0.3, 0.7, 1.0],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ).createShader(bounds),
@@ -255,10 +257,12 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
           ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
               colors: [
-                const Color(0xFFC0C0C0), // Light silver
-                const Color(0xFF808080), // Medium silver
-                const Color(0xFFA8A8A8), // Bright silver
+                Colors.white,
+                Colors.grey[300]!,
+                Colors.grey[400]!,
+                Colors.white,
               ],
+              stops: [0.0, 0.3, 0.7, 1.0],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ).createShader(bounds),
@@ -372,10 +376,12 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
           ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
               colors: [
-                const Color(0xFFC0C0C0), // Light silver
-                const Color(0xFF808080), // Medium silver
-                const Color(0xFFA8A8A8), // Bright silver
+                Colors.white,
+                Colors.grey[300]!,
+                Colors.grey[400]!,
+                Colors.white,
               ],
+              stops: [0.0, 0.3, 0.7, 1.0],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ).createShader(bounds),
@@ -477,10 +483,12 @@ class _MyBidsScreenState extends State<MyBidsScreen> with TickerProviderStateMix
                                 child: ShaderMask(
                                   shaderCallback: (bounds) => LinearGradient(
                                     colors: [
-                                      const Color(0xFFC0C0C0), // Light silver
-                                      const Color(0xFF808080), // Medium silver
-                                      const Color(0xFFA8A8A8), // Bright silver
+                                      Colors.white,
+                                      Colors.grey[300]!,
+                                      Colors.grey[400]!,
+                                      Colors.white,
                                     ],
+                                    stops: [0.0, 0.3, 0.7, 1.0],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ).createShader(bounds),

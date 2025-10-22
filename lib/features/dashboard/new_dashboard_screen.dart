@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
@@ -20,6 +21,8 @@ import '../profile/add_soundpack_info_screen.dart';
 import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
 import '../music/music_player_screen.dart';
+import 'widgets/store_item_card.dart';
+import 'screens/feedback_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
   final String userRole; // 'artist' or 'producer'
@@ -128,8 +131,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
       isSelected: false,
     ));
     tabIconsList.add(TabIconData(
-      iconData: Icons.favorite_outline,
-      selectedIconData: Icons.favorite,
+      iconData: Icons.feedback_outlined,
+      selectedIconData: Icons.feedback,
       index: 3,
       isSelected: false,
     ));
@@ -188,8 +191,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     // Page 2: Music Player
                     _buildMusicPlayerPage(),
                     
-                    // Page 3: Favorites (for artists) / Favorites (for producers)
-                    _buildFavoritesPage(),
+                    // Page 3: Feedback
+                    _buildFeedbackPage(),
                     
                     // Page 4: Profile (for both artists and producers)
                     _buildProfilePage(),
@@ -299,32 +302,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     }
   }
 
-  Widget _buildFavoritesPage() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20.h),
-          
-          // Search Bar with Filter (same as home page)
-          _buildSearchBar(),
-          
-          SizedBox(height: 24.h),
-          
-          // My Library Section
-          _buildMyLibrarySection(),
-          
-          SizedBox(height: 40.h),
-          
-          // My Favorites Section
-          _buildMyFavoritesSection(),
-          
-          // Bottom padding for navigation
-          SizedBox(height: 120.h),
-        ],
-      ),
-    );
+  Widget _buildFeedbackPage() {
+    return FeedbackScreen();
   }
 
   Widget _buildMusicPlayerPage() {
@@ -1648,294 +1627,15 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     );
   }
 
-  // Add to Store Modal Methods (copied from ProfileScreen)
+  // Add to Store Modal Methods
   void _showAddToStoreModal() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      barrierColor: Colors.black.withOpacity(0.3), // Darker barrier for stronger background blur effect
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.4,
-          maxChildSize: 0.85,
-          builder: (context, scrollController) => ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.r),
-              topRight: Radius.circular(20.r),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.r),
-                topRight: Radius.circular(20.r),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFFFFF59D), // Light yellow (top)
-                        Color(0xFFE1BEE7), // Light purple
-                        Color(0xFF6A1B9A), // Darker purple (quick transition)
-                        Colors.black,      // Black (bottom)
-                      ],
-                      stops: [0.0, 0.07, 0.30, 0.5],
-                    ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20.r),
-                      topRight: Radius.circular(20.r),
-                    ),
-                  ),
-          child:
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.r),
-                    topRight: Radius.circular(20.r),
-                  ),
-                ),
-                child: SingleChildScrollView(
-            controller: scrollController,
-            padding: EdgeInsets.all(24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle bar
-                Center(
-                  child: Container(
-                    width: 40.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: 24.h),
-                
-                ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.grey[300]!,
-                      Colors.grey[400]!,
-                      Colors.white,
-                    ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ).createShader(bounds),
-                  child: Text(
-                    'Go Live Now',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: 8.h),
-                
-                Text(
-                  'What type of stream do you want to run?',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 16.sp,
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                ),
-                
-                SizedBox(height: 32.h),
-                
-                // Store Options
-                Column(
-                  children: [
-                    _buildStoreOption(
-                      iconData: Icons.gavel,
-                      title: 'Live Auction',
-                      subtitle: 'Go live with a banger and let the market decide its value. Artists bid for exclusive rights in real time and can co-sign your sound.',
-                      isSelected: false,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _addSingleBeat();
-                      },
-                    ),
-                    
-                    SizedBox(height: 16.h),
-                    
-                    _buildStoreOption(
-                      iconData: Icons.shopping_bag,
-                      title: 'Grab Bag',
-                      subtitle: 'Go live with a non-exclusive beat, sound pack, or loop you want to promote. Fans can buy it instantly in real time — no bidding.',
-                      isSelected: false,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _addSoundpack();
-                      },
-                    ),
-                  ],
-                ),
-                
-                SizedBox(height: 40.h),
-                
-                // Continue Button
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Container(
-                    width: double.infinity,
-                    height: 56.h,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _addSingleBeat(); // Default to single beat
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.9),
-                        foregroundColor: Colors.black,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.r),
-                        ),
-                      ),
-                      child: Text(
-                        'Continue',
-                        style: GoogleFonts.getFont(
-                          'Wix Madefor Display',
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                SizedBox(height: 32.h),
-              ],
-            ),
-                ),
-              ),
-                ),
-              ),
-            ),
-          ),
-        ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AddToStoreScreen(),
       ),
     );
   }
 
-  Widget _buildStoreOption({
-    required IconData iconData,
-    required String title,
-    required String subtitle,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(20.w),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A).withOpacity(0.7),
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: isSelected 
-                ? Colors.white.withOpacity(0.4)
-                : Colors.white.withOpacity(0.2),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            // Top row with icon and selection indicator
-            Row(
-              children: [
-                // Icon (no background container)
-                Icon(
-                  iconData,
-                  color: Colors.white.withOpacity(0.8),
-                  size: 40.sp, // Enlarged icon
-                ),
-                
-                const Spacer(),
-                
-                // Selection indicator
-                Container(
-                  width: 20.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? Colors.white : Colors.transparent,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.5),
-                      width: 2,
-                    ),
-                  ),
-                  child: isSelected
-                      ? Icon(
-                          Icons.check,
-                          color: Colors.black,
-                          size: 12.sp,
-                        )
-                      : null,
-                ),
-              ],
-            ),
-            
-            SizedBox(height: 16.h),
-            
-            // Text content (full width)
-            SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.grey[300]!,
-                        Colors.grey[400]!,
-                        Colors.white,
-                      ],
-                      stops: [0.0, 0.3, 0.7, 1.0],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds),
-                    child: Text(
-                      title,
-                      style: GoogleFonts.fjallaOne(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 14.sp,
-                      color: Colors.white.withOpacity(0.7),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildMyLibrarySection() {
     return Column(
@@ -2673,5 +2373,465 @@ class NoisePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+class AddToStoreScreen extends StatelessWidget {
+  const AddToStoreScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 49),
+            const Text(
+              'Add to Store',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w700,
+                height: 1.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const SizedBox(
+              width: 275,
+              child: Text(
+                'Select the type of item you want to add.',
+                style: TextStyle(
+                  color: Color(0xFFA3A3A3),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  height: 1.43,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 100),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                children: [
+                  StoreItemCard(
+                    title: 'Single Item',
+                    icon: _buildSingleItemIcon(),
+                    onTap: () {},
+                  ),
+                  const SizedBox(height: 12),
+                  StoreItemCard(
+                    title: 'Pack',
+                    icon: _buildPackIcon(),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SelectPackTypeScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSingleItemIcon() {
+    return SizedBox(
+      width: 58,
+      height: 64,
+      child: CustomPaint(
+        painter: SingleItemIconPainter(),
+      ),
+    );
+  }
+
+  Widget _buildPackIcon() {
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: CustomPaint(
+        painter: PackIconPainter(),
+      ),
+    );
+  }
+}
+
+class SingleItemIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    
+    path.moveTo(28.05, 31.05);
+    path.cubicTo(29.85, 29.69, 30.65, 27.41, 30.17, 25.27);
+    path.lineTo(26.08, 27.63);
+    path.lineTo(28.05, 31.05);
+    path.close();
+
+    path.moveTo(29.30, 43.39);
+    path.cubicTo(28.48, 43.86, 28.21, 44.90, 28.67, 45.71);
+    path.cubicTo(29.14, 46.52, 30.18, 46.80, 30.99, 46.33);
+    path.cubicTo(31.80, 45.86, 32.08, 44.82, 31.62, 44.01);
+    path.cubicTo(31.15, 43.20, 30.11, 42.92, 29.30, 43.39);
+    path.close();
+
+    canvas.drawPath(path, paint);
+
+    final pathOutline = Path();
+    pathOutline.moveTo(18.91, 6.83);
+    pathOutline.cubicTo(19.30, 6.60, 19.76, 6.54, 20.20, 6.66);
+    pathOutline.lineTo(34.12, 10.39);
+    pathOutline.cubicTo(34.55, 10.50, 34.93, 10.79, 35.15, 11.18);
+    pathOutline.lineTo(52.48, 41.19);
+    pathOutline.cubicTo(53.88, 43.62, 53.04, 46.74, 50.61, 48.15);
+    pathOutline.lineTo(30.02, 60.04);
+    pathOutline.cubicTo(27.58, 61.44, 24.46, 60.61, 23.06, 58.17);
+    pathOutline.lineTo(5.73, 28.16);
+    pathOutline.cubicTo(5.51, 27.77, 5.45, 27.31, 5.56, 26.88);
+    pathOutline.lineTo(9.29, 12.95);
+    pathOutline.cubicTo(9.41, 12.52, 9.69, 12.15, 10.08, 11.92);
+    pathOutline.lineTo(13.03, 10.22);
+    pathOutline.lineTo(16.82, 16.79);
+    pathOutline.cubicTo(17.29, 17.61, 18.33, 17.89, 19.14, 17.42);
+    pathOutline.cubicTo(19.95, 16.95, 20.23, 15.91, 19.76, 15.10);
+    pathOutline.lineTo(15.97, 8.53);
+    pathOutline.lineTo(18.91, 6.83);
+    pathOutline.close();
+
+    canvas.drawPath(pathOutline, paint);
+
+    final pathBottom = Path();
+    pathBottom.moveTo(13.64, 4.50);
+    pathBottom.cubicTo(13.17, 3.69, 12.13, 3.41, 11.32, 3.88);
+    pathBottom.cubicTo(10.51, 4.35, 10.23, 5.39, 10.70, 6.20);
+    pathBottom.lineTo(13.02, 10.22);
+    pathBottom.lineTo(15.96, 8.53);
+    pathBottom.lineTo(13.64, 4.50);
+    pathBottom.close();
+
+    canvas.drawPath(pathBottom, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class PackIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    
+    path.moveTo(61.89, 53.30);
+    path.lineTo(53.30, 14.00);
+    path.lineTo(15.09, 19.48);
+    path.lineTo(9.61, 7.97);
+    path.lineTo(15.46, 57.32);
+    path.lineTo(15.46, 62.98);
+    path.lineTo(61.89, 53.30);
+    path.close();
+
+    canvas.drawPath(path, paint);
+
+    final path2 = Path();
+    path2.moveTo(14.00, 62.98);
+    path2.lineTo(14.00, 56.95);
+    path2.lineTo(7.86, 3.86);
+    path2.cubicTo(5.67, 11.54, 2.11, 52.93, 2.11, 52.93);
+    path2.lineTo(14.00, 62.98);
+    path2.close();
+
+    canvas.drawPath(path2, paint);
+
+    final path3 = Path();
+    path3.moveTo(16.19, 17.47);
+    path3.lineTo(53.30, 12.17);
+    path3.lineTo(48.36, 1.02);
+    path3.lineTo(7.78, 1.93);
+    path3.lineTo(16.19, 17.47);
+    path3.close();
+
+    canvas.drawPath(path3, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class SelectPackTypeScreen extends StatefulWidget {
+  const SelectPackTypeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SelectPackTypeScreen> createState() => _SelectPackTypeScreenState();
+}
+
+class _SelectPackTypeScreenState extends State<SelectPackTypeScreen> {
+  String? selectedPackType = 'beat_pack';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 49),
+              const Text(
+                'Add Pack',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  height: 1.0,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const SizedBox(
+                width: 275,
+                child: Text(
+                  'Choose pack type:',
+                  style: TextStyle(
+                    color: Color(0xFFA3A3A3),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    height: 1.43,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 43),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Column(
+                    children: [
+                      _PackTypeCard(
+                        title: 'Beat Pack',
+                        description: 'Bundle several finished beats in one drop. More value, more heat.',
+                        isSelected: selectedPackType == 'beat_pack',
+                        onTap: () {
+                          setState(() {
+                            selectedPackType = 'beat_pack';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _PackTypeCard(
+                        title: 'Sound Pack',
+                        description: 'A mixed bag of sounds — one-shots (808s, kicks, snares, hi-hats, claps), FX, and samples. No melodic or drum loops.',
+                        isSelected: selectedPackType == 'sound_pack',
+                        onTap: () {
+                          setState(() {
+                            selectedPackType = 'sound_pack';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _PackTypeCard(
+                        title: 'Loop Kit',
+                        description: 'A collection of melody or drum loops only. No one-shots, just loops.',
+                        isSelected: selectedPackType == 'loop_kit',
+                        onTap: () {
+                          setState(() {
+                            selectedPackType = 'loop_kit';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              height: 1.43,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Container(
+                        width: 139,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PackTypeCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PackTypeCard({
+    Key? key,
+    required this.title,
+    required this.description,
+    required this.isSelected,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Colors.white : Colors.white.withOpacity(0.10),
+            width: 1,
+          ),
+          color: Colors.white.withOpacity(0.05),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Color(0xFFFAFAFA),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      color: Color(0xFFA3A3A3),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.43,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            _buildCheckIcon(isSelected),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckIcon(bool isSelected) {
+    if (isSelected) {
+      return Container(
+        width: 24,
+        height: 24,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+        ),
+        child: const Icon(
+          Icons.check,
+          color: Color(0xFF0D0D0D),
+          size: 16,
+        ),
+      );
+    } else {
+      return Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: const Color(0xFF454545),
+            width: 1,
+          ),
+        ),
+      );
+    }
+  }
+}
+
 
 
