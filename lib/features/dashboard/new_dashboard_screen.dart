@@ -133,13 +133,13 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     tabIconsList.add(TabIconData(
       iconData: Icons.feedback_outlined,
       selectedIconData: Icons.feedback,
-      index: 3,
+      index: 2,
       isSelected: false,
     ));
     tabIconsList.add(TabIconData(
       iconData: Icons.person_outline,
       selectedIconData: Icons.person,
-      index: 4,
+      index: 3,
       isSelected: false,
     ));
   }
@@ -188,13 +188,10 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
                     // Page 1: My Bids (for artists) / Analytics (for producers)
                     _buildSecondPage(),
                     
-                    // Page 2: Music Player
-                    _buildMusicPlayerPage(),
-                    
-                    // Page 3: Feedback
+                    // Page 2: Feedback
                     _buildFeedbackPage(),
                     
-                    // Page 4: Profile (for both artists and producers)
+                    // Page 3: Profile (for both artists and producers)
                     _buildProfilePage(),
                   ],
                 ),

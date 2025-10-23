@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({Key? key}) : super(key: key);
+  const FeedbackScreen({super.key});
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -10,13 +12,13 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   String? selectedEmotion;
-  final TextEditingController _emailController = TextEditingController();
+  String? selectedCategory;
+  String? selectedFollowUp;
   final TextEditingController _messageController = TextEditingController();
   bool _isAnonymous = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -25,127 +27,59 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Status Bar
-              Container(
-                height: 44,
-                padding: const EdgeInsets.only(top: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Time
-                    const SizedBox(
-                      width: 133.5,
-                      child: Text(
-                        '9:41',
-                        style: TextStyle(
-                          fontFamily: 'SF Pro Text',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          height: 1.43,
-                          letterSpacing: -0.408,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    // Dynamic Island
-                    Container(
-                      width: 126,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(60),
-                      ),
-                      child: Stack(
-                        children: [
-                          // Camera lens
-                          Positioned(
-                            right: 10.4,
-                            top: 10.4,
-                            child: Container(
-                              width: 11.2,
-                              height: 11.2,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF06092E),
-                                border: Border.all(
-                                  color: const Color(0xFF1C1932),
-                                  width: 0.86,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Right side icons
-                    const SizedBox(
-                      width: 133.5,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(Icons.signal_cellular_4_bar, color: Colors.white, size: 17),
-                          SizedBox(width: 9),
-                          Icon(Icons.wifi, color: Colors.white, size: 17),
-                          SizedBox(width: 9),
-                          Icon(Icons.battery_full, color: Colors.white, size: 27),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      body: SafeArea(
+        child: Column(
+          children: [
               // Main Content
               Expanded(
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       const SizedBox(height: 24),
+                      // Man Vector Image
+                      _buildManVectorImage(),
+                      const SizedBox(height: 32),
                       // Header
-                      const Text(
+                      Text(
                         "What's on your mind?",
-                        style: TextStyle(
-                          fontFamily: 'Wix Madefor Display',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 22,
-                          height: 1.27,
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                          height: 1.2,
                           color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Got an idea, request, or issue? Drop it here — we're listening.",
-                        style: TextStyle(
-                          fontFamily: 'Wix Madefor Display',
+                      Text(
+                        "Got an idea, request, or issue?\n Drop it here — we're listening.",
+                        style: GoogleFonts.getFont(
+                          'Wix Madefor Display',
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
                           height: 1.43,
-                          color: Color(0x99FFFFFF),
+                          color: const Color(0x99FFFFFF),
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
-                      // Email Input
-                      _buildEmailInput(),
+                      // Category Selection
+                      _buildCategorySelection(),
                       const SizedBox(height: 24),
-                      // Emotion Selection
-                      _buildEmotionSelection(),
+                      // Overall Impression
+                      _buildOverallImpression(),
                       const SizedBox(height: 24),
-                      // Message Input
-                      _buildMessageInput(),
+                      // Main Message Input
+                      _buildMainMessageInput(),
                       const SizedBox(height: 24),
-                      // Anonymous Toggle
-                      _buildAnonymousToggle(),
+                      // Follow-up Selection
+                      _buildFollowUpSelection(),
                       const SizedBox(height: 24),
                       // Submit Button
                       _buildSubmitButton(),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -155,93 +89,128 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             ],
           ),
         ),
+      );
+  }
+
+  Widget _buildManVectorImage() {
+    return Center(
+      child: SvgPicture.asset(
+        'assets/images/man vector.svg',
+        width: 92,
+        height: 92,
+        fit: BoxFit.contain,
+        placeholderBuilder: (BuildContext context) => Container(
+          width: 92,
+          height: 92,
+          color: const Color(0xFF3D3D3D),
+          child: const Icon(
+            Icons.person,
+            color: Colors.white,
+            size: 40,
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildEmailInput() {
+  Widget _buildCategorySelection() {
+    final categories = ['Auction', 'Mobile', 'User Support', 'Payment'];
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Email',
-          style: TextStyle(
-            fontFamily: 'Wix Madefor Display',
+        Text(
+          'Choose what it\'s about',
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
             fontWeight: FontWeight.w500,
             fontSize: 14,
             height: 1.43,
             letterSpacing: -0.04,
-            color: Color(0xFFFAFAFA),
+            color: const Color(0xFFFAFAFA),
           ),
         ),
         const SizedBox(height: 6),
         Container(
           height: 56,
           decoration: BoxDecoration(
-            color: const Color(0xFF171717),
+            color: Colors.white.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.1),
+              width: 1,
+            ),
           ),
-          child: Row(
-            children: [
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextField(
-                  controller: _emailController,
-                  style: const TextStyle(
-                    fontFamily: 'Wix Madefor Display',
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                    height: 1.43,
-                    color: Color(0xFF737373),
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your email',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Wix Madefor Display',
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      height: 1.43,
-                      color: Color(0xFF737373),
-                    ),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              const Icon(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: selectedCategory ?? 'Auction',
+              isExpanded: true,
+              icon: const Icon(
                 Icons.keyboard_arrow_down,
                 color: Colors.white,
                 size: 24,
               ),
-              const SizedBox(width: 12),
-            ],
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                height: 1.43,
+                color: const Color(0xFF737373),
+              ),
+              dropdownColor: const Color(0xFF171717),
+              items: categories.map((String category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      category,
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        height: 1.43,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedCategory = newValue;
+                });
+              },
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildEmotionSelection() {
+
+  Widget _buildOverallImpression() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'How are you feeling?',
-          style: TextStyle(
-            fontFamily: 'Wix Madefor Display',
+        Text(
+          'Overall impression',
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
             fontWeight: FontWeight.w500,
             fontSize: 14,
             height: 1.43,
             letterSpacing: -0.04,
-            color: Color(0xFFFAFAFA),
+            color: const Color(0xFFFAFAFA),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: _buildEmotionPill(
                 emoji: '😊',
-                label: 'Fire (Keep This)',
+                label: 'Fire\n(Keep This)',
                 value: 'happy',
               ),
             ),
@@ -249,7 +218,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Expanded(
               child: _buildEmotionPill(
                 emoji: '😐',
-                label: 'Mid (Average)',
+                label: 'Mid\n(Average)',
                 value: 'neutral',
               ),
             ),
@@ -257,7 +226,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             Expanded(
               child: _buildEmotionPill(
                 emoji: '😡',
-                label: 'Nah (Needs Work)',
+                label: 'Nah\n(Needs Work)',
                 value: 'angry',
               ),
             ),
@@ -266,6 +235,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       ],
     );
   }
+
 
   Widget _buildEmotionPill({
     required String emoji,
@@ -283,31 +253,35 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       child: Container(
         height: 120,
         decoration: BoxDecoration(
-          color: const Color(0xFF171717),
+          color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Colors.white : Colors.white.withOpacity(0.1),
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               emoji,
-              style: const TextStyle(
-                fontFamily: 'Wix Madefor Display',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
                 fontWeight: FontWeight.w400,
                 fontSize: 28,
                 height: 1.14,
-                color: Color(0xFFD4D4D4),
+                color: const Color(0xFFD4D4D4),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               label,
-              style: TextStyle(
-                fontFamily: 'Wix Madefor Display',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
-                height: 1.43,
-                color: isSelected ? Colors.white : const Color(0xFFD4D4D4),
+                height: 1.2,
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
@@ -317,111 +291,124 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildMainMessageInput() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Message',
-          style: TextStyle(
-            fontFamily: 'Wix Madefor Display',
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            height: 1.43,
-            letterSpacing: -0.04,
-            color: Color(0xFFFAFAFA),
-          ),
-        ),
-        const SizedBox(height: 6),
         Container(
-          height: 232,
-          decoration: BoxDecoration(
-            color: const Color(0xFF171717),
-            borderRadius: BorderRadius.circular(12),
+          constraints: const BoxConstraints(
+            minHeight: 120,
+            maxHeight: 200,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _messageController,
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              style: const TextStyle(
-                fontFamily: 'Wix Madefor Display',
+          child: TextField(
+            controller: _messageController,
+            maxLines: null,
+            expands: true,
+            textAlignVertical: TextAlignVertical.top,
+            style: GoogleFonts.getFont(
+              'Wix Madefor Display',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+            decoration: InputDecoration(
+              hintText: "Type your thoughts here…\ndon't worry, we got thick skin.",
+              hintStyle: GoogleFonts.getFont(
+                'Wix Madefor Display',
                 fontWeight: FontWeight.w400,
                 fontSize: 14,
-                height: 1.43,
-                color: Color(0xFF737373),
+                color: Colors.white.withOpacity(0.5),
               ),
-              decoration: const InputDecoration(
-                hintText: "Type your thoughts here… don't worry, we got thick skin.",
-                hintStyle: TextStyle(
-                  fontFamily: 'Wix Madefor Display',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  height: 1.43,
-                  color: Color(0xFF737373),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.05),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
                 ),
-                border: InputBorder.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            onChanged: (value) {
+              setState(() {});
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              '${_messageController.text.length} / 500',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: const Color(0xFF737373),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildAnonymousToggle() {
-    return Container(
-      height: 56,
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: Color(0x1AFFFFFF),
-            width: 1,
-          ),
-        ),
-      ),
+  Widget _buildFollowUpSelection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          const Text(
-            'Send anonymously',
-            style: TextStyle(
-              fontFamily: 'Wix Madefor Display',
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-              height: 1.43,
-              letterSpacing: -0.04,
-              color: Color(0xFFFAFAFA),
+          Expanded(
+            child: Text(
+              'I\'d like a follow-up from BAGR team.',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                height: 1.43,
+                color: Colors.white,
+              ),
             ),
           ),
-          const Spacer(),
-          Transform.scale(
-            scaleX: -1,
-            child: Switch(
-              value: _isAnonymous,
-              onChanged: (value) {
-                setState(() {
-                  _isAnonymous = value;
-                });
-              },
-              activeColor: Colors.white,
-              activeTrackColor: const Color(0x1FFFFFFF),
-              inactiveThumbColor: const Color(0x6BFFFFFF),
-              inactiveTrackColor: const Color(0x1FFFFFFF),
-            ),
-          ),
+                  Switch(
+                    value: _isAnonymous,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _isAnonymous = value;
+                      });
+                    },
+                    activeThumbColor: Colors.white,
+                    activeTrackColor: Colors.white.withOpacity(0.3),
+                    inactiveThumbColor: Colors.white.withOpacity(0.4),
+                    inactiveTrackColor: Colors.white.withOpacity(0.1),
+                  ),
         ],
       ),
     );
   }
+
 
   Widget _buildSubmitButton() {
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        color: const Color(0x4DFFFFFF),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Material(
@@ -432,15 +419,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             _handleSubmit();
           },
           borderRadius: BorderRadius.circular(12),
-          child: const Center(
+          child: Center(
             child: Text(
-              'Next',
-              style: TextStyle(
-                fontFamily: 'Wix Madefor Display',
+              'Give My Feedback',
+              style: GoogleFonts.getFont(
+                'Wix Madefor Display',
                 fontWeight: FontWeight.w600,
-                fontSize: 16,
-                height: 1.5,
-                color: Color(0xFFD4D4D4),
+                fontSize: 18,
+                height: 1.3,
+                color: Colors.black,
               ),
             ),
           ),
@@ -491,8 +478,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontFamily: 'Wix Madefor Display',
+          style: GoogleFonts.getFont(
+            'Wix Madefor Display',
             fontWeight: FontWeight.w500,
             fontSize: 10,
             height: 1.2,
@@ -506,19 +493,151 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   void _handleSubmit() {
     // Handle feedback submission
-    print('Email: ${_emailController.text}');
-    print('Message: ${_messageController.text}');
+    print('Category: $selectedCategory');
     print('Emotion: $selectedEmotion');
-    print('Anonymous: $_isAnonymous');
+    print('Message: ${_messageController.text}');
+    print('Follow-up: $selectedFollowUp');
     
-    // Show success message or navigate back
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Feedback submitted successfully!'),
-        backgroundColor: Colors.green,
-      ),
+    // Show thank you modal
+    _showThankYouModal();
+  }
+
+  void _showThankYouModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Praying hands emoji
+                    const Text(
+                      '🙏',
+                      style: TextStyle(fontSize: 48),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Thank You title
+                    Text(
+                      'Thank You Fam.',
+                      style: GoogleFonts.getFont(
+                        'Fjalla One',
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Description
+                    Text(
+                      'Your feedback helps shape BAGR into\n the go-to app for hip-hop creators\n and enthusiasts across the globe.',
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Response info box
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              const Text(
+                                '✉️',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Expect a response from us\n within 24 hours.',
+                                style: GoogleFonts.getFont(
+                                  'Wix Madefor Display',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    // Motivational message
+                    Text(
+                      'Keep showing up — we\'re writing\n the future one bar at a time.',
+                      style: GoogleFonts.getFont(
+                        'Wix Madefor Display',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Got it button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Got it',
+                          style: GoogleFonts.getFont(
+                            'Wix Madefor Display',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
-    
-    Navigator.of(context).pop();
   }
 }
