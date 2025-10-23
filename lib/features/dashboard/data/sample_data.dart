@@ -70,6 +70,7 @@ class SampleData {
   static List<ProducerData> getProducersData() {
     return [
       ProducerData(
+        id: "metro_boomin_001",
         name: "Metro Boomin",
         location: "Atlanta, GA",
         specialty: "Trap",
@@ -82,6 +83,7 @@ class SampleData {
         isVerified: true,
       ),
       ProducerData(
+        id: "southside_002",
         name: "Southside",
         location: "Chicago, IL",
         specialty: "Hip-Hop",
@@ -94,6 +96,7 @@ class SampleData {
         isVerified: true,
       ),
       ProducerData(
+        id: "wondagurl_003",
         name: "WondaGurl",
         location: "Toronto, ON",
         specialty: "Dark Trap",
@@ -106,6 +109,7 @@ class SampleData {
         isVerified: true,
       ),
       ProducerData(
+        id: "tm88_004",
         name: "TM88",
         location: "Atlanta, GA",
         specialty: "Melodic Trap",
@@ -118,6 +122,7 @@ class SampleData {
         isVerified: false,
       ),
       ProducerData(
+        id: "cashmoneyap_005",
         name: "CashMoneyAP",
         location: "Phoenix, AZ",
         specialty: "Modern Hip-Hop",

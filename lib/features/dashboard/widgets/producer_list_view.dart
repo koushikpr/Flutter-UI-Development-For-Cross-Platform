@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/navigation/navigation_helper.dart';
 
 class ProducerListView extends StatelessWidget {
   const ProducerListView({
@@ -22,7 +23,16 @@ class ProducerListView extends StatelessWidget {
       ),
       child: InkWell(
         splashColor: Colors.transparent,
-        onTap: callback,
+        onTap: () {
+          if (callback != null) {
+            callback!();
+          } else if (producerData != null) {
+            NavigationHelper.navigateToProducerProfile(
+              context,
+              producerId: producerData!.id,
+            );
+          }
+        },
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(16.r)),
@@ -296,6 +306,7 @@ class ProducerListView extends StatelessWidget {
 }
 
 class ProducerData {
+  final String id;
   final String name;
   final String location;
   final String specialty;
@@ -308,6 +319,7 @@ class ProducerData {
   final bool isVerified;
 
   ProducerData({
+    required this.id,
     required this.name,
     required this.location,
     required this.specialty,

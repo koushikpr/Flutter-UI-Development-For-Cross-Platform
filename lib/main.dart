@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/dummy_auth_screen.dart';
 import 'features/dashboard/new_dashboard_screen.dart';
+import 'features/profile/producer_public_profile_screen.dart';
 import 'auth/auth_module.dart';
 
 void main() {
@@ -32,6 +33,13 @@ class BAGRApp extends StatelessWidget {
               ...AuthModule.getRoutes(),
               // Add dashboard route
               '/dashboard': (context) => const NewDashboardScreen(),
+              // Add producer profile route
+              '/producer-profile': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+                return ProducerPublicProfileScreen(
+                  producerId: args?['producerId'] ?? '',
+                );
+              },
             },
           ),
         );

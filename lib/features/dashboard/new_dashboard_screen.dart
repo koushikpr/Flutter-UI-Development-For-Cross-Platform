@@ -22,6 +22,7 @@ import '../analytics/analytics_screen.dart';
 import 'my_bids_screen.dart';
 import '../music/music_player_screen.dart';
 import 'widgets/store_item_card.dart';
+import 'widgets/producer_list_view.dart';
 import 'screens/feedback_screen.dart';
 
 class NewDashboardScreen extends StatefulWidget {
@@ -275,6 +276,8 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
             _buildLivestreamsSection(),
             SizedBox(height: 40.h),
             _buildFeaturedBeatsSection(),
+            SizedBox(height: 40.h),
+            _buildBrowseProducersSection(),
           ] else ...[
             // Producer sections  
             _buildMyAuctionsSection(),
@@ -1046,6 +1049,55 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBrowseProducersSection() {
+    final producers = SampleData.getProducersData();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey[300]!,
+                  Colors.grey[400]!,
+                  Colors.white,
+                ],
+                stops: [0.0, 0.3, 0.7, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Browse Producers',
+                style: GoogleFonts.fjallaOne(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppTheme.accentColor.withOpacity(0.6),
+              size: 16.sp,
+            ),
+          ],
+        ),
+        
+        SizedBox(height: 16.h),
+        
+        // Producers List
+        ...producers.map((producer) => ProducerListView(
+          producerData: producer,
+        )).toList(),
+      ],
     );
   }
 
