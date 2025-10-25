@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../beat_pack/beat_pack_screen.dart';
+import '../single_beat/single_beat_screen.dart';
 
 class ProducerPublicProfileScreen extends StatefulWidget {
   final String producerId;
@@ -554,18 +556,20 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
               Expanded(
                 child: _buildShopCard(
                   isPack: true,
-                  title: 'Lo-Fi Chill Vol. 1',
-                  price: '\$20',
+                  title: 'Trap Essentials',
+                  price: '\$40',
                   expiresIn: '1d 4h',
+                  itemType: 'Beat Pack',
                 ),
               ),
               SizedBox(width: 19.w),
               Expanded(
                 child: _buildShopCard(
                   isPack: false,
-                  title: 'Lo-Fi Chill Vol. 1',
+                  title: 'Favella - ManuGTB',
                   price: '\$20',
                   expiresIn: '1d 4h',
+                  itemType: 'Single Beat',
                 ),
               ),
             ],
@@ -575,19 +579,21 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
             children: [
               Expanded(
                 child: _buildShopCard(
-                  isPack: true,
-                  title: 'Lo-Fi Chill Vol. 1',
+                  isPack: false,
+                  title: 'Favella - ManuGTB',
                   price: '\$20',
                   expiresIn: '1d 4h',
+                  itemType: 'Single Loop',
                 ),
               ),
               SizedBox(width: 19.w),
               Expanded(
                 child: _buildShopCard(
-                  isPack: false,
-                  title: 'Lo-Fi Chill Vol. 1',
-                  price: '\$20',
+                  isPack: true,
+                  title: '6 One-Shots',
+                  price: '\$40',
                   expiresIn: '1d 4h',
+                  itemType: 'Sound Pack',
                 ),
               ),
             ],
@@ -602,8 +608,27 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
     required String title,
     required String price,
     required String expiresIn,
+    String? itemType,
   }) {
-    return Column(
+    return GestureDetector(
+      onTap: () {
+        if (isPack) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const BeatPackScreen(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SingleBeatScreen(),
+            ),
+          );
+        }
+      },
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
@@ -639,7 +664,7 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
         Row(
           children: [
             Text(
-              isPack ? 'Beat Pack' : 'Single Beat',
+              itemType ?? (isPack ? 'Beat Pack' : 'Single Beat'),
               style: GoogleFonts.wixMadeforDisplay(
                 fontSize: 12.sp,
                 color: Colors.white.withOpacity(0.6),
@@ -665,6 +690,7 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
           ],
         ),
       ],
+    ),
     );
   }
 
@@ -805,8 +831,8 @@ class _ProducerPublicProfileScreenState extends State<ProducerPublicProfileScree
 
   Widget _buildItemBadge(bool isPack) {
     return Positioned(
-      right: isPack ? 38.w : 20.w,
-      bottom: 46.h,
+      right: 23.w, // 18.w (image left) + 8.w (margin from image edge)
+      bottom: 25.h, // Position relative to image area
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 6.w),
         height: 20.h,
