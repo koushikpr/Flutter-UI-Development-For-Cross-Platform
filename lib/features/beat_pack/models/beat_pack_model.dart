@@ -69,3 +69,4 @@ class BeatModel {
   
   String get metadata => '$duration · $genre · $bpm BPM · $key';
 }
+

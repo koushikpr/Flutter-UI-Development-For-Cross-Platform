@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'models/single_beat_model.dart';
+import '../music_player/music_player_screen.dart';
 
 class SingleBeatScreen extends StatefulWidget {
   final SingleBeatModel? singleBeat;
@@ -127,17 +128,37 @@ class _SingleBeatScreenState extends State<SingleBeatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100.r),
-                        ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: Colors.black,
-                          size: 16.sp,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MusicPlayerScreen(
+                                producerName: _singleBeat.producerName,
+                                trackTitle: _singleBeat.beatTitle,
+                                artistName: _singleBeat.artistName,
+                                coverImage: _singleBeat.beatImage,
+                                rating: 4.1,
+                                packTitle: _singleBeat.beatTitle,
+                                packType: _singleBeat.vibeTag,
+                                price: _singleBeat.price,
+                                isPack: false,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(100.r),
+                          ),
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: Colors.black,
+                            size: 16.sp,
+                          ),
                         ),
                       ),
                       SizedBox(height: 16.h),
