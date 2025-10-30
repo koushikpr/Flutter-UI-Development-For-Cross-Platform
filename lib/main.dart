@@ -5,6 +5,8 @@ import 'features/auth/dummy_auth_screen.dart';
 import 'features/dashboard/new_dashboard_screen.dart';
 import 'features/profile/producer_public_profile_screen.dart';
 import 'auth/auth_module.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'features/cart/state/cart_cubit.dart';
 
 void main() {
   runApp(const BAGRApp());
@@ -21,26 +23,29 @@ class BAGRApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return AuthWrapper(
-          child: MaterialApp(
-            title: 'BAGR',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.dark, // Set to dark theme by default
-            home: const DummyAuthScreen(),
-            routes: {
-              // Add auth routes
-              ...AuthModule.getRoutes(),
-              // Add dashboard route
-              '/dashboard': (context) => const NewDashboardScreen(),
-              // Add producer profile route
-              '/producer-profile': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-                return ProducerPublicProfileScreen(
-                  producerId: args?['producerId'] ?? '',
-                );
+          child: BlocProvider(
+            create: (_) => CartCubit(),
+            child: MaterialApp(
+              title: 'BAGR',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: ThemeMode.dark, // Set to dark theme by default
+              home: const DummyAuthScreen(),
+              routes: {
+                // Add auth routes
+                ...AuthModule.getRoutes(),
+                // Add dashboard route
+                '/dashboard': (context) => const NewDashboardScreen(),
+                // Add producer profile route
+                '/producer-profile': (context) {
+                  final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+                  return ProducerPublicProfileScreen(
+                    producerId: args?['producerId'] ?? '',
+                  );
+                },
               },
-            },
+            ),
           ),
         );
       },

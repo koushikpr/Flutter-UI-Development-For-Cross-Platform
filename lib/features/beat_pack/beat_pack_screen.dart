@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'models/beat_pack_model.dart';
 import '../music_player/music_player_screen.dart';
+import '../cart/models/cart_item_model.dart';
+import '../cart/checkout_screen.dart';
+import '../cart/state/cart_cubit.dart';
 
 class BeatPackScreen extends StatefulWidget {
   final BeatPackModel? beatPack;
@@ -310,7 +314,25 @@ class _BeatPackScreenState extends State<BeatPackScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          final item = CartItemModel(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            coverImageUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/196688b42235e2da5bc2bb8987afa6c83847a3ab',
+            producerName: '@${_beatPack.producerName.replaceAll(" ", "").toLowerCase()}',
+            producerAvatarUrl: 'https://via.placeholder.com/16',
+            title: _beatPack.packTitle,
+            type: CartItemType.beatPack,
+            genre: _beatPack.beats.isNotEmpty ? _beatPack.beats.first.genre : 'Hip-hop',
+            price: _beatPack.price,
+            isDeletable: false,
+          );
+          context.read<CartCubit>().replaceWithSingleItem(item);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const CheckoutScreen(),
+            ),
+          );
+        },
         child: Container(
           width: double.infinity,
           height: 56.h,

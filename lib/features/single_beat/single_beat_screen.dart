@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'models/single_beat_model.dart';
 import '../music_player/music_player_screen.dart';
+import '../cart/models/cart_item_model.dart';
+import '../cart/checkout_screen.dart';
+import '../cart/state/cart_cubit.dart';
 
 class SingleBeatScreen extends StatefulWidget {
   final SingleBeatModel? singleBeat;
@@ -242,7 +246,25 @@ class _SingleBeatScreenState extends State<SingleBeatScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          final item = CartItemModel(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            coverImageUrl: _singleBeat.beatImage ?? 'https://api.builder.io/api/v1/image/assets/TEMP/196688b42235e2da5bc2bb8987afa6c83847a3ab',
+            producerName: '@${_singleBeat.producerName.replaceAll(" ", "").toLowerCase()}',
+            producerAvatarUrl: 'https://via.placeholder.com/16',
+            title: _singleBeat.fullTitle,
+            type: CartItemType.singleBeat,
+            genre: _singleBeat.vibeTag,
+            price: _singleBeat.price,
+            isDeletable: false,
+          );
+          context.read<CartCubit>().replaceWithSingleItem(item);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const CheckoutScreen(),
+            ),
+          );
+        },
         child: Container(
           width: double.infinity,
           height: 56.h,

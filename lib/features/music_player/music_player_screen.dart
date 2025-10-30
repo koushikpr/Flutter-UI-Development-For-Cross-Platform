@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cart/models/cart_item_model.dart';
+import '../cart/checkout_screen.dart';
+import '../cart/state/cart_cubit.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   final String producerName;
@@ -459,25 +463,46 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Container(
-                          height: 40,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Buy now',
-                              style: GoogleFonts.getFont(
-                                'Wix Madefor Display',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                                height: 20 / 14,
+                        GestureDetector(
+                          onTap: () {
+                            final item = CartItemModel(
+                              id: DateTime.now().millisecondsSinceEpoch.toString(),
+                              coverImageUrl: widget.coverImage ?? 'https://api.builder.io/api/v1/image/assets/TEMP/196688b42235e2da5bc2bb8987afa6c83847a3ab',
+                              producerName: '@${widget.producerName.replaceAll(" ", "").toLowerCase()}',
+                              producerAvatarUrl: 'https://via.placeholder.com/16',
+                              title: '${widget.trackTitle} - ${widget.artistName}',
+                              type: widget.isPack ? CartItemType.beatPack : CartItemType.singleBeat,
+                              genre: widget.packType,
+                              price: widget.price,
+                              isDeletable: false,
+                            );
+                            context.read<CartCubit>().replaceWithSingleItem(item);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const CheckoutScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 40,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Buy now',
+                                style: GoogleFonts.getFont(
+                                  'Wix Madefor Display',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                  height: 20 / 14,
                               ),
                             ),
                           ),
+                        ),
                         ),
                       ],
                     ),

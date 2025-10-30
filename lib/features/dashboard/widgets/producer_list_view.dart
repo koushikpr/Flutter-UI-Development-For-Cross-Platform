@@ -108,6 +108,8 @@ class ProducerListView extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                             
                             SizedBox(height: 4.h),
@@ -121,30 +123,38 @@ class ProducerListView extends StatelessWidget {
                                   color: Colors.white.withOpacity(0.7),
                                 ),
                                 SizedBox(width: 4.w),
-                                Text(
-                                  producerData!.location,
-                                  style: GoogleFonts.getFont(
-                                    'Wix Madefor Display',
-                                    fontSize: 12.sp,
-                                    color: Colors.white.withOpacity(0.7),
+                                Flexible(
+                                  child: Text(
+                                    producerData!.location,
+                                    style: GoogleFonts.getFont(
+                                      'Wix Madefor Display',
+                                      fontSize: 12.sp,
+                                      color: Colors.white.withOpacity(0.7),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                   ),
                                 ),
                                 SizedBox(width: 12.w),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w,
-                                    vertical: 2.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                  child: Text(
-                                    producerData!.specialty,
-                                    style: GoogleFonts.getFont(
-                                      'Wix Madefor Display',
-                                      fontSize: 10.sp,
-                                      color: Colors.white,
+                                Flexible(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                      vertical: 2.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    child: Text(
+                                      producerData!.specialty,
+                                      style: GoogleFonts.getFont(
+                                        'Wix Madefor Display',
+                                        fontSize: 10.sp,
+                                        color: Colors.white,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                 ),
@@ -157,43 +167,55 @@ class ProducerListView extends StatelessWidget {
                             Row(
                               children: <Widget>[
                                 // Rating
-                                Row(
-                                  children: [
+                                Flexible(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
                                     Icon(
                                       Icons.star,
                                       size: 14.sp,
                                       color: Colors.orange,
                                     ),
                                     SizedBox(width: 4.w),
-                                    Text(
-                                      producerData!.rating.toString(),
-                                      style: GoogleFonts.getFont(
-                                        'Wix Madefor Display',
-                                        fontSize: 12.sp,
-                                        color: Colors.white.withOpacity(0.7),
+                                    Flexible(
+                                      child: Text(
+                                        producerData!.rating.toString(),
+                                        style: GoogleFonts.getFont(
+                                          'Wix Madefor Display',
+                                          fontSize: 12.sp,
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
+                                  ),
                                 ),
                                 SizedBox(width: 16.w),
                                 // Beats Count
-                                Row(
-                                  children: [
+                                Flexible(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
                                     Icon(
                                       Icons.music_note_outlined,
                                       size: 14.sp,
                                       color: Colors.white.withOpacity(0.7),
                                     ),
                                     SizedBox(width: 4.w),
-                                    Text(
-                                      '${producerData!.beatsCount} beats',
-                                      style: GoogleFonts.getFont(
-                                        'Wix Madefor Display',
-                                        fontSize: 12.sp,
-                                        color: Colors.white.withOpacity(0.7),
+                                    Flexible(
+                                      child: Text(
+                                        '${producerData!.beatsCount} beats',
+                                        style: GoogleFonts.getFont(
+                                          'Wix Madefor Display',
+                                          fontSize: 12.sp,
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
+                                  ),
                                 ),
                               ],
                             ),
