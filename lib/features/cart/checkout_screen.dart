@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'models/cart_item_model.dart';
 import 'state/cart_state.dart';
 import 'state/cart_cubit.dart';
@@ -220,13 +221,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           Text(
             'Checkout',
-            style: TextStyle(
-              fontFamily: 'Wix Madefor Display',
+            style: GoogleFonts.fjallaOne(
               fontSize: 21.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
+              fontWeight: FontWeight.w400,
               height: 1.15,
               letterSpacing: -0.84,
+              foreground: Paint()
+                ..shader = LinearGradient(
+                  colors: [
+                    Color(0xFFC0C0C0), // Light Silver
+                    Color(0xFFE5E5E5), // Bright Silver
+                    Color(0xFF808080), // Medium Silver
+                    Color(0xFFC0C0C0), // Light Silver
+                  ],
+                  stops: [0.0, 0.33, 0.66, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(Rect.fromLTWH(0, 0, 200, 70)),
             ),
           ),
           SizedBox(width: 24.w),

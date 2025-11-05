@@ -1521,23 +1521,14 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-        // THE RECTANGLE - waves background with sold indicator
+        // THE RECTANGLE - with stack effect (no border box)
         Container(
           height: 160.h,
           width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.3),
-              width: 1.5,
-            ),
-            image: DecorationImage(
-              image: AssetImage(imagePath),
-              fit: BoxFit.cover,
-            ),
-          ),
           child: Stack(
             children: [
+              // Stack effect layers (centered and resized)
+              _buildGrabBagStackEffect(imagePath),
               // Status indicator (top-left)
               Positioned(
                 top: 12.h,
@@ -1660,6 +1651,71 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
     );
   }
 
+  Widget _buildGrabBagStackEffect(String imagePath) {
+    return Center(
+      child: SizedBox(
+        width: 160.w,
+        height: 144.h,
+        child: Stack(
+          children: [
+            // Back layer (furthest back)
+            Positioned(
+              left: 22.w,
+              top: 0,
+              child: Container(
+                width: 116.w,
+                height: 96.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF404040),
+                  borderRadius: BorderRadius.circular(5.r),
+                ),
+              ),
+            ),
+            // Middle layer
+            Positioned(
+              left: 14.w,
+              top: 5.h,
+              child: Container(
+                width: 132.w,
+                height: 108.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF525252),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+              ),
+            ),
+            // Front layer (with image)
+            Positioned(
+              left: 0,
+              top: 11.h,
+              child: Container(
+                width: 160.w,
+                height: 133.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: const Color(0xFFA4A4A4),
+                    width: 1,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_waveAnimation, _notesAnimation, _pulseAnimation]),
@@ -1678,9 +1734,131 @@ class _NewDashboardScreenState extends State<NewDashboardScreen>
 
   // Add to Store Modal Methods
   void _showAddToStoreModal() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AddToStoreScreen(),
+    if (widget.userRole == 'producer') {
+      // Show "Start a New Stream" modal for producers
+      _showStartStreamModal();
+    } else {
+      // For artists, directly navigate to Add To Store
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const AddToStoreScreen(),
+        ),
+      );
+    }
+  }
+
+  void _showStartStreamModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.black, // #000000 from Figma
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24.r),
+            topRight: Radius.circular(24.r),
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 32.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Center(
+                  child: Text(
+                    'Start a New Stream',
+                    style: GoogleFonts.getFont(
+                      'Wix Madefor Display',
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                
+                SizedBox(height: 32.h),
+                
+                // Go Live Now button
+                _buildStreamOption(
+                  icon: Icons.play_circle_filled,
+                  title: 'Go Live Now',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const AddToStoreScreen(),
+                      ),
+                    );
+                  },
+                ),
+                
+                SizedBox(height: 12.h),
+                
+                // Schedule Stream button
+                _buildStreamOption(
+                  icon: Icons.calendar_today,
+                  title: 'Schedule Stream',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // TODO: Navigate to schedule stream screen
+                    print('Schedule Stream tapped');
+                  },
+                ),
+                
+                SizedBox(height: 16.h),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreamOption({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A2A),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.1),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+              SizedBox(width: 12.w),
+              Text(
+                title,
+                style: GoogleFonts.getFont(
+                  'Wix Madefor Display',
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -48,7 +48,12 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        _selectedTabIndex = _tabController.index;
+      });
+    });
     _loadProfile();
   }
   
@@ -983,277 +988,27 @@ Visit: $profileUrl
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: 60.h),
-          
-          // Profile Header
-          _buildProfileHeader(),
-          
-          // Social Links
-          _buildSocialLinks(),
-          
-          SizedBox(height: 20.h),
-          
-          // Action Buttons
-          _buildActionButtons(),
-          
-          SizedBox(height: 20.h),
-          
-          // Content Tabs and Grid
-          _buildContentSection(),
-          
-          SizedBox(height: 120.h), // Bottom padding for navigation bar
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0),
-      child: Column(
-        children: [
-          // Profile Picture and Info
-          Row(
-            children: [
-              // Profile Picture (Clickable) with Level Badge
-              GestureDetector(
-                onTap: _showProfilePhotoOptions,
-                child: Stack(
-                  clipBehavior: Clip.none, // Allow children to extend beyond bounds
-                  children: [
-                    Container(
-                      width: 88.w,
-                      height: 88.h,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFFFFD700), // Gold
-                            Color(0xFFFFA500), // Orange Gold
-                            Color(0xFFFF8C00), // Dark Orange
-                            Color(0xFFFFD700), // Gold
-                          ],
-                          stops: [0.0, 0.33, 0.66, 1.0],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Container(
-                        margin: EdgeInsets.all(4.w), // Space for gradient ring
-                        width: 80.w,
-                        height: 80.h,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black, // Background for inner circle
-                        ),
-                        child: Container(
-                          margin: EdgeInsets.all(2.w), // Small margin for clean separation
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.1),
-                              width: 1.0,
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: _profileImage != null
-                                ? kIsWeb
-                                    ? Image.network(
-                                        _profileImage!,
-                                        width: 76.w,
-                                        height: 76.h,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Container(
-                                          color: AppTheme.glassColor,
-                                          child: Center(
-                                            child: Icon(
-                                              FontAwesomeIcons.music,
-                                              color: AppTheme.accentColor,
-                                              size: 30.sp,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : Image.file(
-                                        _profileImage!,
-                                        width: 76.w,
-                                        height: 76.h,
-                                        fit: BoxFit.cover,
-                                      )
-                                : Container(
-                                    color: AppTheme.glassColor,
-                                    child: Center(
-                                      child: Icon(
-                                        FontAwesomeIcons.music,
-                                        color: AppTheme.accentColor,
-                                        size: 30.sp,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              SizedBox(width: 16.w),
-              
-              // Name and Status
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name
-                    Text(
-                      _currentProfile.artistName,
-                      style: _getSilverGradientTextStyle(20.sp),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    
-                    SizedBox(height: 4.h),
-                    
-                    // User Tag
-                    Text(
-                      widget.userRole == 'artist' ? '@artist' : '@producer',
-                      style: GoogleFonts.getFont(
-                        'Wix Madefor Display',
-                        fontSize: 14.sp,
-                        color: AppTheme.accentColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Menu Button
-              IconButton(
-                onPressed: _showProfileMenuOptions,
-                icon: Icon(
-                  Icons.more_vert,
-                  color: Colors.white,
-                  size: 24.sp,
-                ),
-              ),
-            ],
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          // Location from profile data
-          Row(
-            children: [
-              Icon(
-                Icons.location_on,
-                color: AppTheme.errorColor,
-                size: 16.sp,
-              ),
-              SizedBox(width: 4.w),
-              Text(
-                _currentProfile.location,
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          
-          SizedBox(height: 12.h),
-          
-          // Bio from profile data
-          Text(
-            _currentProfile.description,
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 14.sp,
-              color: Colors.white.withOpacity(0.8),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialLinks() {
-    final socialLinks = ProfileService.instance.getSocialLinks();
-    
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildSocialButton(
-            FontAwesomeIcons.youtube,
-            _currentProfile.youtubeUrl.isNotEmpty ? 'youtube.com/${_currentProfile.youtubeUrl}' : 'YouTube',
-            AppTheme.errorColor,
-            _currentProfile.youtubeUrl.isNotEmpty,
-          ),
-          _buildSocialButton(
-            FontAwesomeIcons.instagram,
-            _currentProfile.instagramHandle.isNotEmpty ? _currentProfile.instagramHandle : 'Instagram',
-            Colors.purple,
-            _currentProfile.instagramHandle.isNotEmpty,
-          ),
-          _buildSocialButton(
-            FontAwesomeIcons.tiktok,
-            _currentProfile.tiktokHandle.isNotEmpty ? _currentProfile.tiktokHandle : 'TikTok',
-            Colors.white,
-            _currentProfile.tiktokHandle.isNotEmpty,
-          ),
-          _buildSocialButton(
-            FontAwesomeIcons.twitter,
-            _currentProfile.twitterHandle.isNotEmpty ? _currentProfile.twitterHandle : 'Twitter',
-            Colors.blue,
-            _currentProfile.twitterHandle.isNotEmpty,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialButton(IconData icon, String handle, Color color, [bool isActive = true]) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4.w),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: 40.w,
-              height: 40.h,
-              decoration: BoxDecoration(
-                color: isActive ? AppTheme.glassColor : AppTheme.glassColor.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: isActive ? AppTheme.glassBorder : AppTheme.glassBorder.withOpacity(0.3),
-                  width: 1,
+            _buildTopNavBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 24.h),
+                    _buildProfileHeader(),
+                    SizedBox(height: 20.h),
+                    _buildActionButtons(),
+                    SizedBox(height: 24.h),
+                    _buildTabBar(),
+                    _buildTabContent(),
+                    SizedBox(height: 120.h), // Bottom padding for navigation bar
+                  ],
                 ),
               ),
-              child: Icon(
-                icon,
-                color: isActive ? color : Colors.white.withOpacity(0.3),
-                size: 18.sp,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              handle,
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 10.sp,
-                color: isActive ? Colors.white.withOpacity(0.7) : Colors.white.withOpacity(0.3),
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -1261,75 +1016,424 @@ Visit: $profileUrl
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildTopNavBar() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: widget.userRole == 'artist' 
-        ? Row(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Back button - hidden for own profile, but keeping structure
+          SizedBox(width: 24.w),
+          GestureDetector(
+            onTap: _showProfileMenuOptions,
+            child: Icon(
+              Icons.more_horiz,
+              color: Colors.white,
+              size: 24.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildProfileImage(),
+              SizedBox(width: 20.w),
               Expanded(
-                child: _buildActionButton(
-                  'Analytics',
-                  Icons.bar_chart_rounded,
-                  AppTheme.glassColor,
-                  Colors.white,
-                  () {
-                    // Use callback to navigate to analytics tab if available
-                    if (widget.onNavigateToAnalytics != null) {
-                      widget.onNavigateToAnalytics!();
-                    } else {
-                      // Fallback to opening new screen if callback not provided
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => AnalyticsScreen(userRole: widget.userRole),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: _buildActionButton(
-                  'My Bids',
-                  Icons.gavel,
-                  AppTheme.accentColor,
-                  Colors.white,
-                  () {
-                    // Use callback to navigate to my bids tab if available
-                    if (widget.onNavigateToMyBids != null) {
-                      widget.onNavigateToMyBids!();
-                    } else {
-                      // Fallback to existing method if callback not provided
-                      _showMyBids();
-                    }
-                  },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLevelBadge(),
+                    SizedBox(height: 8.h),
+                    _buildProducerName(),
+                    SizedBox(height: 4.h),
+                    _buildLiveStatus(),
+                  ],
                 ),
               ),
             ],
-          )
-        : Container(
-            width: double.infinity,
-            child: _buildActionButton(
-              'Analytics',
-              Icons.bar_chart_rounded,
-              AppTheme.glassColor,
-              Colors.white,
-              () {
-                // Use callback to navigate to analytics tab if available
-                if (widget.onNavigateToAnalytics != null) {
-                  widget.onNavigateToAnalytics!();
-                } else {
-                  // Fallback to opening new screen if callback not provided
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AnalyticsScreen(userRole: widget.userRole),
-                    ),
-                  );
-                }
-              },
+          ),
+          SizedBox(height: 20.h),
+          _buildLocation(),
+          SizedBox(height: 8.h),
+          _buildBio(),
+          SizedBox(height: 20.h),
+          _buildSocialLinks(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    return GestureDetector(
+      onTap: _showProfilePhotoOptions,
+      child: Stack(
+        children: [
+          Container(
+            width: 92.w,
+            height: 92.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF444444),
+                width: 3,
+              ),
+            ),
+            child: ClipOval(
+              child: Container(
+                margin: EdgeInsets.all(6.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+                child: _profileImage != null
+                    ? (kIsWeb
+                        ? Image.network(
+                            _profileImage!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[800],
+                            ),
+                          )
+                        : Image.file(
+                            _profileImage!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[800],
+                            ),
+                          ))
+                    : Container(
+                        color: Colors.grey[800],
+                      ),
+              ),
             ),
           ),
+          Positioned(
+            right: -3.w,
+            top: 0,
+            child: Image.network(
+              'https://api.builder.io/api/v1/image/assets/TEMP/c03d01c46873983c152aec99050a787b2e946a7b',
+              width: 26.w,
+              height: 28.h,
+              errorBuilder: (context, error, stackTrace) => SizedBox(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLevelBadge() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(50.r),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: 'Level: ',
+              style: GoogleFonts.fjallaOne(
+                fontSize: 12.sp,
+                color: const Color(0xFF737373),
+              ),
+            ),
+            TextSpan(
+              text: 'Hustler',
+              style: GoogleFonts.fjallaOne(
+                fontSize: 12.sp,
+                color: const Color(0xFFFAFAFA),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProducerName() {
+    return Text(
+      _currentProfile.artistName,
+      style: GoogleFonts.wixMadeforDisplay(
+        fontSize: 18.sp,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        letterSpacing: -0.36,
+      ),
+    );
+  }
+
+  Widget _buildLiveStatus() {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+          height: 20.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4.r),
+          ),
+          child: Center(
+            child: Text(
+              'Live',
+              style: GoogleFonts.wixMadeforDisplay(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF080808),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          'Livestream name',
+          style: GoogleFonts.wixMadeforDisplay(
+            fontSize: 14.sp,
+            color: const Color(0xFFA3A3A3),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocation() {
+    return Text(
+      '📍 ${_currentProfile.location}',
+      style: GoogleFonts.wixMadeforDisplay(
+        fontSize: 14.sp,
+        color: Colors.white.withOpacity(0.6),
+      ),
+    );
+  }
+
+  Widget _buildBio() {
+    return Text(
+      _currentProfile.description,
+      style: GoogleFonts.wixMadeforDisplay(
+        fontSize: 12.sp,
+        color: const Color(0xFFA3A3A3),
+        height: 1.33,
+      ),
+    );
+  }
+
+  Widget _buildSocialLinks() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSocialLink(
+                Icons.play_circle_outline,
+                _currentProfile.youtubeUrl.isNotEmpty 
+                    ? 'youtube.com/${_currentProfile.youtubeUrl}' 
+                    : 'youtube.com/username',
+              ),
+              SizedBox(height: 12.h),
+              _buildSocialLink(
+                Icons.music_note,
+                _currentProfile.instagramHandle.isNotEmpty 
+                    ? _currentProfile.instagramHandle 
+                    : '@username',
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 24.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSocialLink(
+                Icons.camera_alt,
+                _currentProfile.tiktokHandle.isNotEmpty 
+                    ? _currentProfile.tiktokHandle 
+                    : '@username',
+              ),
+              SizedBox(height: 12.h),
+              _buildSocialLink(
+                Icons.cloud,
+                _currentProfile.twitterHandle.isNotEmpty 
+                    ? _currentProfile.twitterHandle 
+                    : 'soundcloud.com/username',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialLink(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16.sp,
+          color: const Color(0xFFE5E5E5),
+        ),
+        SizedBox(width: 6.w),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.wixMadeforDisplay(
+              fontSize: 12.sp,
+              color: const Color(0xFFE5E5E5),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        children: [
+          Container(
+            height: 40.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12.r),
+                onTap: () {
+                  // Use callback to navigate to analytics tab if available
+                  if (widget.userRole == 'producer' && widget.onNavigateToAnalytics != null) {
+                    widget.onNavigateToAnalytics!();
+                  } else if (widget.userRole == 'artist' && widget.onNavigateToMyBids != null) {
+                    widget.onNavigateToMyBids!();
+                  } else {
+                    // Fallback to opening new screen if callback not provided
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AnalyticsScreen(userRole: widget.userRole),
+                      ),
+                    );
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_circle_outline,
+                      size: 20.sp,
+                      color: Colors.black,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      widget.userRole == 'artist' ? 'My Bids' : 'Analytics',
+                      style: GoogleFonts.wixMadeforDisplay(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12.r),
+                      onTap: () {
+                        _editProfile();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 16.sp,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Edit Profile',
+                            style: GoogleFonts.wixMadeforDisplay(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Container(
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12.r),
+                      onTap: () {
+                        _shareProfile();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.share_outlined,
+                            size: 16.sp,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Share',
+                            style: GoogleFonts.wixMadeforDisplay(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1353,35 +1457,108 @@ Visit: $profileUrl
     );
   }
 
-  Widget _buildActionButton(
-    String text,
-    IconData icon,
-    Color backgroundColor,
-    Color textColor,
-    VoidCallback onPressed,
-  ) {
+  Widget _buildTabBar() {
     return Container(
-      height: 48.h,
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12.r),
-        border: backgroundColor == AppTheme.glassColor
-            ? Border.all(color: AppTheme.glassBorder, width: 1)
-            : null,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withOpacity(0.15),
+            width: 1,
+          ),
+        ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12.r),
-          onTap: onPressed,
+      child: Row(
+        children: [
+          _buildTab(widget.userRole == 'artist' ? 'My Music' : 'Shop', 0),
+          _buildTab('Streams', 1),
+          _buildTabWithBadge(widget.userRole == 'artist' ? 'Favorite' : 'Co-Signs', 2, widget.userRole == 'artist' ? '24' : '18'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String title, int index) {
+    final isSelected = _selectedTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTabIndex = index;
+            _tabController.animateTo(index);
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected ? Colors.white : Colors.transparent,
+                width: 1,
+              ),
+            ),
+          ),
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.wixMadeforDisplay(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              color: isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabWithBadge(String title, int index, String badgeText) {
+    final isSelected = _selectedTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTabIndex = index;
+            _tabController.animateTo(index);
+          });
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected ? Colors.white : Colors.transparent,
+                width: 1,
+              ),
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: textColor, size: 18.sp),
-              SizedBox(width: 8.w),
               Text(
-                text,
-                style: _getSilverGradientTextStyle(14.sp, fontWeight: FontWeight.w400),
+                title,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                height: 16.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF525252),
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  badgeText,
+                  style: GoogleFonts.wixMadeforDisplay(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFFAFAFA),
+                    height: 1.2,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1390,99 +1567,97 @@ Visit: $profileUrl
     );
   }
 
-  Widget _buildContentSection() {
-    return Column(
-      children: [
-        // Tab Bar
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 24.w),
-          child: TabBar(
-            controller: _tabController,
-            onTap: (index) {
-              setState(() {
-                _selectedTabIndex = index;
-              });
-            },
-            tabs: [
-              Tab(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Text(
-                    widget.userRole == 'artist' ? 'My Music' : 'Shop',
-                    style: _getSilverGradientTextStyle(16.sp),
-                  ),
-                ),
-              ),
-              Tab(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.userRole == 'artist' ? 'Favorite' : 'Co-Signs',
-                        style: _getSilverGradientTextStyle(16.sp),
-                      ),
-                      SizedBox(width: 8.w),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentColor,
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          widget.userRole == 'artist' ? '24' : '18',
-                          style: GoogleFonts.getFont(
-                            'Wix Madefor Display',
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-            indicatorColor: AppTheme.accentColor,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white.withOpacity(0.6),
-            indicatorWeight: 2,
-          ),
-        ),
-        
-        SizedBox(height: 20.h),
-        
-        // Content Grid
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: _selectedTabIndex == 0
-              ? (widget.userRole == 'artist' ? _buildMyMusicGrid() : _buildShopGrid())
-              : (widget.userRole == 'artist' ? _buildFavoriteGrid() : _buildCoSignsGrid()),
-        ),
-      ],
-    );
+  Widget _buildTabContent() {
+    switch (_selectedTabIndex) {
+      case 0:
+        return widget.userRole == 'artist' ? _buildMyMusicGrid() : _buildShopGrid();
+      case 1:
+        return _buildStreamsContent();
+      case 2:
+        return widget.userRole == 'artist' ? _buildFavoriteGrid() : _buildCoSignsContent();
+      default:
+        return widget.userRole == 'artist' ? _buildMyMusicGrid() : _buildShopGrid();
+    }
   }
 
   Widget _buildMyMusicGrid() {
-    final musicTitles = [
-      'Dreams in Motion',
-      'City Nights',
-      'Midnight Flow',
-      'Summer Vibes',
-      'Lost in Sound',
-      'Urban Poetry'
-    ];
-    
-    return DashboardTiles.buildCardGrid(
-      children: List.generate(6, (index) => _buildMusicCard(
-        musicTitles[index % musicTitles.length],
-        'Single',
-        index,
-      )),
-      childAspectRatio: 0.75,
-      mainAxisSpacing: 2,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildShopCard(
+                  isPack: true,
+                  title: 'Dreams in Motion',
+                  price: '\$40',
+                  expiresIn: '1d 4h',
+                  itemType: 'Beat Pack',
+                ),
+              ),
+              SizedBox(width: 19.w),
+              Expanded(
+                child: _buildShopCard(
+                  isPack: false,
+                  title: 'City Nights',
+                  price: '\$20',
+                  expiresIn: '1d 4h',
+                  itemType: 'Single Beat',
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildShopCard(
+                  isPack: false,
+                  title: 'Midnight Flow',
+                  price: '\$20',
+                  expiresIn: '1d 4h',
+                  itemType: 'Single Beat',
+                ),
+              ),
+              SizedBox(width: 19.w),
+              Expanded(
+                child: _buildShopCard(
+                  isPack: true,
+                  title: 'Summer Vibes',
+                  price: '\$40',
+                  expiresIn: '1d 4h',
+                  itemType: 'Beat Pack',
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildShopCard(
+                  isPack: false,
+                  title: 'Lost in Sound',
+                  price: '\$20',
+                  expiresIn: '1d 4h',
+                  itemType: 'Single Beat',
+                ),
+              ),
+              SizedBox(width: 19.w),
+              Expanded(
+                child: _buildShopCard(
+                  isPack: true,
+                  title: 'Urban Poetry',
+                  price: '\$40',
+                  expiresIn: '1d 4h',
+                  itemType: 'Beat Pack',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1501,50 +1676,196 @@ Visit: $profileUrl
   }
 
   Widget _buildShopGrid() {
-    return DashboardTiles.buildCardGrid(
-      children: List.generate(4, (index) => _buildBeatCard(
-        'Lo-Fi Chill Vol. 1',
-        6,
-        20,
-        '1d 4h',
-        index,
-      )),
-      childAspectRatio: 0.75,
-      mainAxisSpacing: 2,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildShopCard(
+                  isPack: true,
+                  title: 'Trap Essentials',
+                  price: '\$40',
+                  expiresIn: '1d 4h',
+                  itemType: 'Beat Pack',
+                ),
+              ),
+              SizedBox(width: 19.w),
+              Expanded(
+                child: _buildShopCard(
+                  isPack: false,
+                  title: 'Favella - ManuGTB',
+                  price: '\$20',
+                  expiresIn: '1d 4h',
+                  itemType: 'Single Beat',
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildShopCard(
+                  isPack: false,
+                  title: 'Favella - ManuGTB',
+                  price: '\$20',
+                  expiresIn: '1d 4h',
+                  itemType: 'Single Loop',
+                ),
+              ),
+              SizedBox(width: 19.w),
+              Expanded(
+                child: _buildShopCard(
+                  isPack: true,
+                  title: '6 One-Shots',
+                  price: '\$40',
+                  expiresIn: '1d 4h',
+                  itemType: 'Sound Pack',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildCoSignsGrid() {
-    return Container(
-      height: 200.h,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildShopCard({
+    required bool isPack,
+    required String title,
+    required String price,
+    required String expiresIn,
+    String? itemType,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        print('Tapped on shop item: $title');
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Container(
+                height: 202.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF262626),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Stack(
+                  children: [
+                    if (isPack) _buildPackImageStack() else _buildSingleImage(),
+                    _buildExpireBadge(expiresIn),
+                    _buildItemBadge(isPack),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            title,
+            style: GoogleFonts.wixMadeforDisplay(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 4.h),
+          Row(
+            children: [
+              Text(
+                itemType ?? (isPack ? 'Beat Pack' : 'Single Beat'),
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                '·',
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                price,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFFAFAFA),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackImageStack() {
+    return Positioned(
+      left: 18.w,
+      top: 40.h,
+      child: SizedBox(
+        width: 132.w,
+        height: 144.h,
+        child: Stack(
           children: [
-            Icon(
-              Icons.star_outline,
-              color: Colors.white.withOpacity(0.5),
-              size: 48.sp,
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              'No Co-Signs Yet',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.7),
+            Positioned(
+              left: 18.w,
+              top: 0,
+              child: Container(
+                width: 96.w,
+                height: 97.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF404040),
+                  borderRadius: BorderRadius.circular(5.r),
+                ),
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              'Co-signs from other artists will appear here',
-              style: GoogleFonts.getFont(
-                'Wix Madefor Display',
-                fontSize: 14.sp,
-                color: Colors.white.withOpacity(0.5),
+            Positioned(
+              left: 12.w,
+              top: 5.h,
+              child: Container(
+                width: 109.w,
+                height: 109.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF525252),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
               ),
-              textAlign: TextAlign.center,
+            ),
+            Positioned(
+              left: 0,
+              top: 11.h,
+              child: Container(
+                width: 132.w,
+                height: 133.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: const Color(0xFFA4A4A4),
+                    width: 1,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Image.network(
+                    'https://api.builder.io/api/v1/image/assets/TEMP/196688b42235e2da5bc2bb8987afa6c83847a3ab',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -1552,98 +1873,333 @@ Visit: $profileUrl
     );
   }
 
-  Widget _buildMusicCard(String title, String type, int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Image tile with overlay content
-        DashboardTiles.buildContentCard(
-          title: '',
-          subtitle: '',
-          imageAsset: 'assets/waves.jpg',
-          height: 140,
-          onTap: () {
-            print('Tapped on music: $title');
-          },
-          overlayContent: Stack(
-            children: [
-              // Play button
-              Center(
-                child: Container(
-                  width: 50.w,
-                  height: 50.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.play_arrow,
-                    color: Colors.black,
-                    size: 28.sp,
-                  ),
-                ),
-              ),
-              
-              // Favorite button
-              Positioned(
-                top: 12.h,
-                right: 12.w,
-                child: Container(
-                  width: 36.w,
-                  height: 36.h,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.favorite_outline,
-                    color: Colors.white,
-                    size: 18.sp,
-                  ),
-                ),
-              ),
-            ],
+  Widget _buildSingleImage() {
+    return Positioned(
+      left: 18.w,
+      top: 51.h,
+      child: Container(
+        width: 132.w,
+        height: 133.h,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: const Color(0xFFA4A4A4),
+            width: 1,
           ),
         ),
-        
-        // Text below the tile
-        SizedBox(height: 8.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: _getSilverGradientTextStyle(14.sp),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 2.h),
-              Text(
-                type,
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 12.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8.r),
+          child: Image.network(
+            'https://api.builder.io/api/v1/image/assets/TEMP/196688b42235e2da5bc2bb8987afa6c83847a3ab',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: Colors.grey[800],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
+
+  Widget _buildExpireBadge(String expiresIn) {
+    return Positioned(
+      left: 8.w,
+      top: 8.h,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(100.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.1),
+              blurRadius: 1,
+            ),
+          ],
+        ),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Expires in: ',
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 10.sp,
+                  color: const Color(0xFFD4D4D4),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              TextSpan(
+                text: expiresIn,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFFAFAFA),
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemBadge(bool isPack) {
+    return Positioned(
+      right: 23.w,
+      bottom: 25.h,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 6.w),
+        height: 20.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(100.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isPack) ...[
+              Text(
+                '2',
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF080808),
+                  letterSpacing: -0.24,
+                  height: 1,
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Icon(
+                Icons.library_music,
+                size: 16.sp,
+                color: Colors.black,
+              ),
+            ] else
+              Icon(
+                Icons.music_note,
+                size: 12.sp,
+                color: Colors.black,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreamsContent() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+      child: Column(
+        children: [
+          Text(
+            'Streams Coming Soon',
+            style: GoogleFonts.wixMadeforDisplay(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withOpacity(0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoSignsContent() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
+      child: Column(
+        children: [
+          // Co-Signs Summary
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '4.9 🔥',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    fontSize: 36.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Based on 18 Co-Signs',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          SizedBox(height: 16.h),
+          
+          // Co-Signs List
+          Column(
+            children: [
+              _buildCoSignCard(
+                username: '@NovaSounds',
+                date: 'Mar 11, 2025',
+                rating: '4 🔥',
+                review: '🌟🌟🌟 Always impresses. A true standout in the industry.',
+                songTitle: 'Rhythm City - BeatMaster',
+              ),
+              SizedBox(height: 8.h),
+              _buildCoSignCard(
+                username: '@NovaSounds',
+                date: 'Mar 11, 2025',
+                rating: '5 🔥',
+                review: 'Immaculate mix and groove. One of the finest collections I\'ve snagged.',
+                songTitle: 'Rhythm City - BeatMaster',
+              ),
+              SizedBox(height: 8.h),
+              _buildCoSignCard(
+                username: '@NovaSounds',
+                date: 'Mar 11, 2025',
+                rating: '3 🔥',
+                review: 'Epic drops. Pure motivation.💥',
+                songTitle: 'Rhythm City - BeatMaster',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoSignCard({
+    required String username,
+    required String date,
+    required String rating,
+    required String review,
+    required String songTitle,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 20.w,
+                height: 20.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(
+                  Icons.person,
+                  size: 12.sp,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              // Username
+              Text(
+                username,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ),
+              Spacer(),
+              // Date
+              Text(
+                date,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.6),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              // Rating Badge
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(50.r),
+                ),
+                child: Text(
+                  rating,
+                  style: GoogleFonts.wixMadeforDisplay(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 12.h),
+          
+          // Review Text
+          Text(
+            review,
+            style: GoogleFonts.wixMadeforDisplay(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+            ),
+          ),
+          
+          SizedBox(height: 12.h),
+          
+          // Song Title Row
+          Row(
+            children: [
+              Container(
+                width: 24.w,
+                height: 24.h,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(7.2.r),
+                ),
+                child: Icon(
+                  Icons.music_note,
+                  size: 9.6.sp,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                songTitle,
+                style: GoogleFonts.wixMadeforDisplay(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildBeatCard(String title, int beats, int price, String expires, int index) {
     return Column(
