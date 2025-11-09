@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
-import '../../core/theme/app_theme.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   final String userRole;
@@ -23,6 +23,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   // Variables for earnings comparison
   double _earningsMultiplier = 2.2; // Can be set dynamically
   bool _isGain = true; // true for gain (green), false for loss (red)
+  String _selectedActivityFilter = 'all';
 
   @override
   void initState() {
@@ -508,430 +509,250 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Top Selling Beat Card
-        _buildTopSellingBeatCard(),
-        
-        SizedBox(height: 16.h),
-        
-        // Most Tipped Stream Card
-        _buildMostTippedStreamCard(),
-        
-        SizedBox(height: 16.h),
-        
-        // Best Time to Sell Card
-        _buildBestTimeToSellCard(),
-        
+        _buildHeatmapSectionTitle('Top Sales This Week'),
+        SizedBox(height: 20.h),
+        _buildHeatmapTopBeatCard(),
+        SizedBox(height: 12.h),
+        _buildHeatmapTopPackCard(),
+        SizedBox(height: 12.h),
+        _buildHeatmapPopularStoreItemCard(),
+        SizedBox(height: 48.h),
+        _buildHeatmapSectionTitle('Platform Insights This Week'),
+        SizedBox(height: 20.h),
+        _buildHeatmapBpmTrendsCard(),
+        SizedBox(height: 12.h),
+        _buildHeatmapTopSearchesCard(),
+        SizedBox(height: 12.h),
+        _buildHeatmapSalesTrendsCard(),
+        SizedBox(height: 12.h),
+        _buildHeatmapPeakHoursCard(),
         SizedBox(height: 32.h),
       ],
     );
   }
 
-  Widget _buildTopSellingBeatCard() {
+  Widget _buildHeatmapSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.wixMadeforDisplay(
+        color: Colors.white,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+        height: 1.25,
+      ),
+    );
+  }
+
+  Widget _buildHeatmapTopBeatCard() {
+    return _buildHeatmapProductCard(
+      title: 'Top Beat',
+      name: 'Favella - ManuGTB',
+      primaryStatLabel: 'Earned',
+      primaryStatValue: '\$312',
+      secondaryStatLabel: 'Sold',
+      secondaryStatValue: '54',
+    );
+  }
+
+  Widget _buildHeatmapTopPackCard() {
+    return _buildHeatmapProductCard(
+      title: 'Top Pack',
+      name: 'Lo-Fi Chill Vol. 1',
+      primaryStatLabel: 'Sold',
+      primaryStatValue: '54',
+      secondaryStatLabel: 'Earned',
+      secondaryStatValue: '\$312',
+    );
+  }
+
+  Widget _buildHeatmapPopularStoreItemCard() {
+    return _buildHeatmapProductCard(
+      title: 'Most Popular Store Item',
+      name: 'Favella - ManuGTB',
+      primaryStatLabel: 'Sold',
+      primaryStatValue: '54',
+      secondaryStatLabel: 'Earned',
+      secondaryStatValue: '\$312',
+    );
+  }
+
+  Widget _buildHeatmapProductCard({
+    required String title,
+    required String name,
+    required String primaryStatLabel,
+    required String primaryStatValue,
+    required String secondaryStatLabel,
+    required String secondaryStatValue,
+  }) {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withOpacity(0.10),
           width: 1,
         ),
+        color: Colors.white.withOpacity(0.05),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Header - Centered
-          Text(
-            'Top Selling Beat',
-            style: GoogleFonts.fjallaOne(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-            ),
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          // Waves image box - Centered (Square)
-          Container(
-            width: 100.w,
-            height: 100.h, // Square dimensions
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.r),
-              color: Colors.grey.shade800, // Fallback color
-              image: DecorationImage(
-                image: AssetImage('assets/waves.jpg'), // Using .jpg extension
-                fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  print('Image loading error: $exception');
-                },
-              ),
-            ),
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          // Music Name - Centered
-          Text(
-            'Trap City - ManuGTB',
-            style: GoogleFonts.fjallaOne(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 4.h),
-          
-          // Subtitle - Centered
-          Text(
-            '2:36 • Hip-hop • 143 BPM • C minor',
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 12.sp,
-              color: Colors.white.withOpacity(0.7),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          // Price - Centered
-          Text(
-            '\$280',
-            style: _getSilverGradientTextStyle(32.sp),
-          ),
-          
-          SizedBox(height: 24.h),
-          
-          // Beat list with progress bars
-          Column(
-            children: [
-              _buildBeatProgressItem('Trap City - ManuGTB', 280, 280),
-              SizedBox(height: 12.h),
-              _buildBeatProgressItem('Rhythm City - BeatMaster', 180, 280),
-              SizedBox(height: 12.h),
-              _buildBeatProgressItem('Rhythm City - BeatMaster', 80, 280),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBeatProgressItem(String name, int price, int maxPrice) {
-    double progress = price / maxPrice;
-    
-    return Row(
-      children: [
-        // Small album art
-        Container(
-          width: 32.w,
-          height: 32.h,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade700,
-            borderRadius: BorderRadius.circular(6.r),
-          ),
-          child: Icon(
-            Icons.music_note,
-            color: Colors.white.withOpacity(0.7),
-            size: 16.sp,
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // Name and progress bar
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-              SizedBox(height: 4.h),
-              // Progress bar
-              Container(
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: progress,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // Price
-        Text(
-          '\$$price',
-          style: GoogleFonts.fjallaOne(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBeatListItem(String name, String price) {
-    return Row(
-      children: [
-        // Small album art
-        Container(
-          width: 32.w,
-          height: 32.h,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade700,
-            borderRadius: BorderRadius.circular(6.r),
-          ),
-          child: Icon(
-            Icons.music_note,
-            color: Colors.white.withOpacity(0.7),
-            size: 16.sp,
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // Name
-        Expanded(
-          child: Text(
-            name,
-            style: GoogleFonts.getFont(
-              'Wix Madefor Display',
-              fontSize: 14.sp,
-              color: Colors.white.withOpacity(0.8),
-            ),
-          ),
-        ),
-        
-        // Price
-        Text(
-          price,
-          style: GoogleFonts.fjallaOne(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMostTippedStreamCard() {
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Left side - info (centered)
-          Expanded(
+          Padding(
+            padding: EdgeInsets.all(12.w),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Most Tipped Stream',
+                  title,
                   style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
-                SizedBox(height: 16.h),
-                
+                SizedBox(height: 24.h),
+                _buildHeatmapMusicIcon(),
+                SizedBox(height: 12.h),
                 Text(
-                  '\$120',
-                  style: _getSilverGradientTextStyle(28.sp),
-                ),
-                
-                SizedBox(height: 8.h),
-                
-                Text(
-                  'Midnight Echo',
+                  name,
                   style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFE5E5E5),
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w400,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                
-                Text(
-                  'Jan 24, 2025',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    color: Colors.white.withOpacity(0.7),
+                    height: 1.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
-          
-          SizedBox(width: 16.w),
-          
-          // Right side - waves pattern (covers right side completely)
-          Expanded(
-            child: Container(
-              height: 120.h, // Match card height
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(16.r),
-                  bottomRight: Radius.circular(16.r),
-                ),
-                color: Colors.grey.shade800, // Fallback color
-                image: DecorationImage(
-                  image: AssetImage('assets/waves.jpg'), // Try with .jpg extension
-                  fit: BoxFit.cover,
-                  onError: (exception, stackTrace) {
-                    print('Image loading error: $exception');
-                  },
-                ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildHeatmapStatBox(primaryStatLabel, primaryStatValue),
               ),
-              child: Stack(
-                children: [
-                  // View count badge
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.visibility,
-                            color: Colors.white,
-                            size: 12.sp,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            '248',
-                            style: GoogleFonts.getFont(
-                              'Wix Madefor Display',
-                              fontSize: 10.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildHeatmapStatBox(secondaryStatLabel, secondaryStatValue),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBestTimeToSellCard() {
+  Widget _buildHeatmapMusicIcon() {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      width: 80.w,
+      height: 80.w,
+      padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
+        color: Colors.white.withOpacity(0.25),
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: Colors.white,
+        size: 16.sp,
+      ),
+    );
+  }
+
+  Widget _buildHeatmapStatBox(String label, String value) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 12.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        color: Colors.white.withOpacity(0.07),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'Best Time to Sell',
-            style: GoogleFonts.fjallaOne(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
+          if (label.isNotEmpty)
+            Text(
+              label,
+              style: GoogleFonts.fjallaOne(
+                color: const Color(0xFFA3A3A3),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.14,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          Text(
-            'Wednesdays',
-            style: _getSilverGradientTextStyle(24.sp),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.access_time,
-                color: Colors.white.withOpacity(0.7),
-                size: 16.sp,
+          SizedBox(height: label.isNotEmpty ? 12.h : 0),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment(0.3, 0.0),
+              end: Alignment(1.05, 1.0),
+              colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+              stops: [0.30, 1.0],
+            ).createShader(bounds),
+            child: Text(
+              value,
+              style: GoogleFonts.fjallaOne(
+                color: Colors.white,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.25,
               ),
-              SizedBox(width: 4.w),
-              Text(
-                '8 PM',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 14.sp,
-                  color: Colors.white.withOpacity(0.7),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeatmapBpmTrendsCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              children: [
+                Text(
+                  'BPM Trends',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                SizedBox(height: 8.h),
+                Text(
+                  'Beats at 140–150 BPM sold 2.4x more this week',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.67,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-          
-          SizedBox(height: 16.h),
-          
-          // Bar chart
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildBarChartItem('Mon', 0.3),
-              _buildBarChartItem('Tue', 0.5),
-              _buildBarChartItem('Wed', 1.0),
-              _buildBarChartItem('Thu', 0.4),
-              _buildBarChartItem('Fri', 0.6),
-              _buildBarChartItem('Sat', 0.2),
-              _buildBarChartItem('Sun', 0.3),
+              Expanded(
+                child: _buildHeatmapStatBox('', '140–150'),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildHeatmapStatBox('', '2.4x'),
+              ),
             ],
           ),
         ],
@@ -939,293 +760,732 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildBarChartItem(String day, double height) {
-    return Column(
-      children: [
-        Container(
-          width: 24.w,
-          height: (height * 60).h,
-          decoration: BoxDecoration(
-            color: height == 1.0 ? Colors.white : Colors.grey.shade600,
-            borderRadius: BorderRadius.circular(2.r),
-          ),
+  Widget _buildHeatmapTopSearchesCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
         ),
-        SizedBox(height: 8.h),
-        Text(
-          day,
-          style: GoogleFonts.getFont(
-            'Wix Madefor Display',
-            fontSize: 10.sp,
-            color: Colors.white.withOpacity(0.7),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              children: [
+                Text(
+                  'Top Searches',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'The two most-searched vibes this week.',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.67,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 12.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+              color: Colors.white.withOpacity(0.07),
+            ),
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                begin: Alignment(0.3, 0.0),
+                end: Alignment(1.05, 1.0),
+                colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+                stops: [0.30, 1.0],
+              ).createShader(bounds),
+              child: Text(
+                'Drill + Trap',
+                style: GoogleFonts.fjallaOne(
+                  color: Colors.white,
+                  fontSize: 32.sp,
+                  fontWeight: FontWeight.w400,
+                  height: 1.25,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildFunnelContent() {
+  Widget _buildHeatmapSalesTrendsCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              children: [
+                Text(
+                  'Sales Trends',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Sales of trap beats were up 32% this week across the platform.',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.67,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildHeatmapStatBox('', 'Trap'),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildHeatmapStatBox('', '+32%'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeatmapPeakHoursCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              children: [
+                Text(
+                  'Peak Hours',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Peak hours show times of highest demand or activity on average throughout the week.',
+                  style: GoogleFonts.wixMadeforDisplay(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.67,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(12.w, 24.h, 12.w, 12.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+              color: Colors.white.withOpacity(0.07),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _buildHeatmapBarChartItem('12am', 56.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('3am', 81.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('6am', 112.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('9am', 65.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('12pm', 45.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('3pm', 45.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('6pm', 14.h),
+                SizedBox(width: 4.w),
+                _buildHeatmapBarChartItem('9pm', 14.h),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeatmapBarChartItem(String time, double height) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4.r),
+              color: const Color(0xFFA3A3A3),
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            time,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFD4D4D4),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              height: 1.33,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFamFunnelContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Time Period Header
-        Text(
-          'Last 7 days',
-          style: GoogleFonts.getFont(
-            'Wix Madefor Display',
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        // Filter Tags
-        Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
+        _buildFamFunnelSectionTitle('Last 7 Days Summary'),
+        SizedBox(height: 18.h),
+        Row(
           children: [
-            _buildFilterTag('All', true),
-            _buildFilterTag('Auction', false),
-            _buildFilterTag('Non-exclusive', false),
-            _buildFilterTag('Exclusive', false),
+            Expanded(
+              child: _buildFamFunnelSummaryCard(
+                label: 'Unique Buyers',
+                value: '32',
+                description: '# of unique buyers backing your sound',
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: _buildFamFunnelSummaryCard(
+                label: 'Favorited By',
+                value: '14',
+                description: '# of fans who got you as a favorite',
+              ),
+            ),
           ],
         ),
-        
-        SizedBox(height: 24.h),
-        
-        // User Interactions List
-        _buildUserInteraction(
-          username: '@CloudAce',
-          timeAgo: '1h ago',
-          action: 'Just dropped a \$20 tip',
-          hasThankButton: true,
-          isThanked: false,
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(
+              child: _buildFamFunnelTopBuyerCard(
+                label: 'Top Buyer by Sales',
+                username: '@LoFiLover',
+                description: 'Spent \$280',
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: _buildFamFunnelTopBuyerCard(
+                label: 'Top Buyer by Orders',
+                username: '@BrokeMan',
+                description: 'Placed 6 orders',
+              ),
+            ),
+          ],
         ),
-        
+        SizedBox(height: 48.h),
+        _buildFamFunnelSectionTitle('Recent Activity'),
         SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@NeonDreams',
-          timeAgo: '14 ago',
-          action: 'Auction won \$84',
-          hasThankButton: false,
-          isThanked: true,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@BrokeMan',
-          timeAgo: '2d ago',
-          action: 'Tipped \$9',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@TKOTape',
-          timeAgo: '2d ago',
-          action: 'Auction won \$79',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@TKOTape',
-          timeAgo: '2d ago',
-          action: 'Auction won \$79',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@ArtisanSoul',
-          timeAgo: '3d ago',
-          action: 'Just scored a limited edition for \$150',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@VividPixels',
-          timeAgo: '3d ago',
-          action: 'dropped a generous \$25 tip',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
-        SizedBox(height: 16.h),
-        
-        _buildUserInteraction(
-          username: '@VividPixels',
-          timeAgo: '3d ago',
-          action: 'dropped a generous \$25 tip',
-          hasThankButton: true,
-          isThanked: false,
-        ),
-        
+        _buildFamFunnelActivityFilters(),
+        SizedBox(height: 8.h),
+        _buildFamFunnelActivityList(),
         SizedBox(height: 32.h),
       ],
     );
   }
 
+  Widget _buildFamFunnelSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.fjallaOne(
+        color: Colors.white,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w400,
+        height: 1.25,
+      ),
+    );
+  }
 
-  Widget _buildFilterTag(String label, bool isSelected) {
+  Widget _buildFamFunnelSummaryCard({
+    required String label,
+    required String value,
+    required String description,
+  }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      constraints: BoxConstraints(minHeight: 168.h),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withOpacity(0.10),
           width: 1,
         ),
+        color: Colors.white.withOpacity(0.05),
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.getFont(
-          'Wix Madefor Display',
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w500,
-          color: isSelected ? Colors.black : Colors.white.withOpacity(0.8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFA3A3A3),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20.h),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment(0.3, 0.0),
+              end: Alignment(1.05, 1.0),
+              colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+              stops: [0.30, 1.0],
+            ).createShader(bounds),
+            child: Text(
+              value,
+              style: GoogleFonts.fjallaOne(
+                color: Colors.white,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.25,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            description,
+            style: GoogleFonts.wixMadeforDisplay(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              height: 1.33,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFamFunnelTopBuyerCard({
+    required String label,
+    required String username,
+    required String description,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFA3A3A3),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12.h),
+          Column(
+            children: [
+              SizedBox(
+                height: 76.h,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 32.w,
+                      height: 32.w,
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.r),
+                        color: Colors.white.withOpacity(0.25),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      username,
+                      style: GoogleFonts.fjallaOne(
+                        color: const Color(0xFFE5E5E5),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        height: 1.67,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                description,
+                style: GoogleFonts.wixMadeforDisplay(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  height: 1.33,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFamFunnelActivityFilters() {
+    final filters = [
+      {'label': 'All', 'value': 'all'},
+      {'label': 'Auction Wins', 'value': 'auction_wins'},
+      {'label': 'Storefront', 'value': 'storefront'},
+      {'label': 'Tips', 'value': 'tips'},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < filters.length; i++) ...[
+            if (i > 0) SizedBox(width: 8.w),
+            _buildFamFunnelFilterButton(
+              label: filters[i]['label'] as String,
+              value: filters[i]['value'] as String,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFamFunnelFilterButton({required String label, required String value}) {
+    final isSelected = _selectedActivityFilter == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedActivityFilter = value;
+        });
+      },
+      child: Container(
+        height: 32.h,
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.r),
+          color: isSelected ? const Color(0xFFFAFAFA) : const Color(0xFF404040),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.fjallaOne(
+              color: isSelected ? const Color(0xFF080808) : const Color(0xFFFAFAFA),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.33,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUserInteraction({
-    required String username,
-    required String timeAgo,
-    required String action,
-    required bool hasThankButton,
-    required bool isThanked,
-  }) {
-    return Row(
+  Widget _buildFamFunnelActivityList() {
+    final activities = [
+      {
+        'username': '@CloudAce',
+        'time': '1h ago',
+        'description': 'just dropped a \$20 tip',
+        'buttonText': 'Send Thanks',
+        'buttonStyle': 'primary',
+        'type': 'tips',
+      },
+      {
+        'username': '@NeonDreams',
+        'time': '1d ago',
+        'description': 'Auction win \$84',
+        'buttonText': '✅ Thanked',
+        'buttonStyle': 'secondary',
+        'type': 'auction_wins',
+      },
+      {
+        'username': '@BrokeMan',
+        'time': '2d ago',
+        'description': 'Tipped \$9',
+        'buttonText': 'Send Thanks',
+        'buttonStyle': 'primary',
+        'type': 'tips',
+      },
+      {
+        'username': '@TKOTape',
+        'time': '2d ago',
+        'description': 'Auction win \$79',
+        'buttonText': 'Send Thanks',
+        'buttonStyle': 'primary',
+        'type': 'auction_wins',
+      },
+      {
+        'username': '@ArtisanSoul',
+        'time': '3d ago',
+        'description': 'just scored a limited edition for \$150',
+        'buttonText': 'Send Thanks',
+        'buttonStyle': 'primary',
+        'type': 'storefront',
+      },
+      {
+        'username': '@VividPixels',
+        'time': '3d ago',
+        'description': 'dropped a generous \$25 tip',
+        'buttonText': 'Send Thanks',
+        'buttonStyle': 'primary',
+        'type': 'tips',
+      },
+      {
+        'username': '@RogueArtist',
+        'time': '4d ago',
+        'description': 'Auctioned off a piece for \$300',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'auction_wins',
+      },
+      {
+        'username': '@SonicWave',
+        'time': '4d ago',
+        'description': 'picked up a bundle for \$60',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'storefront',
+      },
+      {
+        'username': '@CreativeMind',
+        'time': '5d ago',
+        'description': 'left a glowing review with a \$15 tip',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'tips',
+      },
+      {
+        'username': '@PixelPioneer',
+        'time': '5d ago',
+        'description': 'just bought a unique digital painting for \$200',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'storefront',
+      },
+      {
+        'username': '@ArtLover99',
+        'time': '6d ago',
+        'description': 'dropped a \$30 tip on a new release',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'tips',
+      },
+      {
+        'username': '@DesignGuru',
+        'time': '6d ago',
+        'description': 'snagged a collaboration piece for \$120',
+        'buttonText': null,
+        'buttonStyle': null,
+        'type': 'storefront',
+      },
+    ];
+
+    final filteredActivities = (_selectedActivityFilter == 'all'
+            ? activities
+            : activities
+                .where((activity) => activity['type'] == _selectedActivityFilter)
+                .toList())
+        .where((activity) =>
+            activity['buttonText'] != null && activity['buttonStyle'] != null)
+        .toList();
+
+    return Column(
       children: [
-        // User Avatar
-        Container(
-          width: 40.w,
-          height: 40.h,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade700,
-            shape: BoxShape.circle,
+        for (int i = 0; i < filteredActivities.length; i++) ...[
+          if (i == 0) _buildFamFunnelDivider(),
+          _buildFamFunnelActivityItem(
+            username: filteredActivities[i]['username'] as String,
+            time: filteredActivities[i]['time'] as String,
+            description: filteredActivities[i]['description'] as String,
+            buttonText: filteredActivities[i]['buttonText'] as String,
+            buttonStyle: filteredActivities[i]['buttonStyle'] as String,
           ),
-          child: Icon(
-            Icons.person,
-            color: Colors.white.withOpacity(0.7),
-            size: 20.sp,
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // User Info
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    username,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    timeAgo,
-                    style: GoogleFonts.getFont(
-                      'Wix Madefor Display',
-                      fontSize: 12.sp,
-                      color: Colors.white.withOpacity(0.6),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                action,
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 13.sp,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        SizedBox(width: 12.w),
-        
-        // Action Button
-        if (isThanked)
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: Colors.green.withOpacity(0.5),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+          if (i < filteredActivities.length - 1) _buildFamFunnelDivider(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFamFunnelDivider() {
+    return Container(
+      width: double.infinity,
+      height: 1.h,
+      color: Colors.white.withOpacity(0.10),
+    );
+  }
+
+  Widget _buildFamFunnelActivityItem({
+    required String username,
+    required String time,
+    required String description,
+    required String buttonText,
+    required String buttonStyle,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.check,
-                  color: Colors.green,
-                  size: 14.sp,
+                Row(
+                  children: [
+                    Container(
+                      width: 20.w,
+                      height: 20.w,
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.r),
+                        color: Colors.white.withOpacity(0.25),
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      username,
+                      style: GoogleFonts.fjallaOne(
+                        color: const Color(0xFFE5E5E5),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        height: 1.67,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      '·',
+                      style: GoogleFonts.fjallaOne(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        height: 1.67,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      time,
+                      style: GoogleFonts.wixMadeforDisplay(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 2.0,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(height: 4.h),
                 Text(
-                  'Thanked',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
+                  description,
+                  style: GoogleFonts.wixMadeforDisplay(
+                    color: Colors.white.withOpacity(0.6),
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                    height: 1.67,
                   ),
                 ),
               ],
             ),
-          )
-        else if (hasThankButton)
-          GestureDetector(
-            onTap: () {
-              _showThankMessage(username);
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
+          ),
+          SizedBox(width: 12.w),
+          Container(
+            height: 32.h,
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.r),
+              color: buttonStyle == 'primary'
+                  ? Colors.white
+                  : const Color(0xFF1F1F1F),
+            ),
+            child: Center(
               child: Text(
-                'Send Thanks',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
+                buttonText,
+                style: GoogleFonts.fjallaOne(
+                  color: buttonStyle == 'primary' ? Colors.black : Colors.white,
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  fontWeight: FontWeight.w400,
+                  height: 1.33,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1252,425 +1512,258 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(height: 12.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: _buildHeader(),
+            ),
+            SizedBox(height: 16.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: _buildTitle(),
+            ),
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: _buildTabBarContainer(),
+            ),
+            SizedBox(height: 24.h),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h),
+                child: _buildSelectedTabContent(),
+              ),
+            ),
+            _buildHomeIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
       children: [
-        SizedBox(height: 20.h),
-        
-        // Tab Bar
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 24.w),
-          child:           TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            onTap: (index) {
-              setState(() {
-                _selectedTabIndex = index;
-              });
-            },
-            tabs: [
-              _buildTab('Stats', 0),
-              _buildTab('Heatmap', 1),
-              _buildTab('Fam Funnel', 2),
-              _buildTab('Beat Performance', 3),
-            ],
-            indicatorColor: AppTheme.accentColor,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white.withOpacity(0.6),
-            indicatorWeight: 2,
-            dividerColor: Colors.transparent,
+        GestureDetector(
+          onTap: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+            size: 20.sp,
           ),
         ),
-        
-        SizedBox(height: 24.h),
-        
-        // Main Content
-        Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 100.h), // Added bottom padding
-            child: _selectedTabIndex == 1 
-                ? _buildHeatmapContent()
-                : _selectedTabIndex == 2 
-                    ? _buildFunnelContent()
-                    : _selectedTabIndex == 3
-                        ? _buildPerformanceContent()
-                        : Column(
-                        children: [
-                          // Total Earned Section (full width at top)
-                          _buildTotalEarnedSection(),
-                          
-                          SizedBox(height: 24.h),
-                          
-                          // Stats Grid (Auction hosted + Grab Bag Streams side by side)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatCard(
-                                  'Auctions Hosted',
-                                  '4',
-                                  Icons.gavel,
-                                ),
-                              ),
-                              SizedBox(width: 16.w),
-                              Expanded(
-                                child: _buildStatCard(
-                                  'Grab Bag Streams',
-                                  '8',
-                                  Icons.shopping_bag,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          SizedBox(height: 24.h),
-                          
-                          // Current Level Section (full width at bottom)
-                          _buildCurrentLevelSection(),
-                          
-                          SizedBox(height: 32.h),
-                        ],
-                      ),
-          ),
-        ),
+        const Expanded(child: SizedBox()),
       ],
     );
   }
 
-  Widget _buildTab(String title, int index) {
-    final isSelected = _selectedTabIndex == index;
-    return Tab(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 4.w),
-        child: Text(
-          title,
-          style: GoogleFonts.getFont(
-            'Wix Madefor Display',
-            fontSize: 10.sp,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.6),
-          ),
-        ),
+  Widget _buildTitle() {
+    return Text(
+      'Analytics',
+      style: GoogleFonts.getFont(
+        'Wix Madefor Display',
+        color: Colors.white,
+        fontSize: 22.sp,
+        fontWeight: FontWeight.w500,
+        height: 1.27,
       ),
     );
   }
 
-  Widget _buildTotalEarnedSection() {
+  Widget _buildTabBarContainer() {
     return Container(
-      padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withOpacity(0.15),
+            width: 1,
+          ),
+        ),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        onTap: (index) {
+          setState(() {
+            _selectedTabIndex = index;
+          });
+        },
+        tabs: const [
+          Tab(text: 'Overview'),
+          Tab(text: 'Heatmap'),
+          Tab(text: 'Fam Funnel'),
+          Tab(text: 'Performance'),
+        ],
+        indicator: const UnderlineTabIndicator(
+          borderSide: BorderSide(color: Colors.white, width: 1),
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        labelPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+        labelStyle: GoogleFonts.getFont(
+          'Wix Madefor Display',
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withOpacity(0.5),
+        unselectedLabelStyle: GoogleFonts.getFont(
+          'Wix Madefor Display',
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        dividerColor: Colors.transparent,
+      ),
+    );
+  }
+
+  Widget _buildSelectedTabContent() {
+    switch (_selectedTabIndex) {
+      case 1:
+        return _buildHeatmapContent();
+      case 2:
+        return _buildFamFunnelContent();
+      case 3:
+        return _buildPerformanceContent();
+      default:
+        return _buildOverviewContent();
+    }
+  }
+
+  Widget _buildOverviewContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildOverviewTotalEarnedCard(),
+        SizedBox(height: 10.h),
+        _buildOverviewPeerComparisonCard(),
+        SizedBox(height: 10.h),
+        _buildOverviewStatsRow1(),
+        SizedBox(height: 10.h),
+        _buildOverviewStatsRow2(),
+        SizedBox(height: 10.h),
+        _buildOverviewSalesSpreadCard(),
+        SizedBox(height: 10.h),
+        _buildOverviewCurrentLevelCard(),
+      ],
+    );
+  }
+
+  Widget _buildOverviewTotalEarnedCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withOpacity(0.10),
           width: 1,
         ),
+        color: Colors.white.withOpacity(0.05),
       ),
       child: Column(
         children: [
-          // Total Earned Header
-          Text(
-            'Total Earned',
-            style: GoogleFonts.fjallaOne(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-            ),
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          // Amount
-          Text(
-            '\$1,284',
-            style: _getSilverGradientTextStyle(32.sp),
-          ),
-          
-          SizedBox(height: 24.h),
-          
-          // Progress Bar
-          _buildProgressBar(),
-          
-          SizedBox(height: 16.h),
-          
-          // Beats and Tips
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Beats',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '\$1004',
-                    style: _getSilverGradientTextStyle(16.sp),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Tips',
-                    style: GoogleFonts.fjallaOne(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '\$280',
-                    style: _getSilverGradientTextStyle(16.sp),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          
-          SizedBox(height: 16.h),
-          
-          // Earnings Comparison Message
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            padding: EdgeInsets.all(12.w),
+            child: Column(
               children: [
-                Icon(
-                  _isGain ? Icons.trending_up : Icons.trending_down,
-                  color: _isGain ? Colors.green : Colors.red,
-                  size: 16.sp,
-                ),
-                SizedBox(width: 6.w),
                 Text(
-                  'You earned',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    color: Colors.white,
+                  'Total Earned',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                SizedBox(width: 4.w),
-                Text(
-                  '${_earningsMultiplier}x',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: _isGain ? Colors.green : Colors.red,
-                  ),
-                ),
-                SizedBox(width: 4.w),
-                Text(
-                  'more this month',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    color: Colors.white,
+                SizedBox(height: 16.h),
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+                  ).createShader(bounds),
+                  child: Text(
+                    '\$1,284',
+                    style: GoogleFonts.fjallaOne(
+                      color: Colors.white,
+                      fontSize: 40.sp,
+                      fontWeight: FontWeight.w400,
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressBar() {
-    return Container(
-      height: 8.h,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4.r),
-      ),
-      child: Row(
-        children: [
-          // Beats progress (78%)
-          Expanded(
-            flex: 78,
-            child: Container(
-              height: 8.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(4.r),
-                  bottomLeft: Radius.circular(4.r),
-                ),
-              ),
-            ),
-          ),
-          
-          // Tips progress (22%)
-          Expanded(
-            flex: 22,
-            child: Container(
-              height: 8.h,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade600,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(4.r),
-                  bottomRight: Radius.circular(4.r),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          // Title (moved up)
-          Text(
-            title,
-            style: GoogleFonts.fjallaOne(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          SizedBox(height: 12.h),
-          
-          // Value (moved down)
-          Text(
-            value,
-            style: _getSilverGradientTextStyle(24.sp),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCurrentLevelSection() {
-    return Container(
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          // Current Level Header
-          Text(
-            'Current Level',
-            style: GoogleFonts.fjallaOne(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w300,
-              color: Colors.white,
-            ),
-          ),
-          
-          SizedBox(height: 20.h),
-          
-          // Level Icons Row
+          SizedBox(height: 4.h),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildLevelIcon('XP', false, false),
-              _buildLevelIcon('', true, true), // Current level - hexagon
-              _buildLevelIcon('', false, true), // Locked level
-            ],
-          ),
-          
-          SizedBox(height: 20.h),
-          
-          // XP Amount
-          Text(
-            '500 XP',
-            style: _getSilverGradientTextStyle(16.sp),
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          // Level Name
-          Text(
-            'Hustler',
-            style: _getSilverGradientTextStyle(24.sp),
-          ),
-          
-          SizedBox(height: 12.h),
-          
-          // Next Level Info
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Next Level: ',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 12.sp,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-              ),
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Color(0xFFFFD700), // Gold
-                    Color(0xFFFFA500), // Orange
-                    Color(0xFFFFD700), // Gold
-                    Color(0xFFFFA500), // Orange
-                  ],
-                  stops: [0.0, 0.3, 0.7, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: Text(
-                  'Mogul',
-                  style: GoogleFonts.getFont(
-                    'Wix Madefor Display',
-                    fontSize: 12.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+              Expanded(
+                flex: 504,
+                child: Container(
+                  height: 12.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12.r),
+                      bottomLeft: Radius.circular(12.r),
+                    ),
+                    color: const Color(0xFFF3F3F3),
                   ),
                 ),
               ),
-              SizedBox(width: 4.w),
-              Icon(
-                Icons.lock,
-                color: Colors.white.withOpacity(0.7),
-                size: 12.sp,
+              Container(
+                width: 96.w,
+                height: 12.h,
+                color: const Color(0xFFA3A3A3),
+              ),
+              Container(
+                width: 49.w,
+                height: 12.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(12.r),
+                    bottomRight: Radius.circular(12.r),
+                  ),
+                  color: const Color(0xFF737373),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildOverviewEarningCategory(
+                  color: const Color(0xFFF3F3F3),
+                  label: 'Auctions',
+                  amount: '\$504',
+                ),
               ),
               SizedBox(width: 4.w),
-              Text(
-                '(100 XP left)',
-                style: GoogleFonts.getFont(
-                  'Wix Madefor Display',
-                  fontSize: 12.sp,
-                  color: Colors.white.withOpacity(0.7),
+              Expanded(
+                child: _buildOverviewEarningCategory(
+                  color: const Color(0xFFA3A3A3),
+                  label: 'Storefront',
+                  amount: '\$500',
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: _buildOverviewEarningCategory(
+                  color: const Color(0xFF737373),
+                  label: 'Tips',
+                  amount: '\$280',
                 ),
               ),
             ],
@@ -1680,66 +1773,558 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildLevelIcon(String text, bool isCurrent, bool isLocked) {
+  Widget _buildOverviewEarningCategory({
+    required Color color,
+    required String label,
+    required String amount,
+  }) {
     return Container(
-      width: 60.w,
-      height: 60.h,
-      child: CustomPaint(
-        painter: isLocked ? GoldenGradientHexagonPainter() : SilverGradientHexagonPainter(),
-        child: Center(
-          child: isCurrent
-              ? Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 24.sp,
-                )
-              : isLocked
-                  ? Icon(
-                      Icons.lock,
-                      color: Colors.white,
-                      size: 20.sp,
-                    )
-                  : Text(
-                      text,
-                      style: GoogleFonts.fjallaOne(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        color: Colors.white.withOpacity(0.07),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8.r,
+                height: 8.r,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2.r),
+                  color: color,
+                ),
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                label,
+                style: GoogleFonts.fjallaOne(
+                  color: const Color(0xFFA3A3A3),
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w400,
+                  height: 1.33,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            amount,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFFAFAFA),
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.56,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewPeerComparisonCard() {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Peer Comparison',
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFA3A3A3),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            'You\'re ranking in the top 15% of all BAGR producers: sales, streams, and tips. Keep pushing 💪',
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFD4D4D4),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              height: 1.33,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewStatsRow1() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildOverviewStatCard(
+            label: 'Auctions Hosted',
+            value: '14',
+          ),
+        ),
+        SizedBox(width: 10.w),
+        Expanded(
+          child: _buildOverviewStatCard(
+            label: 'Grab Bag Streams',
+            value: '38',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewStatsRow2() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildOverviewStatCard(
+            label: 'Avg. Order Value',
+            value: '\$85.40',
+          ),
+        ),
+        SizedBox(width: 10.w),
+        Expanded(
+          child: _buildOverviewStatCard(
+            label: 'Avg. Order Count',
+            value: '2.7',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewStatCard({
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFA3A3A3),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12.h),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment(0.5, 0.0),
+              end: Alignment(1.5, 1.0),
+              colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+            ).createShader(bounds),
+            child: Text(
+              value,
+              style: GoogleFonts.fjallaOne(
+                color: Colors.white,
+                fontSize: 26.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.23,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewSalesSpreadCard() {
+    return Container(
+      padding: EdgeInsets.all(8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Column(
+              children: [
+                Text(
+                  'Sales Spread',
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 16.h),
+                SizedBox(
+                  width: 168.w,
+                  height: 168.w,
+                  child: CustomPaint(
+                    painter: DonutChartPainter(
+                      segments: [
+                        ChartSegment(percentage: 0.40, color: const Color(0xFFD4D4D4)),
+                        ChartSegment(percentage: 0.30, color: const Color(0xFF737373)),
+                        ChartSegment(percentage: 0.30, color: const Color(0xFF404040)),
+                      ],
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              begin: Alignment(-0.5, -1.0),
+                              end: Alignment(1.0, 0.5),
+                              colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+                            ).createShader(bounds),
+                            child: Text(
+                              '325',
+                              style: GoogleFonts.fjallaOne(
+                                color: Colors.white,
+                                fontSize: 32.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'total # of sales',
+                            style: GoogleFonts.fjallaOne(
+                              color: const Color(0xFFA3A3A3),
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildOverviewSalesCategory(
+                  color: const Color(0xFFD4D4D4),
+                  label: 'Auctions',
+                  percentage: '40%',
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: _buildOverviewSalesCategory(
+                  color: const Color(0xFF737373),
+                  label: 'Beats/Loops',
+                  percentage: '30%',
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: _buildOverviewSalesCategory(
+                  color: const Color(0xFF404040),
+                  label: 'Packs/Kits',
+                  percentage: '30%',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewSalesCategory({
+    required Color color,
+    required String label,
+    required String percentage,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        color: Colors.white.withOpacity(0.07),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8.r,
+                height: 8.r,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2.r),
+                  color: color,
+                ),
+              ),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.fjallaOne(
+                    color: const Color(0xFFA3A3A3),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.33,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            percentage,
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFFAFAFA),
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.56,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewCurrentLevelCard() {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.10),
+          width: 1,
+        ),
+        color: Colors.white.withOpacity(0.05),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Current Level',
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFA3A3A3),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+              height: 1.14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildOverviewLevelIcon(size: 44.w, isLocked: false, isActive: false),
+              SizedBox(width: 48.w),
+              _buildOverviewLevelIcon(size: 73.33.w, isLocked: false, isActive: true),
+              SizedBox(width: 48.w),
+              _buildOverviewLevelIcon(size: 44.w, isLocked: true, isActive: false),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50.r),
+              color: Colors.white.withOpacity(0.12),
+            ),
+            child: Text(
+              '500 XP',
+              style: GoogleFonts.fjallaOne(
+                color: Colors.white,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                height: 1.33,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFFFFFF), Color(0xFF999999)],
+            ).createShader(bounds),
+            child: Text(
+              'Hustler',
+              style: GoogleFonts.fjallaOne(
+                color: Colors.white,
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.33,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Next Level: Mogul 🔓 (100 XP left)',
+            style: GoogleFonts.fjallaOne(
+              color: const Color(0xFFD4D4D4),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              height: 1.33,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewLevelIcon({
+    required double size,
+    required bool isLocked,
+    required bool isActive,
+  }) {
+    return SizedBox(
+      width: size,
+      height: size * 48 / 44,
+      child: CustomPaint(
+        painter: HexagonIconPainter(
+          isLocked: isLocked,
+          isActive: isActive,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeIndicator() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h, top: 8.h),
+      child: Center(
+        child: Container(
+          width: 139.w,
+          height: 5.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100.r),
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 }
 
-class HexagonPainter extends CustomPainter {
+class ChartSegment {
+  final double percentage;
   final Color color;
-  final Color borderColor;
 
-  HexagonPainter({required this.color, required this.borderColor});
+  ChartSegment({required this.percentage, required this.color});
+}
+
+class DonutChartPainter extends CustomPainter {
+  final List<ChartSegment> segments;
+
+  DonutChartPainter({required this.segments});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final innerRadius = radius * 0.62;
+
+    final bgPaint = Paint()
+      ..color = const Color(0xFF404040)
       ..style = PaintingStyle.fill;
 
-    final borderPaint = Paint()
-      ..color = borderColor
+    final bgStrokePaint = Paint()
+      ..color = const Color(0xFF0D0D0D)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2;
+
+    canvas.drawCircle(center, radius - 1, bgPaint);
+    canvas.drawCircle(center, radius - 1, bgStrokePaint);
+
+    double startAngle = -math.pi / 2;
+
+    for (final segment in segments) {
+      final sweepAngle = 2 * math.pi * segment.percentage;
+
+      final segmentPaint = Paint()
+        ..color = segment.color
+        ..style = PaintingStyle.fill;
+
+      final segmentStrokePaint = Paint()
+        ..color = const Color(0xFF0D0D0D)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4;
+
+      final path = Path()
+        ..moveTo(center.dx, center.dy)
+        ..arcTo(
+          Rect.fromCircle(center: center, radius: radius),
+          startAngle,
+          sweepAngle,
+          false,
+        )
+        ..close();
+
+      canvas.drawPath(path, segmentPaint);
+      canvas.drawPath(path, segmentStrokePaint);
+
+      startAngle += sweepAngle;
+    }
+
+    final innerCirclePaint = Paint()
+      ..color = const Color(0xFF0D0D0D)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, innerRadius, innerCirclePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class HexagonIconPainter extends CustomPainter {
+  final bool isLocked;
+  final bool isActive;
+
+  HexagonIconPainter({required this.isLocked, required this.isActive});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final width = size.width;
+    final height = size.height;
 
     final path = Path();
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 4;
+    final centerX = width / 2;
+    final centerY = height / 2;
+    final hexRadius = width * 0.45;
 
-    // Create proper hexagon path
     for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 - 90) * (3.14159 / 180); // Start from top
-      final x = center.dx + radius * cos(angle);
-      final y = center.dy + radius * sin(angle);
-      
+      final angle = (math.pi / 3) * i - math.pi / 6;
+      final x = centerX + hexRadius * math.cos(angle);
+      final y = centerY + hexRadius * math.sin(angle);
+
       if (i == 0) {
         path.moveTo(x, y);
       } else {
@@ -1748,120 +2333,88 @@ class HexagonPainter extends CustomPainter {
     }
     path.close();
 
-    canvas.drawPath(path, paint);
-    canvas.drawPath(path, borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class SilverGradientHexagonPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final fillPaint = Paint()
+      ..color = const Color(0xFF262626)
       ..style = PaintingStyle.fill;
 
-    final path = Path();
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 2;
+    canvas.drawPath(path, fillPaint);
 
-    // Create hexagon path
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 - 90) * (3.14159 / 180); // Start from top
-      final x = center.dx + radius * cos(angle);
-      final y = center.dy + radius * sin(angle);
-      
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-
-    // Apply silver gradient
-    final rect = Rect.fromCenter(center: center, width: size.width, height: size.height);
-    paint.shader = LinearGradient(
-      colors: [
-        Color(0xFFC0C0C0), // Light Silver
-        Color(0xFFE5E5E5), // Bright Silver
-        Color(0xFF808080), // Medium Silver
-        Color(0xFFC0C0C0), // Light Silver
-      ],
-      stops: [0.0, 0.33, 0.66, 1.0],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ).createShader(rect);
-
-    canvas.drawPath(path, paint);
-
-    // Add subtle border
-    final borderPaint = Paint()
+    final strokePaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withOpacity(0.6),
+          Colors.white.withOpacity(0.0),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, width, height))
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = Colors.white.withOpacity(0.3);
+      ..strokeWidth = 0.5;
 
-    canvas.drawPath(path, borderPaint);
+    canvas.drawPath(path, strokePaint);
+
+    if (isLocked) {
+      final lockPaint = Paint()
+        ..shader = LinearGradient(
+          begin: const Alignment(-0.2, -1.0),
+          end: const Alignment(1.5, 1.5),
+          colors: [
+            Colors.white.withOpacity(0.9),
+            const Color(0xFFE5E5E5).withOpacity(0.4),
+            const Color(0xFF999999),
+          ],
+          stops: const [0.0, 0.36, 1.0],
+        ).createShader(Rect.fromLTWH(0, 0, width, height))
+        ..style = PaintingStyle.fill;
+
+      final lockPath = Path();
+      final lockCenterX = centerX;
+      final lockCenterY = centerY + height * 0.05;
+      final lockWidth = width * 0.4;
+      final lockHeight = height * 0.45;
+
+      lockPath.addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset(lockCenterX, lockCenterY),
+            width: lockWidth,
+            height: lockHeight * 0.7,
+          ),
+          const Radius.circular(2),
+        ),
+      );
+
+      final arcRect = Rect.fromCenter(
+        center: Offset(lockCenterX, lockCenterY - lockHeight * 0.25),
+        width: lockWidth * 0.6,
+        height: lockHeight * 0.5,
+      );
+      lockPath.addArc(arcRect, math.pi, math.pi);
+
+      canvas.drawPath(lockPath, lockPaint);
+    } else {
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: 'XP',
+          style: TextStyle(
+            color: Colors.white.withOpacity(isActive ? 0.8 : 0.3),
+            fontSize: width * 0.25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          centerX - textPainter.width / 2,
+          centerY - textPainter.height / 2,
+        ),
+      );
+    }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-
-class GoldenGradientHexagonPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 2;
-
-    // Create hexagon path
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 - 90) * (3.14159 / 180); // Start from top
-      final x = center.dx + radius * cos(angle);
-      final y = center.dy + radius * sin(angle);
-      
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-
-    // Apply golden gradient
-    final rect = Rect.fromCenter(center: center, width: size.width, height: size.height);
-    paint.shader = LinearGradient(
-      colors: [
-        Color(0xFFFFD700), // Gold
-        Color(0xFFFFA500), // Orange
-        Color(0xFFFFD700), // Gold
-        Color(0xFFFFA500), // Orange
-      ],
-      stops: [0.0, 0.3, 0.7, 1.0],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ).createShader(rect);
-
-    canvas.drawPath(path, paint);
-
-    // Add subtle border
-    final borderPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = Colors.white.withOpacity(0.3);
-
-    canvas.drawPath(path, borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// Add cos and sin functions
-double cos(double radians) => math.cos(radians);
-double sin(double radians) => math.sin(radians);
